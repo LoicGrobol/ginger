@@ -1,0 +1,33 @@
+{
+    "name": "ginger",
+    "version": "0.0.0",
+    "description": "ASCII-art representation of Universal Dependency trees",
+    "url": "https://github.com/evpok/ginger",
+
+    "author":{
+            "name": "Loïc Grobol",
+            "email": "loic.grobol@gmail.com"
+        },
+
+    "license": "MIT",
+    "keywords": ["nlp", "syntax", "universal dependencies"],
+
+    "classifiers": [
+        "Development Status :: 3 - Alpha",
+        "Environment :: Console",
+        "License :: OSI Approved :: MIT License"
+    ],
+
+    "dependencies": {},
+
+    "files": [],
+
+    "packages": {},
+    "packages_data": {},
+
+    "entry_points": {
+        "console_scripts": {
+            "ginger": "ginger.ginger:main_entry_point"
+        }
+    }
+}
