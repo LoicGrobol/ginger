@@ -1,8 +1,8 @@
 {
     "name": "ginger",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "ASCII-art representation of Universal Dependency trees",
-    "url": "https://github.com/evpok/ginger",
+    "url": "https://github.com/loic-grobol/ginger",
 
     "author":{
             "name": "Loïc Grobol",

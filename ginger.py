@@ -15,13 +15,16 @@ Example:
   `ginger input.conll output.ascii_art`
 """
 
-__version__ = 'ginger 0.0.0'
+__version__ = 'ginger 0.0.1'
 
 import sys
 import contextlib
 from docopt import docopt
 
-from . import libginger
+try:
+    from . import libginger
+except SystemError:  # Allow running without installing
+    import libginger
 
 
 # Thanks http://stackoverflow.com/a/17603000/760767
