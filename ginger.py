@@ -27,6 +27,9 @@ import sys
 import contextlib
 from docopt import docopt
 
+import signal
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
 try:
     import libginger
     import libtreebank
