@@ -2,14 +2,20 @@
 r"""ASCII-art representation of Universal Dependency trees
 
 Usage:
-  ginger <in-file> [<out-file>]
+  ginger [--format <format>] <in-file> [<out-file>]
 
 Arguments:
-  <in-file>   input file (in CoNLL-U format), `-` for standard input
-  <out-file>  output file, `-` standard input [default: -]
+  <in-file>   input file `-` for standard input
+  <out-file>  output file, `-` for standard input [default: -]
 
 Options:
+  -f, --format <format> input file format, see below [default: guess]
   -h, --help  Show this screen.
+
+Formats:
+  - `guess` Try to guess the file format, defaults to CoNLL-U
+  - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
+  - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
 
 Example:
   `ginger input.conll output.ascii_art`
@@ -22,9 +28,11 @@ import contextlib
 from docopt import docopt
 
 try:
-    from . import libginger
-except SystemError:  # Allow running without installing
     import libginger
+    import libtreebank
+except ImportError:
+    from . import libginger
+    from . import libtreebank
 
 
 # Thanks http://stackoverflow.com/a/17603000/760767
@@ -54,6 +62,11 @@ def main_entry_point(argv=sys.argv[1:]):
     with smart_open(arguments['<in-file>']) as in_stream:
         conll_str = in_stream.read()
 
+    if arguments['--format'] == 'guess' or arguments['--format'] is None:
+        arguments['--format'] = libtreebank.guess(conll_str)
+
+    # Conversion between formats
+    conll_str = '\n'.join(libtreebank.formats[arguments['--format']](l) for l in conll_str.splitlines())
     conll_trees = conll_str.strip().split('\n\n')
 
     out_str = '\n\n'.join(libginger.Tree.from_conll(t).ascii_art() for t in conll_trees)

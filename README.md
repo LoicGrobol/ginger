@@ -22,20 +22,31 @@ Test if everything work by running `ginger examples/test.conll`.
 The output should be the same as the tree above.
 
 ## Usage
-
-    ginger <in-file> [<out-file>]
+```
+ginger [--format <format>] <in-file> [<out-file>]
+```
 
 ### Arguments
   - `<in-file>`   input file (in CoNLL-U format), `-` for standard input
-  - `<out-file>`  output file, `-` standard input [default: -]
+  - `<out-file>`  output file, `-` for standard input (default: `-`)
 
 ### Options
+  - -`f`, `--format <format>` input file format, see below (default: `guess`)
   - `-h`, `--help` Get some help
+
+### Formats
+  - `guess` Try to guess the file format, defaults to CoNLL-U
+  - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
+  - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
 
 ### Examples
   - Print to stdout
     ```
     ginger examples/test.conll
+    ```
+  - Assume CoNLL-X for input format
+    ```
+    ginger -f conllx spam.conllx
     ```
   - Print to a file
     ```
@@ -58,7 +69,7 @@ Development and releases on [Github](https://github.com/loic-grobol/ginger).
   - The unit tests are in `test/` and use [pytest](http://pytest.org). They are a bit of a joke right now, though.
 
 ## License
-This licence (the so-called “MIT License”) is applicable to all the files in this repository.
+This licence (the so-called “MIT License”) applies to all the files in this repository.
 See also [LICENSE.md](LICENSE.md).
 
 ```
