@@ -21,7 +21,7 @@ Example:
   `ginger input.conll output.ascii_art`
 """
 
-__version__ = 'ginger 0.0.1'
+__version__ = 'ginger 0.1.0'
 
 import sys
 import contextlib
