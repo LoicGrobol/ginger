@@ -1,7 +1,7 @@
 Ginger
 ======
 
-ASCII-art representation of [Universal Dependencies](http://universaldependencies.org) trees.
+Graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
 
 ```
 │
@@ -13,6 +13,8 @@ ASCII-art representation of [Universal Dependencies](http://universaldependencie
 ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ```
 
+[[https://github.com/loic-grobol/ginger/blob/master/doc/tree.png|alt=2d graphical representation]]
+
 ## Installation
 
 No installation needed, just run `ginger.py`.
@@ -23,7 +25,7 @@ The output should be the same as the tree above.
 
 ## Usage
 ```
-ginger [--format <format>] <in-file> [<out-file>]
+ginger [--from <format>] <in-file> [--to] [<out-file>]
 ```
 
 ### Arguments
@@ -31,13 +33,22 @@ ginger [--format <format>] <in-file> [<out-file>]
   - `<out-file>`  output file, `-` for standard input (default: `-`)
 
 ### Options
-  - -`f`, `--format <format>` input file format, see below (default: `guess`)
+  - `-f`, `--from <format>` input file format, see below (default: `guess`)
+  - `-t`, `--to <format>`   output file foramt, see below (default: `ascii`)
   - `-h`, `--help` Get some help
 
-### Formats
+### Input formats
   - `guess` Try to guess the file format, defaults to CoNLL-U
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
+
+### Output formats
+  - `ascii` ASCII-art (using unicode character, because, yes, we are subversive)
+  - `tikz`  TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries.
+            It is only the `\tikzpicture` part, not a whole compilable document, there is
+            [an example](examples/tree.tex) of such a document in `example`. The code is quite
+            verbose since we chose to rely on TikZ' own arithmetic capabilities in order to allow
+            easier edition and reuse of the generated code.
 
 ### Examples
   - Print to stdout
@@ -47,6 +58,10 @@ ginger [--format <format>] <in-file> [<out-file>]
   - Assume CoNLL-X for input format
     ```
     ginger -f conllx spam.conllx
+    ```
+  - Output TikZ code
+    ```
+    ginger examples/test.conll -t tikz
     ```
   - Print to a file
     ```
