@@ -1,4 +1,5 @@
 r"""A toolkit for [Universal Dependencies](http://universaldependencies.org)."""
+import re
 
 import typing as ty
 import itertools as it
@@ -49,13 +50,25 @@ class Node:
 
 
 class Tree:
-    '''A dependency tree. Conceptually just a list of nodes.'''
+    '''A dependency tree. Conceptually just a list of nodes
+       with some constraints:
+           1. The nodes are sorted by identifier.
+           2. The node identifier are connexe integers.
+           3. The nodes do not reference nodes that are not in the tree.
+           4. The first node (indice 0) is a special root node
+             - Its identifier must be 0.
+             - Its form should be "ROOT".
+             - All other attributes should be left empty.'''
     def __init__(self, nodes: ty.Iterable[Node]):
-        self.nodes = list(nodes)
+        '''Return a new tree whose nodes are those in `nodes`.
+
+           Except for sorting, the nodes should respect the constraints 2, 3
+           and 4 described in the docstring of `Tree`.'''
+        self.nodes = sorted(nodes, key=lambda x: x.identifier)
         self.nodes.sort(key=lambda x: x.identifier)
         self.root = self.nodes[0]
 
-    def subtree(self, root: Node, blacklist: ty.Iterable[str] =None) -> 'Tree':
+    def subtree(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:
         """Extract the descendance of a node, does not perform any copy or
            reindexing.
 
@@ -68,8 +81,64 @@ class Tree:
             descendance = it.chain.from_iterable(aux(c) for c in children)
             return it.chain([node], descendance)
 
-        res = Tree(aux(root))
+        res = list(aux(root))
         return res
+
+    def tikz(self) -> str:
+        '''Return the TikZ code for a representation of the dependency tree.
+
+           The resulting TikZ code use the `calc`, `positioning` and
+           `shapes.multipart` libraries, make sure to include them
+           with `\\usetikzlibrary`'''
+        token_node_distance = '1em'  # Horizontal distance between the token (word) nodes
+        arrow_shift = '.3em'  # Horizontal padding between arrows
+        energy = '0.5'  # Magnitude of the tangent of the arrow path at its extremities
+        first_token_node_template = r'node[token] (t{index}) {{{form}\nodepart{{two}}{lemma}\nodepart{{three}}{upostag}}}'
+        token_node_template = r'node[token, right={token_node_distance} of t{prev}] (t{index}) {{{form}\nodepart{{two}}{lemma}\nodepart{{three}}{upostag}}}'
+        dep_template = r'\draw[->] let \p1 = ($(t{head})-(t{foot})$) in ($(t{head}.north)+({head_shift}, 0)$) ..  controls ($(t{head}.north)+({head_shift}, {{abs(\x1)*{energy}}})$) and ($(t{foot}.north)+(0, {{abs(\x1)*{energy}}})$) .. (t{foot}.north) node[midway, above=-.2em] {{\footnotesize\emph{{{deprel}}}}};'
+        root_template = r'\draw[->] ($(arcs.north west)!(t{root_index}.north)!(arcs.north east)$) node[above] {{\footnotesize\emph{{root}}}} -- (t{root_index}.north);'
+
+        # First the token nodes
+        # We don't draw the root node as a normal node
+        draw_nodes = self.nodes[1:]
+        first_token = draw_nodes[0]
+        token_nodes_lst = [first_token_node_template.format(index=first_token.identifier,
+                                                            form=tex_escape(first_token.form),
+                                                            lemma=tex_escape(first_token.lemma),
+                                                            upostag=tex_escape(first_token.upostag))]
+        token_nodes_lst += [token_node_template.format(token_node_distance=token_node_distance,
+                                                       prev=p.identifier, index=c.identifier,
+                                                       form=tex_escape(c.form),
+                                                       lemma=tex_escape(c.lemma),
+                                                       upostag=tex_escape(c.upostag))
+                            for p, c in zip(draw_nodes, draw_nodes[1:])]
+        token_nodes = '\n        '.join(token_nodes_lst)
+
+        # Now the relations
+        relations_lst = [dep_template.format(
+            head=n.head.identifier, foot=n.identifier, deprel=tex_escape(n.deprel),
+            energy=energy,
+            head_shift=('-' if n.head.identifier > n.identifier else '') + arrow_shift)
+                         for n in draw_nodes if n.head.identifier != 0]
+        dependencies = '\n        '.join(relations_lst)
+
+        # And finally the roots
+        root_lst = [root_template.format(root_index=n.identifier)
+                    for n in draw_nodes if n.head.identifier == 0]
+        roots = '\n        '.join(root_lst)
+        res_template = (r'''
+\begin{{tikzpicture}}[>=stealth, token/.style={{text height=1em, rectangle split, rectangle split parts=3}}]
+    \path[anchor=base]
+        {token_nodes};
+    \begin{{scope}}[local bounding box=arcs]
+        {dependencies}
+    \end{{scope}}
+
+    {roots}
+\end{{tikzpicture}}''')[1:]  # Stupid trick for nice display
+        return res_template.format(token_nodes=token_nodes,
+                                   dependencies=dependencies,
+                                   roots=roots)
 
     # TODO: This (the code) could probably be prettier
     # TODO: For extra display prettiness, a node should be able to have both a forward and a backward outgoing arrow
@@ -252,3 +321,23 @@ class Tree:
             n.deps = [(res[head], dep) for head, dep in n.deps]
 
         return cls(res)
+
+
+def tex_escape(text: str) -> str:
+    """Thanks [Mark](http://stackoverflow.com/a/25875504/760767)"""
+    conv = {
+        '&': r'\&',
+        '%': r'\%',
+        '$': r'\$',
+        '#': r'\#',
+        '_': r'\_',
+        '{': r'\{',
+        '}': r'\}',
+        '~': r'\textasciitilde{}',
+        '^': r'\^{}',
+        '\\': r'\textbackslash{}',
+        '<': r'\textless',
+        '>': r'\textgreater',
+    }
+    regex = re.compile('|'.join(re.escape(key) for key in conv.keys()))
+    return regex.sub(lambda match: conv[match.group()], text)

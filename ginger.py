@@ -1,24 +1,29 @@
 #! /usr/bin/env python3
-r"""ASCII-art representation of Universal Dependency trees
+r"""Graphical representation of Universal Dependency trees
 
 Usage:
-  ginger [--format <format>] <in-file> [<out-file>]
+  ginger [--from <format>] <in-file> [--to <format>] [<out-file>]
 
 Arguments:
   <in-file>   input file `-` for standard input
   <out-file>  output file, `-` for standard input [default: -]
 
 Options:
-  -f, --format <format> input file format, see below [default: guess]
-  -h, --help  Show this screen.
+  -f, --from <format> input file format, see below [default: guess]
+  -t, --to <format>   output file foramt, see below [default: ascii]
+  -h, --help          Show this screen.
 
-Formats:
+Input formats:
   - `guess` Try to guess the file format, defaults to CoNLL-U
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
 
+Output formats
+  - `ascii` ASCII-art (using unicode character, because, yes, we are subversive)
+  - `tikz`  TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
+
 Example:
-  `ginger input.conll output.ascii_art`
+  `ginger -f conllu input.conll -t tikz output.tex`
 """
 
 __version__ = 'ginger 0.1.0'
@@ -65,14 +70,17 @@ def main_entry_point(argv=sys.argv[1:]):
     with smart_open(arguments['<in-file>']) as in_stream:
         conll_str = in_stream.read()
 
-    if arguments['--format'] == 'guess' or arguments['--format'] is None:
-        arguments['--format'] = libtreebank.guess(conll_str)
+    if arguments['--from'] == 'guess' or arguments['--from'] is None:
+        arguments['--from'] = libtreebank.guess(conll_str)
 
     # Conversion between formats
-    conll_str = '\n'.join(libtreebank.formats[arguments['--format']](l) for l in conll_str.splitlines())
+    conll_str = '\n'.join(libtreebank.formats[arguments['--from']](l) for l in conll_str.splitlines())
     conll_trees = conll_str.strip().split('\n\n')
 
-    out_str = '\n\n'.join(libginger.Tree.from_conll(t).ascii_art() for t in conll_trees)
+    if arguments['--to'] == 'tikz':
+        out_str = '\n\n'.join(libginger.Tree.from_conll(t).tikz() for t in conll_trees)
+    else:  # elif arguments['--to'] == 'ascii':
+        out_str = '\n\n'.join(libginger.Tree.from_conll(t).ascii_art() for t in conll_trees)
 
     with smart_open(arguments['<out-file>'], 'w') as out_stream:
         out_stream.write(out_str)
