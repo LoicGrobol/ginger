@@ -44,11 +44,11 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
 
 ### Output formats
   - `ascii` ASCII-art (using unicode character, because, yes, we are subversive)
-  - `tikz`  TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries.
-            It is only the `\tikzpicture` part, not a whole compilable document, there is
-            [an example](examples/tree.tex) of such a document in `example`. The code is quite
-            verbose since we chose to rely on TikZ' own arithmetic capabilities in order to allow
-            easier edition and reuse of the generated code.
+  - `tikz`  TikZ code.
+    - Use the `positioning`, `calc` and `shapes.multipart` libraries. Do not forget to include them in your document.
+    - The output is only the `\tikzpicture` part, not a whole compilable document, there is
+      [an example](examples/tree.tex) of such a document in `example`.
+    - The code is quite verbose since we chose to rely on TikZ' own arithmetic capabilities in order to allow easier edition and reuse of the generated code.
 
 ### Examples
   - Print to stdout
