@@ -1,6 +1,10 @@
 Changelog
 =========
 
+## 0.2.1 [UNRELEASED]
+### Improvements
+  - Nicer generated TikZ code
+
 ## 0.2.0 [2017-03-05]
 ### New features
   - Add support for outputting TikZ code
