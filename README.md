@@ -3,6 +3,8 @@ Ginger
 
 Graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
 
+![2d graphical representation](doc/tree.png)
+
 ```
 │
 │          ┌─────────────┐
@@ -12,8 +14,6 @@ Graphical representation of [Universal Dependencies](http://universaldependencie
 ↓│    ↓   ↓│         ↓   ↓│         ↓│  ↓│    ↓
 ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ```
-
-[[https://github.com/loic-grobol/ginger/blob/master/doc/tree.png|alt=2d graphical representation]]
 
 ## Installation
 
