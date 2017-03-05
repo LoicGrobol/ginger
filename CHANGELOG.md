@@ -1,7 +1,7 @@
 Changelog
 =========
 
-## 0.2.0 [UNRELEASED]
+## 0.2.0 [2017-03-05]
 ### New features
   - Add support for outputting TikZ code
 
