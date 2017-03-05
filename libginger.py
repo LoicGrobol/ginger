@@ -90,22 +90,31 @@ class Tree:
            The resulting TikZ code use the `calc`, `positioning` and
            `shapes.multipart` libraries, make sure to include them
            with `\\usetikzlibrary`'''
+
+        # Layout parameters
         token_node_distance = '1em'  # Horizontal distance between the token (word) nodes
         arrow_shift = '.3em'  # Horizontal padding between arrows
-        energy = '0.5'  # Magnitude of the tangent of the arrow path at its extremities
+        energy = '0.5'  # In short : pointiness of the dependeny arrows. ∈ [0,+∞[
+
+        # Nodes and path templates
         first_token_node_template = r'node[token] (t{index}) {{{form}\nodepart{{two}}{lemma}\nodepart{{three}}{upostag}}}'
+
         token_node_template = r'node[token, right={token_node_distance} of t{prev}] (t{index}) {{{form}\nodepart{{two}}{lemma}\nodepart{{three}}{upostag}}}'
-        dep_template = r'\draw[->] let \p1 = ($(t{head})-(t{foot})$) in ($(t{head}.north)+({head_shift}, 0)$) ..  controls ($(t{head}.north)+({head_shift}, {{abs(\x1)*{energy}}})$) and ($(t{foot}.north)+(0, {{abs(\x1)*{energy}}})$) .. (t{foot}.north) node[midway, above=-.2em] {{\footnotesize\emph{{{deprel}}}}};'
-        root_template = r'\draw[->] ($(arcs.north west)!(t{root_index}.north)!(arcs.north east)$) node[above] {{\footnotesize\emph{{root}}}} -- (t{root_index}.north);'
+
+        dep_template = r'\draw[->] ($(t{head}.north)+({direction}{arrow_shift}, 0)$) .. controls ($(t{head}.north)!{energy}!{direction}90:(t{foot}.north)$) and ($(t{foot}.north)!{energy}!{direction}270:(t{head}.north)$) .. (t{foot}.north) node[dep] {{{deprel}}};'
+
+        root_template = r'\draw[->] ($(arcs.north west)!(t{root_index}.north)!(arcs.north east)$) node[root] {{root}} -- (t{root_index}.north);'
 
         # First the token nodes
         # We don't draw the root node as a normal node
         draw_nodes = self.nodes[1:]
+        # Special case for the first node
         first_token = draw_nodes[0]
         token_nodes_lst = [first_token_node_template.format(index=first_token.identifier,
                                                             form=tex_escape(first_token.form),
                                                             lemma=tex_escape(first_token.lemma),
                                                             upostag=tex_escape(first_token.upostag))]
+        # And now the rest
         token_nodes_lst += [token_node_template.format(token_node_distance=token_node_distance,
                                                        prev=p.identifier, index=c.identifier,
                                                        form=tex_escape(c.form),
@@ -115,10 +124,9 @@ class Tree:
         token_nodes = '\n        '.join(token_nodes_lst)
 
         # Now the relations
-        relations_lst = [dep_template.format(
-            head=n.head.identifier, foot=n.identifier, deprel=tex_escape(n.deprel),
-            energy=energy,
-            head_shift=('-' if n.head.identifier > n.identifier else '') + arrow_shift)
+        relations_lst = [dep_template.format(head=n.head.identifier, foot=n.identifier, deprel=tex_escape(n.deprel),
+                                             energy=energy, arrow_shift=arrow_shift,
+                                             direction='-' if n.head.identifier > n.identifier else '')
                          for n in draw_nodes if n.head.identifier != 0]
         dependencies = '\n        '.join(relations_lst)
 
@@ -127,7 +135,9 @@ class Tree:
                     for n in draw_nodes if n.head.identifier == 0]
         roots = '\n        '.join(root_lst)
         res_template = (r'''
-\begin{{tikzpicture}}[>=stealth, token/.style={{text height=1em, rectangle split, rectangle split parts=3}}]
+\begin{{tikzpicture}}[>=stealth, token/.style={{text height=1em, rectangle split, rectangle split parts=3}},
+                               dep/.style={{font=\small\itshape, midway, above=-.2em}},
+                               root/.style={{font=\small\itshape, above}}]
     \path[anchor=base]
         {token_nodes};
     \begin{{scope}}[local bounding box=arcs]
