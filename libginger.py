@@ -65,7 +65,6 @@ class Tree:
            Except for sorting, the nodes should respect the constraints 2, 3
            and 4 described in the docstring of `Tree`.'''
         self.nodes = sorted(nodes, key=lambda x: x.identifier)
-        self.nodes.sort(key=lambda x: x.identifier)
         self.root = self.nodes[0]
 
     def subtree(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:
