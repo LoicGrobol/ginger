@@ -5,6 +5,10 @@ import typing as ty
 import itertools as it
 
 
+class ParsingError(Exception):
+    pass
+
+
 class Node:
     '''A node in an UD dependency graph.'''
     def __init__(self,
@@ -65,9 +69,10 @@ class Tree:
            Except for sorting, the nodes should respect the constraints 2, 3
            and 4 described in the docstring of `Tree`.'''
         self.nodes = sorted(nodes, key=lambda x: x.identifier)
+        self.nodes.sort(key=lambda x: x.identifier)
         self.root = self.nodes[0]
 
-    def subtree(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:
+    def descendance(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:
         """Extract the descendance of a node, does not perform any copy or
            reindexing.
 
@@ -77,8 +82,8 @@ class Tree:
 
         def aux(node):
             children = [n for n in self.nodes if n.head is node and n.deprel not in blacklist]
-            descendance = it.chain.from_iterable(aux(c) for c in children)
-            return it.chain([node], descendance)
+            d = it.chain.from_iterable(aux(c) for c in children)
+            return it.chain([node], d)
 
         res = list(aux(root))
         return res
@@ -281,34 +286,41 @@ class Tree:
            [CoNNL-U string representation](http://universaldependencies.org/format.html).
 
            ## Caveats
-
-             - Multiword tokens are split into their constituent words
-             - Empty nodes are skipped
-             - Comments are not allowed"""
+             - Empty nodes are skipped"""
         root = Node(identifier=0, form='ROOT')
         res = [root]
         # First get the self-contained values, deal with references later
         # IMPLEMENTATION: This relies on references being initialisable
         #                 with identifiers
-        for l in conll_str.split('\n'):
+        for i, l in enumerate(l.strip() for l in conll_str.splitlines()):
+            # Skip comment lines
+            if l.startswith('#'):
+                next
             identifier, form, lemma, upostag, xpostag, feats, head, deprel, deps, misc = l.split('\t')
             try:
                 identifier = int(identifier)
             except ValueError:
-                # Skip multiword tokens
-                next
+                # TODO: Issue a warning here
+                if re.match(r'\d+-\d+', identifier):  # Skip multiword tokens
+                    next
+                if re.match(r'\d+.\d+', identifier):  # Skip empty nodes
+                    next
+                raise ParsingError('At line {i} : the `id` field does not respect CoNLL-U specifications.'.format(i=i))
 
             try:
                 feats = dict() if feats == '_' else dict(e.split('=') for e in feats[:-1].split('|'))
-            except ValueError as e:
+            except ValueError:
                 # Be nice : if empty, it should be an underscore, but let's be nice with spaces and empty strings, too
                 if feats.isspace() or not feats:
-                    # TODO: Add a warning here
+                    # TODO: Issue a warning here
                     feats = dict()
                 else:
-                    raise e
+                    raise ParsingError('At line {i} : the `feats` field does not respect CoNLL-U specifications.'.format(i=i))
 
-            head = int(head)
+            try:
+                head = int(head)
+            except ValueError:
+                raise ParsingError('At line {i} : the `head` field does not respect CoNLL-U specifications.'.format(i=i))
 
             try:
                 deps = [] if deps == '_' else [e.split(':') for e in deps.split('|')]
@@ -318,7 +330,7 @@ class Tree:
                     # TODO: Add a warning here
                     deps = []
                 else:
-                    raise e
+                    raise ParsingError('At line {i} : the `deps` field does not respect CoNLL-U specifications.'.format(i=i))
 
             new_node = Node(identifier, form, lemma, upostag, xpostag, feats, head, deprel, deps, misc)
             res.append(new_node)
