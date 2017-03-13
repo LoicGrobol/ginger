@@ -68,19 +68,17 @@ def main_entry_point(argv=sys.argv[1:]):
         arguments['<out-file>'] = '-'
 
     with smart_open(arguments['<in-file>']) as in_stream:
-        conll_str = in_stream.read()
+        in_str = in_stream.read()
 
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
-        arguments['--from'] = libtreebank.guess(conll_str)
+        tree_parser = libtreebank.formats[libtreebank.guess(in_str)]
 
-    # Conversion between formats
-    conll_str = '\n'.join(libtreebank.formats[arguments['--from']](l) for l in conll_str.splitlines())
-    conll_trees = conll_str.strip().split('\n\n')
+    treebank = [tree_parser(tree) for tree in in_str.split('\n\n') if not tree.isspace()]
 
     if arguments['--to'] == 'tikz':
-        out_str = '\n\n'.join(libginger.Tree.from_conll(t).tikz() for t in conll_trees)
+        out_str = '\n\n'.join(t.tikz() for t in treebank)
     else:  # elif arguments['--to'] == 'ascii':
-        out_str = '\n\n'.join(libginger.Tree.from_conll(t).ascii_art() for t in conll_trees)
+        out_str = '\n\n'.join(t.ascii_art() for t in treebank)
 
     with smart_open(arguments['<out-file>'], 'w') as out_stream:
         out_stream.write(out_str)

@@ -7,21 +7,89 @@ or through rewriting. Many thanks to him!
 
 import re
 
-
-def conllx(line: str):
-    """Conversion from CoNLL-X line to CoNLL-U line.
-
-       Just ignore the PHEAD and PDEP columns."""
-    if not line or line.isspace():
-        return '\n'
-    identifier, form, lemma, upostag, xpostag, feats, head, deprel, phead, pdep = line.split('\t')
-    deps, misc = '_'*2
-    return '\t'.join((identifier, form, lemma, upostag, xpostag, feats, head, deprel, phead, deps, misc))
+import libginger
 
 
-def conllu(line: str):
-    """Only the identity function."""
-    return line
+def conllx(tree_str: str) -> libginger.Tree:
+    """Create an Universal Dependencies tree from a CoNLL-X tree."""
+    root = libginger.Node(identifier=0, form='ROOT')
+    res = [root]
+    conllx_to_conllu_identifers = {0: 0}
+
+    for i, l in enumerate(l.strip() for l in tree_str.splitlines()):
+        # Skip comment lines
+        if l.startswith('#'):
+            next
+        identifier, form, lemma, upostag, xpostag, feats, head, deprel, phead, pdeprel = l.split('\t')
+
+        try:
+            identifier = int(identifier)
+        except ValueError:
+            # TODO: Issue a warning here
+            raise libginger.ParsingError('At line {i} : the `id` field does not respect CoNLL-U specifications.'.format(i=i))
+
+        lemma = re.sub(r'\s', '_', lemma)
+
+        try:
+            feats = dict() if feats == '_' else dict(e.split('=') for e in feats.split('|'))
+        except ValueError:
+            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and empty strings, too
+            if feats.isspace() or not feats:
+                # TODO: Issue a warning here
+                feats = dict()
+            else:
+                raise libginger.ParsingError('At line {i} : the `feats` field does not respect CoNLL-X specifications.'.format(i=i))
+
+        try:
+            head = int(head)
+        except ValueError:
+            raise libginger.ParsingError('At line {i} : the `head` field does not respect CoNLL-X specifications.'.format(i=i))
+        try:
+            phead = int(phead)
+        except ValueError:
+            if phead == '_' and pdeprel == '_':
+                phead, pdeprel = None, None
+            else:
+                raise libginger.ParsingError('At line {i} : the `phead` field does not respect CoNLL-X specifications.'.format(i=i))
+
+        # Deal with multi-token words
+        tokens = list(re.findall(r'\w+|\S', form))
+        # Deal with the first token
+        real_identifier = len(res)
+        conllx_to_conllu_identifers[identifier] = real_identifier
+        res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
+                                  lemma=lemma, upostag=upostag, xpostag=xpostag, feats=feats,
+                                  head=head, deprel=deprel,
+                                  deps=[] if phead is None else [(phead, pdeprel)]))
+
+        # Now deal with the other tokens, their head will simply be the first token,
+        # with the relation 'fixed'
+        for t in tokens[1:]:
+            res.append(libginger.Node(identifier=len(res), form=t, head=identifier, deprel='fixed'))
+
+    # Now that we have a `Node` for every node, let's do the linking
+    for n in res[1:]:
+        n.head = res[conllx_to_conllu_identifers[n.head]]
+        n.deps = [(res[conllx_to_conllu_identifers[head]], deprel) for head, deprel in n.deps]
+
+    return libginger.Tree(res)
+
+
+def conllx_str(tree_str: str) -> str:
+    """Convert a CoNLL-X encoded tree to a CoNLL-X one."""
+    return conllx(tree_str).to_conll()
+
+
+def conllu(tree_str: str) -> libginger.Tree:
+    """Create an Universal Dependencies tree from a CoNLL-U tree."""
+    return libginger.Tree.from_conll(tree_str)
+
+
+def conllu_str(tree_str: str) -> str:
+    """Convert a CoNLL-U encoded tree to a CoNLL-U one.
+
+       Warning: might not be the identity function."""
+    return conllu(tree_str).to_conll()
 
 
 def guess(filecontents: str) -> str:

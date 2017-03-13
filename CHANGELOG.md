@@ -2,7 +2,10 @@ Changelog
 =========
 ## 0.3.0 [UNRELEASED]
 ### Bugfix
-  - CoNLL-U parsing now support comment lines, empty nodes and multiword tokens
+  - CoNLL-U parsing now support comment lines, empty nodes and multi-word tokens
+  - CoNLL-X parsing now support comment lines, empty nodes and multi-token words
+### Breaking
+  - `libtreebank` has been almost completely rewritten
 
 ### API changes
   - libginger

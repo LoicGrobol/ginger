@@ -29,7 +29,7 @@ class Node:
              - References in `head` and `deps` are Python references
              - The root's head is `None`
              - `deps` is a Python list
-             - `feats` is a Python dic
+             - `feats` is a Python dict
              - empty fields are either `None` or empty depending on the field type"""
         self.identifier = identifier
         self.form = form
@@ -41,6 +41,21 @@ class Node:
         self.deprel = deprel
         self.deps = deps if deps is not None else []
         self.misc = misc
+
+    def to_conll(self) -> str:
+        '''Return the CoNLL-U representation of the node.'''
+        return '{identifier}\t{form}\t{lemma}\t{upostag}\t{xpostag}\t{feats}\t{head}\t{deprel}\t{deps}\t{misc}'.format(
+            identifier='_' if self.identifier is not None else self.identifier,
+            form='_' if self.form is not None else self.form,
+            lemma='_' if self.lemma is not None else self.lemma,
+            upostag='_' if self.upostag is not None else self.upostag,
+            xpostag='_' if self.xpostag is not None else self.xpostag,
+            feats='|'.join('{feat}={value}'.format(feat=feat, value=value) for feat, value in self.feats.items()),
+            head='_' if self.head is None else self.head.identifier,
+            deprel='_' if self.deprel is None else self.deprel,
+            deps='|'.join('{head}:{dep}'.format(head=head, dep=dep) for head, dep in self.deps),
+            misc='_' if self.misc is not None else self.misc
+        )
 
     def __repr__(self):
         return 'Node({identifier}, {form}, {lemma}, {upostag}, {xpostag}, {feats}, {head}, {deprel}, {deps}, {misc})'.format(
@@ -57,12 +72,12 @@ class Tree:
     '''A dependency tree. Conceptually just a list of nodes
        with some constraints:
            1. The nodes are sorted by identifier.
-           2. The node identifier are connexe integers.
+           2. The node identifier are connex integers.
            3. The nodes do not reference nodes that are not in the tree.
            4. The first node (indice 0) is a special root node
              - Its identifier must be 0.
              - Its form should be "ROOT".
-             - All other attributes should be left empty.'''
+             - All of its other attributes should be left empty.'''
     def __init__(self, nodes: ty.Iterable[Node]):
         '''Return a new tree whose nodes are those in `nodes`.
 
@@ -88,6 +103,10 @@ class Tree:
         res = list(aux(root))
         return res
 
+    def to_conll(self) -> str:
+        '''Return a CoNLL-U representation of the tree.'''
+        return '\n'.join(n.to_conll for n in self.nodes[1:])
+
     def tikz(self) -> str:
         '''Return the TikZ code for a representation of the dependency tree.
 
@@ -98,7 +117,7 @@ class Tree:
         # Layout parameters
         token_node_distance = '1em'  # Horizontal distance between the token (word) nodes
         arrow_shift = '.3em'  # Horizontal padding between arrows
-        energy = '0.5'  # In short : pointiness of the dependeny arrows. ∈ [0,+∞[
+        energy = '0.5'  # In short : pointiness of the dependency arrows. ∈ [0,+∞[
 
         # Nodes and path templates
         first_token_node_template = r'node[token] (t{index}) {{{form}\nodepart{{two}}{lemma}\nodepart{{three}}{upostag}}}'
@@ -178,7 +197,7 @@ class Tree:
           ````'''
         res = ['  '.join(t.form for t in self.nodes)]  # Two space to be able to deal with single-letter tokens
 
-        # The first line above the words is easy: only arrow heads (every word) anb butts (for non-leaves)
+        # The first line above the words is easy: only arrow heads (every word) and butts (for non-leaves)
         # Arrow heads are over the first character (because every token has at least one)
         # Arrow butts (if existent) are over the second, or, inthe case of single-letter tokens, over the first
         # following space.
@@ -308,7 +327,7 @@ class Tree:
                 raise ParsingError('At line {i} : the `id` field does not respect CoNLL-U specifications.'.format(i=i))
 
             try:
-                feats = dict() if feats == '_' else dict(e.split('=') for e in feats[:-1].split('|'))
+                feats = dict() if feats == '_' else dict(e.split('=') for e in feats.split('|'))
             except ValueError:
                 # Be nice : if empty, it should be an underscore, but let's be nice with spaces and empty strings, too
                 if feats.isspace() or not feats:
