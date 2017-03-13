@@ -41,7 +41,7 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - `guess` Try to guess the file format, defaults to CoNLL-U
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
-   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
+  - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
 
 ### Output formats
   - `ascii` ASCII-art (using unicode character, because, yes, we are subversive)
