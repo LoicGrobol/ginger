@@ -75,21 +75,9 @@ def conllx(tree_str: str) -> libginger.Tree:
     return libginger.Tree(res)
 
 
-def conllx_str(tree_str: str) -> str:
-    """Convert a CoNLL-X encoded tree to a CoNLL-X one."""
-    return conllx(tree_str).to_conll()
-
-
 def conllu(tree_str: str) -> libginger.Tree:
     """Create an Universal Dependencies tree from a CoNLL-U tree."""
     return libginger.Tree.from_conll(tree_str)
-
-
-def conllu_str(tree_str: str) -> str:
-    """Convert a CoNLL-U encoded tree to a CoNLL-U one.
-
-       Warning: might not be the identity function."""
-    return conllu(tree_str).to_conll()
 
 
 def guess(filecontents: str) -> str:

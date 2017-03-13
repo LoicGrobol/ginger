@@ -3,16 +3,17 @@ Changelog
 ## 0.3.0 [UNRELEASED]
 ### Bugfix
   - CoNLL-U parsing now support comment lines, empty nodes and multi-word tokens
-  - CoNLL-X parsing now support comment lines, empty nodes and multi-token words
-### Breaking
-  - `libtreebank` has been almost completely rewritten
+  - CoNLL-X parsing now support comment lines, empty nodes and multi-token words and takes
+    the projective dependency attributes into account
 
 ### API changes
   - libginger
-    - CoNLL-U parsing now raise a specific `ParsingError` exception on parsing errors with a more
+    - CoNLL parsing now raise a specific `ParsingError` exception on parsing errors with a more
       informative message
     - Renamed `Tree.subtree()` → `Tree.descendance()` in order to allow adding a `Tree.subtree()`
       function that will really return a `Tree` instead of a list of nodes.
+  - libtreebank
+    - Almost completely rewritten to parse the whole treebanks instead of translating line-by-line
 
 ## 0.2.1 [2017-03-05]
 ### Improvements
