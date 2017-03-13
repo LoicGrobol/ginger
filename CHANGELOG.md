@@ -1,6 +1,6 @@
 Changelog
 =========
-## 0.3.0 [UNRELEASED]
+## 0.3.0 [2017-03-13]
 ### New features
   - Support [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html) outputs
     as inputs
