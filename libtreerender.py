@@ -2,6 +2,11 @@
 
 import re
 
+try:
+    import cairocffi as cairo
+except ImportError:  # don't break if cairo is not available
+    pass
+
 import libginger
 
 
@@ -215,3 +220,22 @@ def tex_escape(text: str) -> str:
     }
     regex = re.compile('|'.join(re.escape(key) for key in conv.keys()))
     return regex.sub(lambda match: conv[match.group()], text)
+
+
+def cairo_surf(tree: libginger.Tree) -> cairo.Surface:
+    '''Render a tree in a cairo surface.'''
+    res = cairo.ImageSurface(cairo.FORMAT_ARGB32, 300, 200)
+    context = cairo.Context(res)
+    with context:
+        context.set_source_rgb(1, 1, 1)  # White
+        context.paint()
+    # Restore the default source which is black.
+    context.move_to(90, 140)
+    context.rotate(-0.5)
+    context.set_font_size(20)
+    context.show_text('spam')
+    return res
+
+
+def png(tree: libginger.Tree) -> bytes:
+    return cairo_surf(tree).write_to_png()

@@ -17,11 +17,28 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 
 ## Installation
 
-No installation needed, just run `ginger.py`.
+No installation needed, just run `ginger.py`. Have a look at [the dependencies](#Dependencies)
+below, though.
+
 If you want to have it installed at global level, run `pip3 install .`
 
 Test if everything work by running `ginger examples/test.conll`.
 The output should be the same as the tree above.
+
+## Dependencies
+### Cairo and friends
+The direct graphical outputs depend on [cairo](https://www.cairographics.org/), through
+[cairocffi](https://pypi.python.org/pypi/cairocffi) (through
+[cffi](https://pypi.python.org/pypi/cffi)). These are entirely facultative, and you can install them
+the following ways:
+
+  - If you are installing ginger through pip, use `pip3 install .[graphics]`
+  - Else, you can install them yourself using `pip3 install cffi cairocffi`, or using your package
+    management system of choice
+
+Either way, you will also need to install cairo, but, fortunately, as it is already a dependency of
+a lot of software, you probably already have it! If not, see the
+[cairo website](https://www.cairographics.org/).
 
 ## Usage
 ```

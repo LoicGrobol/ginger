@@ -62,6 +62,11 @@ setup(
                       for dep, spec in package_metadata["dependencies"].items()
                       if not spec.startswith('file:')],
 
+    extra_requires={group: ['{dep}{spec}'.format(dep=dep, spec=spec)
+                            for dep, spec in groupdeps.items()
+                            if not spec.startswith('file:')]
+                    for group, groupdeps in package_metadata["extras"].items()},
+
     entry_points={
         group: [
             '{name}={command}'.format(name=name, command=command)

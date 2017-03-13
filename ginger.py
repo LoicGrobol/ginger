@@ -80,13 +80,20 @@ def main_entry_point(argv=sys.argv[1:]):
 
     treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str) if tree and not tree.isspace()]
 
-    if arguments['--to'] == 'tikz':
-        out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
-    else:  # elif arguments['--to'] == 'ascii':
-        out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
+    if arguments['--to'] in ('tikz', 'ascii'):
+        if arguments['--to'] == 'tikz':
+            out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
+        elif arguments['--to'] == 'ascii':
+            out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
 
-    with smart_open(arguments['<out-file>'], 'w') as out_stream:
-        out_stream.write(out_str)
+        with smart_open(arguments['<out-file>'], 'w') as out_stream:
+            out_stream.write(out_str)
+    else:
+        if arguments['--to'] == 'png':
+            out_bytes = libtreerender.png(treebank[0])
+
+        with smart_open(arguments['<out-file>'], 'wb') as out_stream:
+            out_stream.write(out_bytes)
 
 
 if __name__ == '__main__':

@@ -19,6 +19,7 @@
     ],
 
     "dependencies": {},
+    "extras": {"graphics": {"cffi": "", "cairocffi": ""}},
 
     "files": [],
 
