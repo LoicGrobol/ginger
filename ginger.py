@@ -41,9 +41,11 @@ signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 try:
     import libginger
     import libtreebank
+    import libtreerender
 except ImportError:
     from . import libginger
     from . import libtreebank
+    from . import libtreerender
 
 
 # Thanks http://stackoverflow.com/a/17603000/760767
@@ -79,9 +81,9 @@ def main_entry_point(argv=sys.argv[1:]):
     treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str) if tree and not tree.isspace()]
 
     if arguments['--to'] == 'tikz':
-        out_str = '\n\n'.join(t.tikz() for t in treebank)
+        out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
     else:  # elif arguments['--to'] == 'ascii':
-        out_str = '\n\n'.join(t.ascii_art() for t in treebank)
+        out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
 
     with smart_open(arguments['<out-file>'], 'w') as out_stream:
         out_stream.write(out_str)

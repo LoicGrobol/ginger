@@ -4,7 +4,7 @@ Changelog
 ### New features
   - Support [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html) outputs
     as inputs
-    
+
 ### Bugfix
   - CoNLL-U parsing now support comment lines, empty nodes and multi-word tokens
   - CoNLL-X parsing now support comment lines, empty nodes and multi-token words and takes
@@ -17,6 +17,7 @@ Changelog
       informative message
     - Renamed `Tree.subtree()` → `Tree.descendance()` in order to allow adding a `Tree.subtree()`
       function that will really return a `Tree` instead of a list of nodes.
+    - Moved tree rendering functions to libtreerender
   - libtreebank
     - Almost completely rewritten to parse whole trees instead of translating line-by-line
 
