@@ -14,13 +14,14 @@ Options:
   -h, --help          Show this screen.
 
 Input formats:
-  - `guess` Try to guess the file format, defaults to CoNLL-U
-  - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
-  - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
+  - `guess`      Try to guess the file format, defaults to CoNLL-U
+  - `conllx`     [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
+  - `conllu`     [CoNLL-U format](http://universaldependencies.org/format.html)
+  - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
 
 Output formats
-  - `ascii` ASCII-art (using unicode character, because, yes, we are subversive)
-  - `tikz`  TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
+  - `ascii`  ASCII-art (using unicode character, because, yes, we are subversive)
+  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
 
 Example:
   `ginger -f conllu input.conll -t tikz output.tex`
@@ -31,6 +32,8 @@ __version__ = 'ginger 0.2.1'
 import sys
 import contextlib
 from docopt import docopt
+
+import re
 
 import signal
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -73,7 +76,7 @@ def main_entry_point(argv=sys.argv[1:]):
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
         tree_parser = libtreebank.formats[libtreebank.guess(in_str)]
 
-    treebank = [tree_parser(tree) for tree in in_str.split('\n\n') if not tree.isspace()]
+    treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str) if tree and not tree.isspace()]
 
     if arguments['--to'] == 'tikz':
         out_str = '\n\n'.join(t.tikz() for t in treebank)

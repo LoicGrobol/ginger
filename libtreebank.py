@@ -75,6 +75,15 @@ def conllx(tree_str: str) -> libginger.Tree:
     return libginger.Tree(res)
 
 
+def talismane(tree_str: str) -> libginger.Tree:
+    """Create an Universal Dependencies tree from a Talismane tree.
+
+       Talismane outputs are essentially CoNLL-X files, with incompatible
+       stylistic idiosyncrasies."""
+    conllx_str = re.sub(r'\|\t', r'\t', tree_str)
+    return conllx(conllx_str)
+
+
 def conllu(tree_str: str) -> libginger.Tree:
     """Create an Universal Dependencies tree from a CoNLL-U tree."""
     return libginger.Tree.from_conll(tree_str)
@@ -88,9 +97,9 @@ def guess(filecontents: str) -> str:
 
     if len(first_line_columns) == 10:  # 10 columns, assuming CoNLL of some kind
         # CoNLL-X
-        if (any(c.isspace() for c in first_line_columns) or
-            not re.match(r'_|^([^:|]+:[^:|]\|)+$', first_line_columns[-1]) or
-            not re.match(r'_|^([^:|]+:[^:|]\|)+$', first_line_columns[-2])):
+        if not re.match(r'_|^([^:|]+:[^:|])(\|[^:|]+:[^:|])*$', first_line_columns[-2]):
+            if any(l.split('\t')[5].endswith('|') for l in lines if l and not l.isspace()):
+                return 'talismane'
             return 'conllx'
 
     # Default to CoNLL-U
@@ -98,4 +107,5 @@ def guess(filecontents: str) -> str:
 
 
 formats = {'conllx': conllx,
+           'talismane': talismane,
            'conllu': conllu}

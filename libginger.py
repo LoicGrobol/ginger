@@ -133,16 +133,18 @@ class Tree:
         draw_nodes = self.nodes[1:]
         # Special case for the first node
         first_token = draw_nodes[0]
-        token_nodes_lst = [first_token_node_template.format(index=first_token.identifier,
-                                                            form=tex_escape(first_token.form),
-                                                            lemma=tex_escape(first_token.lemma),
-                                                            upostag=tex_escape(first_token.upostag))]
+        token_nodes_lst = [first_token_node_template.format(
+            index=first_token.identifier,
+            form=tex_escape('_' if first_token.form is None else first_token.form),
+            lemma=tex_escape('_' if first_token.lemma is None else first_token.lemma),
+            upostag=tex_escape('_' if first_token.upostag is None else first_token.upostag))]
         # And now the rest
-        token_nodes_lst += [token_node_template.format(token_node_distance=token_node_distance,
-                                                       prev=p.identifier, index=c.identifier,
-                                                       form=tex_escape(c.form),
-                                                       lemma=tex_escape(c.lemma),
-                                                       upostag=tex_escape(c.upostag))
+        token_nodes_lst += [token_node_template.format(
+            token_node_distance=token_node_distance,
+            prev=p.identifier, index=c.identifier,
+            form=tex_escape('_' if c.form is None else c.form),
+            lemma=tex_escape('_' if c.lemma is None else c.lemma),
+            upostag=tex_escape('_' if c.upostag is None else c.upostag))
                             for p, c in zip(draw_nodes, draw_nodes[1:])]
         token_nodes = '\n        '.join(token_nodes_lst)
 

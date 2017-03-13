@@ -1,10 +1,15 @@
 Changelog
 =========
 ## 0.3.0 [UNRELEASED]
+### New features
+  - Support [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html) outputs
+    as inputs
+    
 ### Bugfix
   - CoNLL-U parsing now support comment lines, empty nodes and multi-word tokens
   - CoNLL-X parsing now support comment lines, empty nodes and multi-token words and takes
     the projective dependency attributes into account
+  - Fixed TikZ rendering of token with missing information
 
 ### API changes
   - libginger
@@ -13,7 +18,7 @@ Changelog
     - Renamed `Tree.subtree()` → `Tree.descendance()` in order to allow adding a `Tree.subtree()`
       function that will really return a `Tree` instead of a list of nodes.
   - libtreebank
-    - Almost completely rewritten to parse the whole treebanks instead of translating line-by-line
+    - Almost completely rewritten to parse whole trees instead of translating line-by-line
 
 ## 0.2.1 [2017-03-05]
 ### Improvements
