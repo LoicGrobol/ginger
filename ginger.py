@@ -6,7 +6,7 @@ Usage:
 
 Arguments:
   <in-file>   input file `-` for standard input
-  <out-file>  output file, `-` for standard input [default: -]
+  <out-file>  output destination, `-` for standard input [default: -]
 
 Options:
   -f, --from <format> input file format, see below [default: guess]
@@ -20,8 +20,10 @@ Input formats:
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
 
 Output formats
-  - `ascii`  ASCII-art (using unicode character, because, yes, we are subversive)
-  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
+  - Text formats. Those can't be used without any dependency
+    - `ascii`  ASCII-art (using unicode character, because, yes, we are subversive)
+    - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
+  - Image formats. Uses cairo, requires dependencies and have different convenrions see README.md
 
 Example:
   `ginger -f conllu input.conll -t tikz output.tex`
@@ -85,7 +87,6 @@ def main_entry_point(argv=sys.argv[1:]):
             out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
         elif arguments['--to'] == 'ascii':
             out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
-
         with smart_open(arguments['<out-file>'], 'w') as out_stream:
             out_stream.write(out_str)
     else:

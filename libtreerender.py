@@ -229,11 +229,11 @@ def cairo_surf(tree: libginger.Tree) -> cairo.Surface:
     with context:
         context.set_source_rgb(1, 1, 1)  # White
         context.paint()
-    # Restore the default source which is black.
-    context.move_to(90, 140)
-    context.rotate(-0.5)
+    context.move_to(0, 20)
     context.set_font_size(20)
-    context.show_text('spam')
+    for n in tree.nodes[1:]:
+        context.show_text(n.form)
+        context.rel_move_to(40, 0)
     return res
 
 
