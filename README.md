@@ -34,13 +34,14 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
 
 ### Options
   - `-f`, `--from <format>` input file format, see below (default: `guess`)
-  - `-t`, `--to <format>`   output file foramt, see below (default: `ascii`)
+  - `-t`, `--to <format>`   output file format, see below (default: `ascii`)
   - `-h`, `--help` Get some help
 
 ### Input formats
   - `guess` Try to guess the file format, defaults to CoNLL-U
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
+  - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
 
 ### Output formats

@@ -1,5 +1,9 @@
 Changelog
 =========
+## [UNRELEASED]
+### New features
+  - Support the [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+  
 ## 0.3.0 [2017-03-13]
 ### New features
   - Support [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html) outputs
