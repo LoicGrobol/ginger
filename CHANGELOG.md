@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [UNRELEASED]
+## [Unreleased]
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...HEAD
+
 ### Changed
   - Try to conform to [Keep a Changelog](http://keepachangelog.com/).
 
@@ -21,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - Fix invocation from installed package
 
 ## [0.3.0] - 2017-03-13
+[0.3.0]: https://github.com/LoicGrobol/ginger/compare/v0.3.0...v0.2.1
 ### New features
   - Support [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html) outputs
     as inputs
@@ -42,10 +45,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     - Almost completely rewritten to parse whole trees instead of translating line-by-line
 
 ## [0.2.1] - 2017-03-05
+[0.2.1]: https://github.com/LoicGrobol/ginger/compare/v0.2.0...v0.2.1
 ### Improvements
   - Nicer generated TikZ code
 
 ## [0.2.0] - 2017-03-05
+[0.2.0]: https://github.com/LoicGrobol/ginger/compare/v0.2.0...v0.1.0
 ### New features
   - Add support for outputting TikZ code
 
@@ -53,6 +58,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - CLI arguments changed
 
 ## [0.1.0] - 2017-03-04
+[0.1.0]: https://github.com/LoicGrobol/ginger/compare/v0.0.0...v0.1.0
 ### New features
   - Accept CoNLL-X files as input
 
@@ -60,8 +66,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   - Fix behaviour when used in pipelines  (no more `BrokenPipeError`)
 
 ## [0.0.1] - 2017-03-04
+[0.0.1]: https://github.com/LoicGrobol/ginger/compare/v0.0.0...v0.0.1
 ### Bugfix
   - Actually allow running without installation.
 
 ## [0.0.0] - 2017-03-03
+[0.0.0]: https://github.com/LoicGrobol/ginger/tree/v0.0.0
 Initial release
