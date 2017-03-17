@@ -1,6 +1,6 @@
 Changelog
 =========
-## [UNRELEASED]
+## 0.4.0 [2017-03-17]
 ### New features
   - Support the [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
 
