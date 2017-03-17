@@ -1,17 +1,23 @@
 """Graphical rendering of `libginger` trees."""
 
 import re
+import math
 
 try:
     import cairocffi as cairo
 except ImportError:  # don't break if cairo is not available
-    pass
+    # TODO: Issue a warning here
+    cairo = None
 
 try:
     import libginger
 except ImportError:
     from ginger import libginger
 
+
+def text(tree: libginger.Tree) -> str:
+    '''Return the text content of the tree, without any dependency link.'''
+    return ' '.join(n.form for n in tree.nodes)
 
 def tikz(tree: libginger.Tree) -> str:
     '''Return the TikZ code for a representation of a dependency tree.
@@ -225,18 +231,66 @@ def tex_escape(text: str) -> str:
     return regex.sub(lambda match: conv[match.group()], text)
 
 
-def cairo_surf(tree: libginger.Tree) -> cairo.Surface:
-    '''Render a tree in a cairo surface.'''
-    res = cairo.ImageSurface(cairo.FORMAT_ARGB32, 300, 200)
+def cairo_surf(tree: libginger.Tree,
+               font_size: int = 20,
+               token_node_distance: int = 20,
+               node_part_margin: int = None) -> cairo.Surface:
+    '''Render a tree in a cairo surface.
+
+       ## Parameters
+         - `font_size`  the font size used
+         - `token_node_distance`  the horizontal soacing between two nodes
+         - `node_part_margin`  the vertical spacing between node attributes
+                               (default: $⌈`token_node_distance`/3⌉$)'''
+    if cairo is None:
+        raise NotImplementedError
+
+    node_part_margin = node_part_margin if node_part_margin is not None else math.ceil(token_node_distance/3)
+
+    # First, determine the size of the result
+    # A surface that will serve to compute the actual size of the final survace
+    dummy = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+    dummy_context = cairo.Context(dummy)
+    dummy_context.set_font_size(font_size)
+    # For every token, we need to take account the width of the largest of the stacked
+    # attributes : `form`, `lemma`, `upostag`
+    # The height will simply be three times the maximum height
+    res_width = max_height = 0
+    for n in tree.nodes[1:]:
+        parts_extents = [dummy_context.text_extents(s) for s in (n.form, n.lemma, n.upostag) if s is not None]
+        res_width += max(e[2] for e in parts_extents)
+        part_height = max(max_height, max(e[3] for e in parts_extents))
+    # Add the spaces
+    res_width += token_node_distance*(len(tree.nodes)-1)
+    res_height = 3*part_height + 2*node_part_margin
+    # Normalise to integer pixel sizes
+    res_width, res_height = math.ceil(res_width), math.ceil(res_height)
+
+    # Now draw for real
+    res = cairo.ImageSurface(cairo.FORMAT_ARGB32, res_width, res_height)
     context = cairo.Context(res)
+    context.set_font_size(font_size)
+
     with context:
         context.set_source_rgb(1, 1, 1)  # White
         context.paint()
-    context.move_to(0, 20)
-    context.set_font_size(20)
+
+    context.set_source_rgba(0, 0, 0)
+    context.move_to(0, 0)
+    prev = res.write_to_png()
     for n in tree.nodes[1:]:
-        context.show_text(n.form)
-        context.rel_move_to(40, 0)
+        parts = (n.form, n.lemma, n.upostag)
+        parts_extents = [dummy_context.text_extents(s) for s in parts if s is not None]
+        token_width = max(e[2] for e in parts_extents)
+
+        for p, e in zip(parts, parts_extents):
+            margin = (token_width - e[2]) // 2
+            context.rel_move_to(margin, part_height)
+            context.show_text(p)
+            context.rel_move_to(-(margin + e[4]), node_part_margin)
+        context.rel_move_to(token_width + token_node_distance, -(res_height + node_part_margin))
+
+    context.stroke()
     return res
 
 
