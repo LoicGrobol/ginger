@@ -10,7 +10,7 @@ class ParsingError(Exception):
 
 
 class Node:
-    '''A node in an UD dependency graph.'''
+    '''A node in an UD graph.'''
     def __init__(self,
                  identifier: int,
                  form: str =None,
@@ -81,8 +81,8 @@ class Tree:
     def __init__(self, nodes: ty.Iterable[Node]):
         '''Return a new tree whose nodes are those in `nodes`.
 
-           Except for sorting, the nodes should respect the constraints 2, 3
-           and 4 described in the docstring of `Tree`.'''
+           The nodes should respect the constraints 2, 3 and 4 described in
+           the docstring of `Tree`.'''
         self.nodes = sorted(nodes, key=lambda x: x.identifier)
         self.nodes.sort(key=lambda x: x.identifier)
         self.root = self.nodes[0]
