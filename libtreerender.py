@@ -7,7 +7,10 @@ try:
 except ImportError:  # don't break if cairo is not available
     pass
 
-import libginger
+try:
+    import libginger
+except ImportError:
+    from ginger import libginger
 
 
 def tikz(tree: libginger.Tree) -> str:

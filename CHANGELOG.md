@@ -1,11 +1,14 @@
 Changelog
 =========
-## [UNRELEASED]
+## 0.4.0 [2017-03-17]
 ### New features
   - Support the [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
 
 ### API change
   - Minor change in the representation of `Node`s
+
+### Bugfix
+  - Fix invocation from installed package
 
 ## 0.3.0 [2017-03-13]
 ### New features

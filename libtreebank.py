@@ -7,7 +7,10 @@ or through rewriting. Many thanks to him!
 
 import re
 
-import libginger
+try:
+    import libginger
+except ImportError:
+    from ginger import libginger
 
 
 # Generic formats
