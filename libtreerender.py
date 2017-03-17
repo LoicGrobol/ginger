@@ -2,7 +2,10 @@
 
 import re
 
-import libginger
+try:
+    import libginger
+except ImportError:
+    from ginger import libginger
 
 
 def tikz(tree: libginger.Tree) -> str:
