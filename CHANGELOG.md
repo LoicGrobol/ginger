@@ -7,6 +7,9 @@ Changelog
 ### API change
   - Minor change in the representation of `Node`s
 
+### Bugfix
+  - Fix invocation from installed package
+
 ## 0.3.0 [2017-03-13]
 ### New features
   - Support [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html) outputs
