@@ -63,7 +63,7 @@ class Node:
             feats=self.feats,
             head='None' if self.head is None else self.head.identifier,
             deprel=self.deprel,
-            deps=self.deps,
+            deps=list((h.identifier, r) for h, r in self.deps),
             misc=self.misc
         )
 
