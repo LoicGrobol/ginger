@@ -1,6 +1,16 @@
-Changelog
+Change Log
 =========
-## 0.4.0 [2017-03-17]
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [UNRELEASED]
+### Changed
+  - Try to conform to [Keep a Changelog](http://keepachangelog.com/).
+
+## [0.4.0] - 2017-03-17
+[0.4.0]: https://github.com/LoicGrobol/ginger/compare/v0.3.0...v0.4.0
 ### New features
   - Support the [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
 
@@ -10,7 +20,7 @@ Changelog
 ### Bugfix
   - Fix invocation from installed package
 
-## 0.3.0 [2017-03-13]
+## [0.3.0] - 2017-03-13
 ### New features
   - Support [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html) outputs
     as inputs
@@ -31,27 +41,27 @@ Changelog
   - libtreebank
     - Almost completely rewritten to parse whole trees instead of translating line-by-line
 
-## 0.2.1 [2017-03-05]
+## [0.2.1] - 2017-03-05
 ### Improvements
   - Nicer generated TikZ code
 
-## 0.2.0 [2017-03-05]
+## [0.2.0] - 2017-03-05
 ### New features
   - Add support for outputting TikZ code
 
 ### Breaking
   - CLI arguments changed
 
-## 0.1.0 [2017-03-04]
+## [0.1.0] - 2017-03-04
 ### New features
   - Accept CoNLL-X files as input
 
 ### Bugfix
   - Fix behaviour when used in pipelines  (no more `BrokenPipeError`)
 
-## 0.0.1 [2017-03-04]
+## [0.0.1] - 2017-03-04
 ### Bugfix
   - Actually allow running without installation.
 
-## 0.0.0 [2017-03-03]
+## [0.0.0] - 2017-03-03
 Initial release
