@@ -276,11 +276,12 @@ def cairo_surf(tree: libginger.Tree,
         context.paint()
 
     context.set_source_rgba(0, 0, 0)
+
+    # First draw the nodes
     context.move_to(0, 0)
-    prev = res.write_to_png()
     for n in tree.nodes[1:]:
-        parts = (n.form, n.lemma, n.upostag)
-        parts_extents = [dummy_context.text_extents(s) for s in parts if s is not None]
+        parts = (s if s is not None else '_' for s in (n.form, n.lemma, n.upostag))
+        parts_extents = [dummy_context.text_extents(s) for s in parts]
         token_width = max(e[2] for e in parts_extents)
 
         for p, e in zip(parts, parts_extents):
@@ -291,6 +292,8 @@ def cairo_surf(tree: libginger.Tree,
         context.rel_move_to(token_width + token_node_distance, -(res_height + node_part_margin))
 
     context.stroke()
+
+    # Now draw the arcs
     return res
 
 
