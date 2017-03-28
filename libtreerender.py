@@ -1,7 +1,11 @@
 """Graphical rendering of `libginger` trees."""
 
+import typing as ty
+
 import re
 import math
+
+from collections import namedtuple
 
 try:
     import cairocffi as cairo
@@ -151,7 +155,7 @@ def ascii_art(tree: libginger.Tree) -> str:
         out_open[h] += 1
 
     current_token = 0
-    current_line = []
+    current_line = []  # type: ty.List[str]
 
     def fill_until(index, fill_char):
         '''Go from `current_token` to `index`, filling blanks with `fill_char` and
@@ -232,11 +236,17 @@ def tex_escape(text: str) -> str:
     return regex.sub(lambda match: conv[match.group()], text)
 
 
+# Syntactic sugar for rectangles
+Rect = ty.NamedTuple('Rect', (('x', int), ('y', int), ('w', int), ('h', int)))
+# Syntactic sugar for points
+Point = ty.NamedTuple('Point', (('x', int), ('y', int)))
+
+
 def cairo_surf(tree: libginger.Tree,
                font_size: int = 20,
                token_node_distance: int = 20,
                node_part_margin: int = None,
-               arrow_shift: int = 3,
+               arrow_shift: int = 6,
                energy: float = 0.5) -> cairo.Surface:
     '''Render a tree in a cairo surface.
 
@@ -265,15 +275,15 @@ def cairo_surf(tree: libginger.Tree,
     dummy_context.set_font_size(font_size)
     # For every token, we need to take account the width of the largest of the stacked
     # attributes : `form`, `lemma`, `upostag`
-    # This dict associate every node to its rect (as $(x, y, width, height)$)
-    node_rects = {}  # type: ty.Dict[libginger.Node, ty.Tuple[int, int, int, int]]
+    # This dict associate every node to its Rect
+    node_rects = {}  # type: ty.Dict[libginger.Node, Rect]
     current_x = 0
     for n in tree.nodes[1:]:
         parts_extents = [dummy_context.text_extents(s if s is not None else '_')
                          for s in (n.form, n.lemma, n.upostag)]
         w = max(e[2] for e in parts_extents)
         h = sum(e[3] for e in parts_extents) + 3*node_part_margin
-        node_rects[n] = (current_x, 0, w, h)
+        node_rects[n] = Rect(current_x, 0, w, h)
         current_x += w + token_node_distance
 
     # Now compute the image width
@@ -283,7 +293,7 @@ def cairo_surf(tree: libginger.Tree,
     part_height = math.ceil(max(h for _, _, _, h in node_rects.values())/3)
     nodes_height = 3*part_height
 
-    node_rects = dict((n, (x, y, w, nodes_height)) for n, (x, y, w, h) in node_rects.items())
+    node_rects = dict((n, Rect(x, y, w, nodes_height)) for n, (x, y, w, h) in node_rects.items())
 
     # Find out the largest arc height
     # First, get the relations
@@ -296,7 +306,7 @@ def cairo_surf(tree: libginger.Tree,
     # And use it to get the total image height
     res_height = nodes_height + max_arc_height
     # And update the node rects
-    node_rects = dict((n, (x, y+max_arc_height, w, h)) for n, (x, y, w, h) in node_rects.items())
+    node_rects = dict((n, Rect(x, y+max_arc_height, w, h)) for n, (x, y, w, h) in node_rects.items())
 
     # Normalise to integer pixel sizes
     res_width, res_height = math.ceil(res_width), math.ceil(res_height)
@@ -318,10 +328,22 @@ def cairo_surf(tree: libginger.Tree,
             margin = math.floor((w - context.text_extents(p)[2])/2)
             context.move_to(x+margin, y+i*part_height)
             context.show_text(p)
-
     context.stroke()
 
     # Now draw the arcs
+    for head, foot in deps:
+        head_rect, foot_rect = node_rects[head], node_rects[foot]
+        start = Point(head_rect.x + head_rect.w/2, head_rect.y)
+        end = Point(foot_rect.x + foot_rect.w/2 +
+                    arrow_shift*(1 if foot.identifier < head.identifier else -1),
+                    foot_rect.y)
+        origin_speed = math.floor(abs(end.x-start.x)*energy)
+        control1 = (start.x, start.y-origin_speed)
+        control2 = (end.x, end.y-origin_speed)
+        context.move_to(*start)
+        context.curve_to(*control1, *control2, *end)
+
+    context.stroke()
     return res
 
 
