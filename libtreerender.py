@@ -265,8 +265,8 @@ def cairo_surf(tree: libginger.Tree,
     dummy_context.set_font_size(font_size)
     # For every token, we need to take account the width of the largest of the stacked
     # attributes : `form`, `lemma`, `upostag`
-    # This dict associate every node to its rect (as$ (x, y, width, height)$)
-    node_rects = {}
+    # This dict associate every node to its rect (as $(x, y, width, height)$)
+    node_rects = {}  # type: ty.Dict[libginger.Node, ty.Tuple[int, int, int, int]]
     current_x = 0
     for n in tree.nodes[1:]:
         parts_extents = [dummy_context.text_extents(s if s is not None else '_')
