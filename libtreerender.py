@@ -19,6 +19,7 @@ def text(tree: libginger.Tree) -> str:
     '''Return the text content of the tree, without any dependency link.'''
     return ' '.join(n.form for n in tree.nodes)
 
+
 def tikz(tree: libginger.Tree) -> str:
     '''Return the TikZ code for a representation of a dependency tree.
 
@@ -234,38 +235,71 @@ def tex_escape(text: str) -> str:
 def cairo_surf(tree: libginger.Tree,
                font_size: int = 20,
                token_node_distance: int = 20,
-               node_part_margin: int = None) -> cairo.Surface:
+               node_part_margin: int = None,
+               arrow_shift: int = 3,
+               energy: float = 0.5) -> cairo.Surface:
     '''Render a tree in a cairo surface.
 
        ## Parameters
          - `font_size`  the font size used
          - `token_node_distance`  the horizontal soacing between two nodes
          - `node_part_margin`  the vertical spacing between node attributes
-                               (default: $⌈`token_node_distance`/3⌉$)'''
+                               (default: $⌈`token_node_distance`/3⌉$)
+         - `arrow_shift` the horizontal padding between arrows of opposite
+                         directions
+         - `energy`  the magnitude of the tangent at the origin of an arc
+                     between two nodes is $E×d$ where $E$ is the energy and
+                     $d$ the distance between those nodes. Increase this to
+                     make the arcs go higher.'''
+
     if cairo is None:
         raise NotImplementedError
 
-    node_part_margin = node_part_margin if node_part_margin is not None else math.ceil(token_node_distance/3)
+    if node_part_margin is None:
+        node_part_margin = math.ceil(token_node_distance/3)
 
-    # First, determine the size of the result
+    # First, determine the size of the result and the positions of the nodes
     # A surface that will serve to compute the actual size of the final survace
     dummy = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
     dummy_context = cairo.Context(dummy)
     dummy_context.set_font_size(font_size)
     # For every token, we need to take account the width of the largest of the stacked
     # attributes : `form`, `lemma`, `upostag`
-    # The height will simply be three times the maximum height
-    res_width = max_height = 0
+    # This dict associate every node to its rect (as$ (x, y, width, height)$)
+    node_rects = {}
+    current_x = 0
     for n in tree.nodes[1:]:
-        parts_extents = [dummy_context.text_extents(s) for s in (n.form, n.lemma, n.upostag) if s is not None]
-        res_width += max(e[2] for e in parts_extents)
-        part_height = max(max_height, max(e[3] for e in parts_extents))
-    # Add the spaces
-    res_width += token_node_distance*(len(tree.nodes)-1)
-    res_height = 3*part_height + 2*node_part_margin
+        parts_extents = [dummy_context.text_extents(s if s is not None else '_')
+                         for s in (n.form, n.lemma, n.upostag)]
+        w = max(e[2] for e in parts_extents)
+        h = sum(e[3] for e in parts_extents) + 3*node_part_margin
+        node_rects[n] = (current_x, 0, w, h)
+        current_x += w + token_node_distance
+
+    # Now compute the image width
+    res_width = node_rects[tree.nodes[-1]][0] + node_rects[tree.nodes[-1]][2]
+
+    # Normalise the height of the nodes to the largest
+    part_height = math.ceil(max(h for _, _, _, h in node_rects.values())/3)
+    nodes_height = 3*part_height
+
+    node_rects = dict((n, (x, y, w, nodes_height)) for n, (x, y, w, h) in node_rects.items())
+
+    # Find out the largest arc height
+    # First, get the relations
+    deps = [(node.head, node) for node in tree.nodes[1:] if node.head is not tree.nodes[0]]
+    # Get the longest distance between a node arc and its head
+    longest_dep = max(abs(x1 + w1/2 - x2 - w2/2) - arrow_shift
+                      for (x1, _, w1, _), (x2, _, w2, _) in ((node_rects[head], node_rects[foot])
+                                                             for head, foot in deps))
+    max_arc_height = math.ceil(3*energy*longest_dep/4)
+    # And use it to get the total image height
+    res_height = nodes_height + max_arc_height
+    # And update the node rects
+    node_rects = dict((n, (x, y+max_arc_height, w, h)) for n, (x, y, w, h) in node_rects.items())
+
     # Normalise to integer pixel sizes
     res_width, res_height = math.ceil(res_width), math.ceil(res_height)
-
     # Now draw for real
     res = cairo.ImageSurface(cairo.FORMAT_ARGB32, res_width, res_height)
     context = cairo.Context(res)
@@ -276,20 +310,14 @@ def cairo_surf(tree: libginger.Tree,
         context.paint()
 
     context.set_source_rgba(0, 0, 0)
-
     # First draw the nodes
     context.move_to(0, 0)
-    for n in tree.nodes[1:]:
-        parts = (s if s is not None else '_' for s in (n.form, n.lemma, n.upostag))
-        parts_extents = [dummy_context.text_extents(s) for s in parts]
-        token_width = max(e[2] for e in parts_extents)
-
-        for p, e in zip(parts, parts_extents):
-            margin = (token_width - e[2]) // 2
-            context.rel_move_to(margin, part_height)
+    for node, (x, y, w, h) in ((n, node_rects[n]) for n in tree.nodes[1:]):
+        parts = (s if s is not None else '_' for s in (node.form, node.lemma, node.upostag))
+        for i, p in enumerate(parts, start=1):
+            margin = math.floor((w - context.text_extents(p)[2])/2)
+            context.move_to(x+margin, y+i*part_height)
             context.show_text(p)
-            context.rel_move_to(-(margin + e[4]), node_part_margin)
-        context.rel_move_to(token_width + token_node_distance, -(res_height + node_part_margin))
 
     context.stroke()
 
