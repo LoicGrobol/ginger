@@ -10,7 +10,7 @@ Arguments:
 
 Options:
   -f, --from <format> input file format, see below [default: guess]
-  -t, --to <format>   output file foramt, see below [default: ascii]
+  -t, --to <format>   output file format, see below [default: ascii]
   -h, --help          Show this screen.
 
 Input formats:
