@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...HEAD
+### Fixed
+  - `libtreebank`
+    - Trying to parse CoNLL-X files with more or less than 10 columns now throw a proper `ParsingError`.
 
 ## [0.4.1] - 2017-03-29
 [0.4.1]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...v0.4.1
