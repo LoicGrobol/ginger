@@ -5,8 +5,6 @@ import typing as ty
 import re
 import math
 
-from collections import namedtuple
-
 try:
     import cairocffi as cairo
 except ImportError:  # don't break if cairo is not available
