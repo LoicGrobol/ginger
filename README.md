@@ -45,7 +45,7 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
 
 ### Output formats
-  - `ascii` ASCII-art (using unicode character, because, yes, we are subversive)
+  - `ascii` ASCII-art (using Unicode characters, because, yes, we are subversive)
   - `tikz`  TikZ code.
     - Uses the `positioning`, `calc` and `shapes.multipart` libraries. Do not forget to include them in your document.
     - The output is only the `\tikzpicture` part, not a whole compilable document, there is

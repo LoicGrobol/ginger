@@ -21,7 +21,7 @@ Input formats:
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
 
 Output formats
-  - `ascii`  ASCII-art (using unicode character, because, yes, we are subversive)
+  - `ascii`  ASCII-art (using Unicode characters, because, yes, we are subversive)
   - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
 
 Example:
