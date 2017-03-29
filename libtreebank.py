@@ -20,17 +20,22 @@ def conllx(tree_str: str) -> libginger.Tree:
     res = [root]
     conllx_to_conllu_identifers = {0: 0}
 
-    for i, l in enumerate(l.strip() for l in tree_str.splitlines()):
+    for i, line in enumerate(l.strip() for l in tree_str.splitlines()):
         # Skip comment lines
-        if l.startswith('#'):
+        if line.startswith('#'):
             next
-        identifier, form, lemma, upostag, xpostag, feats, head, deprel, phead, pdeprel = l.split('\t')
+
+        try:
+            identifier, form, lemma, upostag, xpostag, feats, head, deprel, phead, pdeprel = line.split('\t')
+        except ValueError:
+            # TODO: Issue a warning here
+            raise libginger.ParsingError('At line {i} : 10 columns expected, got a {n} ({line!r})'.format(n=len(line.split('\t')), line=line))
 
         try:
             identifier = int(identifier)
         except ValueError:
             # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : the `id` field does not respect CoNLL-X specifications.'.format(i=i))
+            raise libginger.ParsingError('At line {i} : the `id` field does not respect CoNLL-X specifications ({identifier!r})'.format(i=i, identifier=identifier))
 
         lemma = re.sub(r'\s', '_', lemma)
 
@@ -89,6 +94,7 @@ def conll2009(tree_str: str) -> libginger.Tree:
         # Skip comment lines
         if l.startswith('#'):
             next
+
         identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel, fillpred, pred, *apreds = l.split('\t')
 
         try:
