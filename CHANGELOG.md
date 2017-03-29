@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...HEAD
-
 ### Changed
   - Try to conform to [Keep a Changelog](http://keepachangelog.com/).
+
+### Bugfix
+  - Properly add EOL at the end of outputs
+  - Fixed issues with treebank files starting with a blank line
 
 ## [0.4.0] - 2017-03-17
 [0.4.0]: https://github.com/LoicGrobol/ginger/compare/v0.3.0...v0.4.0

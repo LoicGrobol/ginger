@@ -79,7 +79,7 @@ def main_entry_point(argv=sys.argv[1:]):
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
         tree_parser = libtreebank.formats[libtreebank.guess(in_str)]
 
-    treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str) if tree and not tree.isspace()]
+    treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str.strip()) if tree and not tree.isspace()]
 
     if arguments['--to'] == 'tikz':
         out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
@@ -88,6 +88,7 @@ def main_entry_point(argv=sys.argv[1:]):
 
     with smart_open(arguments['<out-file>'], 'w') as out_stream:
         out_stream.write(out_str)
+        out_stream.write('\n')
 
 
 if __name__ == '__main__':
