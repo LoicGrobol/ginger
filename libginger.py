@@ -123,11 +123,16 @@ class Tree:
         # First get the self-contained values, deal with references later
         # IMPLEMENTATION: This relies on references being initialisable
         #                 with identifiers
-        for i, l in enumerate(l.strip() for l in conll_str.splitlines()):
+        for i, line in enumerate(l.strip() for l in conll_str.splitlines()):
             # Skip comment lines
-            if l.startswith('#'):
+            if line.startswith('#'):
                 next
-            identifier, form, lemma, upostag, xpostag, feats, head, deprel, deps, misc = l.split('\t')
+
+            try:
+                identifier, form, lemma, upostag, xpostag, feats, head, deprel, deps, misc = line.split('\t')
+            except ValueError:
+                # TODO: Issue a warning here
+                raise ParsingError('At line {i} : 10 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
             try:
                 identifier = int(identifier)
             except ValueError:
