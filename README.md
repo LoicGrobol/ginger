@@ -1,7 +1,7 @@
 Ginger
 ======
 
-Graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
+Format conversion and graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
 
 ![2d graphical representation](doc/tree.png)
 
@@ -53,52 +53,64 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - `-f`, `--from <format>` input file format, see below (default: `guess`)
   - `-t`, `--to <format>`   output file format, see below (default: `ascii`)
   - `-h`, `--help` Get some help
+  ### Examples
+  - Print to stdout
+  ```
+  ginger examples/test.conll
+  ```
+  - Assume CoNLL-X for input format
+  ```
+  ginger -f conllx spam.conllx
+  ```
+  - Output TikZ code
+  ```
+  ginger examples/test.conll -t tikz
+  ```
+  - Print to a file
+  ```
+  ginger examples/test.conll examples/output.asciiart
+  ```
+  - Pipe in and out
+  ```
+  cat examples/test.conll | ginger - | less
+  ```
+  - Get help
+  ```
+  ginger --help
+```
 
 ### Input formats
   - `guess` Try to guess the file format, defaults to CoNLL-U
 
-#### Standard
+#### CoNLL
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
   - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+    - The P- and -PRED attributes are preserved in the `misc` attribute of the
+      intermediate CoNLL-U tree.
 
 #### Software
+Formats used by mainstream NLP tools
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
   - `mate` Input/Output [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009`)
 
 ### Output formats
+#### Treebanks
+  - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
+  - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+
+Note : no real effort is made to preserve informations that are not relevant to Universal
+Dependencies, so this might be information-destructive, e.g. if converting from CoNLL-2009 to
+itself, the P- attributes will be dropped.
+
+#### Text-based graphics
+These output formats are meant to be used by third-party tools that generate graphic outputs :
   - `ascii` ASCII-art (using Unicode characters, because, yes, we are subversive)
   - `tikz`  TikZ code.
     - Uses the `positioning`, `calc` and `shapes.multipart` libraries. Do not forget to include them in your document.
     - The output is only the `\tikzpicture` part, not a whole compilable document, there is
       [an example](examples/tree.tex) of such a document in `example`.
     - The code is quite verbose since we chose to rely on TikZ' own arithmetic capabilities in order to allow easier edition and reuse of the generated code.
-
-### Examples
-  - Print to stdout
-    ```
-    ginger examples/test.conll
-    ```
-  - Assume CoNLL-X for input format
-    ```
-    ginger -f conllx spam.conllx
-    ```
-  - Output TikZ code
-    ```
-    ginger examples/test.conll -t tikz
-    ```
-  - Print to a file
-    ```
-    ginger examples/test.conll examples/output.asciiart
-    ```
-  - Pipe in and out
-    ```
-    cat examples/test.conll | ginger - | less
-    ```
-  - Get help
-    ```
-    ginger --help
-    ```
 
 ## Development
 Development and releases on [Github](https://github.com/loic-grobol/ginger).

@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-r"""Graphical representation of Universal Dependency trees
+r"""Format conversion and graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
 
 Usage:
   ginger [--from <format>] <in-file> [--to <format>] [<out-file>]
@@ -22,21 +22,16 @@ Input formats:
   - `mate`       Alias for `conll2009`, used by [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
 
 Output formats
-<<<<<<< HEAD
   - Text formats. Those can't be used without any dependency
     - `ascii`  ASCII-art (using unicode character, because, yes, we are subversive)
     - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
   - Image formats. Uses cairo, requires dependencies and have different convenrions see README.md
-=======
-  - `ascii`  ASCII-art (using Unicode characters, because, yes, we are subversive)
-  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
->>>>>>> master
 
 Example:
   `ginger -f conllu input.conll -t tikz output.tex`
 """
 
-__version__ = 'ginger 0.4.1'
+__version__ = 'ginger 0.5.0'
 
 import sys
 import contextlib
@@ -46,6 +41,9 @@ import re
 
 import signal
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+import logging
+logging.basicConfig(level=logging.INFO)
 
 try:
     import libginger
@@ -85,24 +83,53 @@ def main_entry_point(argv=sys.argv[1:]):
         in_str = in_stream.read()
 
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
-        tree_parser = libtreebank.formats[libtreebank.guess(in_str)]
+        arguments['--from'] = libtreebank.guess(in_str)
 
-    treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str.strip()) if tree and not tree.isspace()]
+    try:
+        parser, _ = libtreebank.formats[arguments['--from']]
+    except KeyError:
+        logging.error('{argsfrom!r} is not a supported format'.format(
+            argsfrom=arguments['--from']))
+        sys.exit(1)
 
-    if arguments['--to'] in ('tikz', 'ascii'):
-        if arguments['--to'] == 'tikz':
-            out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
-        elif arguments['--to'] == 'ascii':
-            out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
-        with smart_open(arguments['<out-file>'], 'w') as out_stream:
-            out_stream.write(out_str)
-    else:
+    if parser is None:
+        logging.error('{argsfrom!r} is not supported as an input format'.format(
+            argsfrom=arguments['--from']))
+        sys.exit(1)
+
+    treebank = [parser(tree) for tree in re.split('\n\n+', in_str.strip()) if tree and not tree.isspace()]
+
+    # Binary outputs
+    if arguments['--to'] in ['png']:
         if arguments['--to'] == 'png':
             out_bytes = libtreerender.png(treebank[0])
+        with open(arguments['<out-file>'], 'wb') as out_stream:
+            out_stream.write(out_bytes)
+            # Text outputs
+    else:
+        if arguments['--to'] == 'tikz':
+            out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
 
-    with smart_open(arguments['<out-file>'], 'w') as out_stream:
-        out_stream.write(out_str)
-        out_stream.write('\n')
+        elif arguments['--to'] == 'ascii':
+            out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
+        else:
+            try:
+                _, formatter = libtreebank.formats[arguments['--to']]
+            except KeyError:
+                logging.error('{argsto!r} is not a supported format'.format(
+                    argsto=arguments['--to']))
+                sys.exit(1)
+
+            if formatter is None:
+                logging.error('{argsto!r} is not supported as an output format'.format(
+                argsto=arguments['--to']))
+                sys.exit(1)
+
+            out_str = '\n\n'.join(formatter(t) for t in treebank)
+
+        with smart_open(arguments['<out-file>'], 'w') as out_stream:
+            out_stream.write(out_str)
+            out_stream.write('\n')
 
 
 if __name__ == '__main__':

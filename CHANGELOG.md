@@ -2,17 +2,24 @@ Change Log
 ==========
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
+The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to
+[Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...HEAD
+
+## [0.5.0] - 2017-03-31
+[0.5.0]: https://github.com/LoicGrobol/ginger/compare/v0.4.1...v0.5.0
 ### Added
   - `mate` format alias for CoNLL-2009
-  
+  - Treebank outputs (see [README](README.md))
+
+### Changed
+  - Improve [test.conll](/examples/test.conll) to be an actual treebank instead of a single tree.
+
 ### Fixed
   - `libtreebank`
-    - Trying to parse CoNLL-X files with more or less than 10 columns now throw a proper `ParsingError`.
+    - Trying to parse CoNLL-[UX] files with more or less than 10 columns now throw a proper `ParsingError`.
 
 ## [0.4.1] - 2017-03-29
 [0.4.1]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...v0.4.1

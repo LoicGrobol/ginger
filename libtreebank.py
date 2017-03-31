@@ -5,6 +5,7 @@ or through rewriting. Many thanks to him!
 
 [1]: https://github.com/kimgerdes/arborator"""
 
+import typing as ty
 import re
 
 try:
@@ -29,7 +30,7 @@ def conllx(tree_str: str) -> libginger.Tree:
             identifier, form, lemma, upostag, xpostag, feats, head, deprel, phead, pdeprel = line.split('\t')
         except ValueError:
             # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : 10 columns expected, got a {n} ({line!r})'.format(n=len(line.split('\t')), line=line))
+            raise libginger.ParsingError('At line {i} : 10 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
 
         try:
             identifier = int(identifier)
@@ -85,7 +86,9 @@ def conllx(tree_str: str) -> libginger.Tree:
 
 
 def conll2009(tree_str: str) -> libginger.Tree:
-    """Create an Universal Dependencies tree from a CoNLL-2009 tree."""
+    """Create an Universal Dependencies tree from a CoNLL-2009 tree.
+
+       The P-attributes and 'pred are stored in the `misc` attribute."""
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
     conllx_to_conllu_identifers = {0: 0}
@@ -135,14 +138,22 @@ def conll2009(tree_str: str) -> libginger.Tree:
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
                                   lemma=lemma, upostag=pos, feats=feat,
                                   head=head, deprel=deprel,
-                                  deps=[] if phead is None else [(phead, pdeprel)]))
+                                  deps=[],
+                                  misc=dict_to_conll_map({k: v
+                                                          for k, v in {'ppos': ppos,
+                                                                       'phead': phead,
+                                                                       'pdeprel': pdeprel,
+                                                                       'fillpred': fillpred,
+                                                                       'pred': pred,
+                                                                       'apreds': ','.join(apreds)}
+                                                          if v and v != '_'})))
 
         # Now deal with the other tokens, their head will simply be the first token,
         # with the relation 'fixed'
         for t in tokens[1:]:
             res.append(libginger.Node(identifier=len(res), form=t, head=identifier, deprel='fixed'))
 
-    # Now that we have a `Node` for every node, let's do the linking
+    # Now that we have a `Node` for every node,& let's do the linking
     for n in res[1:]:
         n.head = res[conllx_to_conllu_identifers[n.head]]
         n.deps = [(res[conllx_to_conllu_identifers[head]], deprel) for head, deprel in n.deps]
@@ -150,9 +161,34 @@ def conll2009(tree_str: str) -> libginger.Tree:
     return libginger.Tree(res)
 
 
+def _node_to_conll2009(node: libginger.Node):
+    '''Return CoNLL-2009 representation of a `Node`.
+
+       Not effort is made to infer possible values for P-attributes and 'preds'.'''
+    return '{identifier}\t{form}\t{lemma}\t_\t{upostag}\t_\t{feats}\t_\t{head}\t_\t{deprel}\t_\t_\t_\t_'.format(
+        identifier='_' if node.identifier is None else node.identifier,
+        form='_' if node.form is None else node.form,
+        lemma='_' if node.lemma is None else node.lemma,
+        upostag='_' if node.upostag is None else node.upostag,
+        feats='|'.join('{feat}={value}'.format(feat=feat, value=value) for feat, value in node.feats.items()),
+        head='_' if node.head is None else node.head.identifier,
+        deprel='_' if node.deprel is None else node.deprel,
+    )
+
+
+def to_conll2009(tree: libginger.Tree) -> str:
+    '''Return a CoNLL-2009 representation of the tree.'''
+    return '\n'.join(_node_to_conll2009(n) for n in tree.nodes[1:])
+
+
 def conllu(tree_str: str) -> libginger.Tree:
     """Create an Universal Dependencies tree from a CoNLL-U tree."""
     return libginger.Tree.from_conll(tree_str)
+
+
+def to_conllu(tree: libginger.Tree) -> str:
+    """Return `tree` in CoNLL-U format."""
+    return tree.to_conll()
 
 
 # Parser-specific formats
@@ -163,6 +199,11 @@ def talismane(tree_str: str) -> libginger.Tree:
        stylistic idiosyncrasies."""
     conllx_str = re.sub(r'\|\t', r'\t', tree_str)
     return conllx(conllx_str)
+
+
+def dict_to_conll_map(d: ty.Dict) -> str:
+    'Return the CoNLL standard description of a dict.'
+    return '|'.join('='.join((key, val)) for key, val in d.items())
 
 
 # Guessing tools
@@ -185,8 +226,8 @@ def guess(filecontents: str) -> str:
     return "conllu"
 
 
-formats = {'conllx': conllx,
-           'talismane': talismane,
-           'conllu': conllu,
-           'conll2009': conll2009,
-           'mate': conll2009}
+formats = {'conllx': (conllx, None),
+           'talismane': (talismane, None),
+           'conllu': (conllu, to_conllu),
+           'conll2009': (conll2009, to_conll2009),
+           'mate': (conll2009, to_conll2009)}
