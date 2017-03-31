@@ -155,6 +155,11 @@ def conllu(tree_str: str) -> libginger.Tree:
     return libginger.Tree.from_conll(tree_str)
 
 
+def to_conllu(tree: libginger.Tree) -> str:
+    """Return `tree` in CoNLL-U format."""
+    return tree.to_conll()
+
+
 # Parser-specific formats
 def talismane(tree_str: str) -> libginger.Tree:
     """Create an Universal Dependencies tree from a Talismane tree.
@@ -187,6 +192,6 @@ def guess(filecontents: str) -> str:
 
 formats = {'conllx': (conllx, None),
            'talismane': (talismane, None),
-           'conllu': (conllu, None),
+           'conllu': (conllu, to_conllu),
            'conll2009': (conll2009, None),
            'mate': (conll2009, None)}

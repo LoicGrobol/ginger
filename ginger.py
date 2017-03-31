@@ -102,6 +102,7 @@ def main_entry_point(argv=sys.argv[1:]):
 
     elif arguments['--to'] == 'ascii':
         out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
+
     else:
         try:
             _, formatter = libtreebank.formats[arguments['--to']]
@@ -114,6 +115,8 @@ def main_entry_point(argv=sys.argv[1:]):
             logging.error('{argsto!r} is not supported as an output format'.format(
             argsto=arguments['--to']))
             sys.exit(1)
+
+        out_str = '\n\n'.join(formatter(t) for t in treebank)
 
     with smart_open(arguments['<out-file>'], 'w') as out_stream:
         out_stream.write(out_str)
