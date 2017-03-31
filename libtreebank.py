@@ -1,4 +1,4 @@
-"""Conversion from various treebank formats to CoNLL-U.
+"""Conversion from various treebank formats to CoNLL-Uand back again.
 
 A lot of the code comes from Kim Gerdes' [arborator][1], either directly
 or through rewriting. Many thanks to him!
@@ -188,4 +188,5 @@ def guess(filecontents: str) -> str:
 formats = {'conllx': conllx,
            'talismane': talismane,
            'conllu': conllu,
-           'conll2009': conll2009}
+           'conll2009': conll2009,
+           'mate": conll2009'}

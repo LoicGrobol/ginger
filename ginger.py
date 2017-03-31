@@ -19,6 +19,7 @@ Input formats:
   - `conllu`     [CoNLL-U format](http://universaldependencies.org/format.html)
   - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
+  - `mate`       Alias for `conll2009`, used by [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
 
 Output formats
   - `ascii`  ASCII-art (using Unicode characters, because, yes, we are subversive)
