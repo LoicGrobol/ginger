@@ -56,13 +56,18 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
 
 ### Input formats
   - `guess` Try to guess the file format, defaults to CoNLL-U
+
+#### Standard
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
   - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+
+#### Software
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
+  - `mate` Input/Output [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009`)
 
 ### Output formats
-  - `ascii` ASCII-art (using unicode character, because, yes, we are subversive)
+  - `ascii` ASCII-art (using Unicode characters, because, yes, we are subversive)
   - `tikz`  TikZ code.
     - Uses the `positioning`, `calc` and `shapes.multipart` libraries. Do not forget to include them in your document.
     - The output is only the `\tikzpicture` part, not a whole compilable document, there is

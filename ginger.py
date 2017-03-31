@@ -19,18 +19,24 @@ Input formats:
   - `conllu`     [CoNLL-U format](http://universaldependencies.org/format.html)
   - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
+  - `mate`       Alias for `conll2009`, used by [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
 
 Output formats
+<<<<<<< HEAD
   - Text formats. Those can't be used without any dependency
     - `ascii`  ASCII-art (using unicode character, because, yes, we are subversive)
     - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
   - Image formats. Uses cairo, requires dependencies and have different convenrions see README.md
+=======
+  - `ascii`  ASCII-art (using Unicode characters, because, yes, we are subversive)
+  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
+>>>>>>> master
 
 Example:
   `ginger -f conllu input.conll -t tikz output.tex`
 """
 
-__version__ = 'ginger 0.4.0'
+__version__ = 'ginger 0.4.1'
 
 import sys
 import contextlib
@@ -81,7 +87,7 @@ def main_entry_point(argv=sys.argv[1:]):
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
         tree_parser = libtreebank.formats[libtreebank.guess(in_str)]
 
-    treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str) if tree and not tree.isspace()]
+    treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str.strip()) if tree and not tree.isspace()]
 
     if arguments['--to'] in ('tikz', 'ascii'):
         if arguments['--to'] == 'tikz':
@@ -94,8 +100,9 @@ def main_entry_point(argv=sys.argv[1:]):
         if arguments['--to'] == 'png':
             out_bytes = libtreerender.png(treebank[0])
 
-        with smart_open(arguments['<out-file>'], 'wb') as out_stream:
-            out_stream.write(out_bytes)
+    with smart_open(arguments['<out-file>'], 'w') as out_stream:
+        out_stream.write(out_str)
+        out_stream.write('\n')
 
 
 if __name__ == '__main__':

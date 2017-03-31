@@ -1,5 +1,5 @@
 Change Log
-=========
+==========
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...HEAD
+### Added
+  - `mate` format alias for CoNLL-2009
+  
+### Fixed
+  - `libtreebank`
+    - Trying to parse CoNLL-X files with more or less than 10 columns now throw a proper `ParsingError`.
 
+## [0.4.1] - 2017-03-29
+[0.4.1]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...v0.4.1
 ### Changed
   - Try to conform to [Keep a Changelog](http://keepachangelog.com/).
+
+### Bugfix
+  - Properly add EOL at the end of outputs
+  - Fixed issues with treebank files starting with a blank line
 
 ## [0.4.0] - 2017-03-17
 [0.4.0]: https://github.com/LoicGrobol/ginger/compare/v0.3.0...v0.4.0
