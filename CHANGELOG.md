@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.4.0...HEAD
 ### Added
   - `mate` format alias for CoNLL-2009
-  
+  - Treebank output
+
 ### Fixed
   - `libtreebank`
     - Trying to parse CoNLL-X files with more or less than 10 columns now throw a proper `ParsingError`.
