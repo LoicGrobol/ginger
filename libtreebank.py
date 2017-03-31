@@ -189,4 +189,4 @@ formats = {'conllx': conllx,
            'talismane': talismane,
            'conllu': conllu,
            'conll2009': conll2009,
-           'mate": conll2009'}
+           'mate': conll2009}
