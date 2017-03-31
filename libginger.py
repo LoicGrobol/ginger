@@ -45,11 +45,11 @@ class Node:
     def to_conll(self) -> str:
         '''Return the CoNLL-U representation of the node.'''
         return '{identifier}\t{form}\t{lemma}\t{upostag}\t{xpostag}\t{feats}\t{head}\t{deprel}\t{deps}\t{misc}'.format(
-            identifier='_' if self.identifier is not None else self.identifier,
-            form='_' if self.form is not None else self.form,
-            lemma='_' if self.lemma is not None else self.lemma,
-            upostag='_' if self.upostag is not None else self.upostag,
-            xpostag='_' if self.xpostag is not None else self.xpostag,
+            identifier='_' if self.identifier is None else self.identifier,
+            form='_' if self.form is None else self.form,
+            lemma='_' if self.lemma is None else self.lemma,
+            upostag='_' if self.upostag is None else self.upostag,
+            xpostag='_' if self.xpostag is None else self.xpostag,
             feats='|'.join('{feat}={value}'.format(feat=feat, value=value) for feat, value in self.feats.items()),
             head='_' if self.head is None else self.head.identifier,
             deprel='_' if self.deprel is None else self.deprel,
