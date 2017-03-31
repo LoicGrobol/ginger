@@ -29,7 +29,7 @@ def conllx(tree_str: str) -> libginger.Tree:
             identifier, form, lemma, upostag, xpostag, feats, head, deprel, phead, pdeprel = line.split('\t')
         except ValueError:
             # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : 10 columns expected, got a {n} ({line!r})'.format(n=len(line.split('\t')), line=line))
+            raise libginger.ParsingError('At line {i} : 10 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
 
         try:
             identifier = int(identifier)
