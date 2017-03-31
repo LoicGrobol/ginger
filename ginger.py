@@ -40,6 +40,9 @@ import re
 import signal
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 try:
     import libginger
     import libtreebank
@@ -78,14 +81,39 @@ def main_entry_point(argv=sys.argv[1:]):
         in_str = in_stream.read()
 
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
-        tree_parser = libtreebank.formats[libtreebank.guess(in_str)]
+        arguments['--from'] = libtreebank.guess(in_str)
 
-    treebank = [tree_parser(tree) for tree in re.split('\n\n+', in_str.strip()) if tree and not tree.isspace()]
+    try:
+        parser, _ = libtreebank.formats[arguments['--from']]
+    except KeyError:
+        logging.error('{argsfrom!r} is not a supported format'.format(
+            argsfrom=arguments['--from']))
+        sys.exit(1)
+
+    if parser is None:
+        logging.error('{argsfrom!r} is not supported as an input format'.format(
+            argsfrom=arguments['--from']))
+        sys.exit(1)
+
+    treebank = [parser(tree) for tree in re.split('\n\n+', in_str.strip()) if tree and not tree.isspace()]
 
     if arguments['--to'] == 'tikz':
         out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
-    else:  # elif arguments['--to'] == 'ascii':
+
+    elif arguments['--to'] == 'ascii':
         out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
+    else:
+        try:
+            _, formatter = libtreebank.formats[arguments['--to']]
+        except KeyError:
+            logging.error('{argsto!r} is not a supported format'.format(
+                argsto=arguments['--to']))
+            sys.exit(1)
+
+        if formatter is None:
+            logging.error('{argsto!r} is not supported as an output format'.format(
+            argsto=arguments['--to']))
+            sys.exit(1)
 
     with smart_open(arguments['<out-file>'], 'w') as out_stream:
         out_stream.write(out_str)

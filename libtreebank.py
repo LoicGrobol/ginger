@@ -185,8 +185,8 @@ def guess(filecontents: str) -> str:
     return "conllu"
 
 
-formats = {'conllx': conllx,
-           'talismane': talismane,
-           'conllu': conllu,
-           'conll2009': conll2009,
-           'mate': conll2009}
+formats = {'conllx': (conllx, None),
+           'talismane': (talismane, None),
+           'conllu': (conllu, None),
+           'conll2009': (conll2009, None),
+           'mate': (conll2009, None)}
