@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-r"""Graphical representation of Universal Dependency trees
+r"""Format conversion and graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
 
 Usage:
   ginger [--from <format>] <in-file> [--to <format>] [<out-file>]
@@ -29,7 +29,7 @@ Example:
   `ginger -f conllu input.conll -t tikz output.tex`
 """
 
-__version__ = 'ginger 0.4.1'
+__version__ = 'ginger 0.5.0'
 
 import sys
 import contextlib
