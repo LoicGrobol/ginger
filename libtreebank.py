@@ -1,4 +1,4 @@
-"""Conversion from various treebank formats to CoNLL-Uand back again.
+"""Conversion from various treebank formats to CoNLL-U and back again.
 
 A lot of the code comes from Kim Gerdes' [arborator][1], either directly
 or through rewriting. Many thanks to him!
