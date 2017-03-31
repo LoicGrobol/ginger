@@ -105,7 +105,7 @@ class Tree:
 
     def to_conll(self) -> str:
         '''Return a CoNLL-U representation of the tree.'''
-        return '\n'.join(n.to_conll for n in self.nodes[1:])
+        return '\n'.join(n.to_conll() for n in self.nodes[1:])
 
     def __str__(self):
         return '\n'.join(str(n) for n in self.nodes)
