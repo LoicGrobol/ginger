@@ -321,7 +321,7 @@ def cairo_surf(tree: libginger.Tree,
     return res
 
 
-def png(tree: libginger.Tree) -> bytes:
+def to_png(tree: libginger.Tree) -> bytes:
     s = cairo_surf(tree)
     x, y, w, h = s.ink_extents()
     res = cairo.ImageSurface(cairo.FORMAT_ARGB32, math.ceil(w), math.ceil(h))

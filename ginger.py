@@ -102,7 +102,7 @@ def main_entry_point(argv=sys.argv[1:]):
     # Binary outputs
     if arguments['--to'] in ['png']:
         if arguments['--to'] == 'png':
-            out_bytes = libtreerender.png(treebank[0])
+            out_bytes = libtreerender.to_png(treebank[0])
         with open(arguments['<out-file>'], 'wb') as out_stream:
             out_stream.write(out_bytes)
             # Text outputs
