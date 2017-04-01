@@ -245,7 +245,7 @@ def cairo_surf(tree: libginger.Tree,
                token_node_distance: int = 20,
                node_part_margin: int = None,
                arrow_shift: int = 6,
-               energy: float = 0.5) -> cairo.Surface:
+               energy: float = 0.5) -> cairo.RecordingSurface:
     '''Render a tree in a cairo surface.
 
        ## Parameters
@@ -266,56 +266,32 @@ def cairo_surf(tree: libginger.Tree,
     if node_part_margin is None:
         node_part_margin = math.ceil(token_node_distance/3)
 
-    # First, determine the size of the result and the positions of the nodes
-    # A surface that will serve to compute the actual size of the final survace
-    dummy = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
-    dummy_context = cairo.Context(dummy)
-    dummy_context.set_font_size(font_size)
+    res = cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, None)
+    context = cairo.Context(res)
+    context.set_font_size(font_size)
+
     # For every token, we need to take account the width of the largest of the stacked
     # attributes : `form`, `lemma`, `upostag`
     # This dict associate every node to its Rect
     node_rects = {}  # type: ty.Dict[libginger.Node, Rect]
     current_x = 0
     for n in tree.nodes[1:]:
-        parts_extents = [dummy_context.text_extents(s if s is not None else '_')
+        parts_extents = [context.text_extents(s if s is not None else '_')
                          for s in (n.form, n.lemma, n.upostag)]
         w = max(e[2] for e in parts_extents)
         h = sum(e[3] for e in parts_extents) + 3*node_part_margin
         node_rects[n] = Rect(current_x, 0, w, h)
         current_x += w + token_node_distance
 
-    # Now compute the image width
-    res_width = node_rects[tree.nodes[-1]][0] + node_rects[tree.nodes[-1]][2]
-
     # Normalise the height of the nodes to the largest
     part_height = math.ceil(max(h for _, _, _, h in node_rects.values())/3)
     nodes_height = 3*part_height
-
+    # And take into account in node rects
     node_rects = dict((n, Rect(x, y, w, nodes_height)) for n, (x, y, w, h) in node_rects.items())
 
     # Find out the largest arc height
     # First, get the relations
     deps = [(node.head, node) for node in tree.nodes[1:] if node.head is not tree.nodes[0]]
-    # Get the longest distance between a node arc and its head
-    longest_dep = max(abs(x1 + w1/2 - x2 - w2/2) - arrow_shift
-                      for (x1, _, w1, _), (x2, _, w2, _) in ((node_rects[head], node_rects[foot])
-                                                             for head, foot in deps))
-    max_arc_height = math.ceil(3*energy*longest_dep/4)
-    # And use it to get the total image height
-    res_height = nodes_height + max_arc_height
-    # And update the node rects
-    node_rects = dict((n, Rect(x, y+max_arc_height, w, h)) for n, (x, y, w, h) in node_rects.items())
-
-    # Normalise to integer pixel sizes
-    res_width, res_height = math.ceil(res_width), math.ceil(res_height)
-    # Now draw for real
-    res = cairo.ImageSurface(cairo.FORMAT_ARGB32, res_width, res_height)
-    context = cairo.Context(res)
-    context.set_font_size(font_size)
-
-    with context:
-        context.set_source_rgb(1, 1, 1)  # White
-        context.paint()
 
     context.set_source_rgba(0, 0, 0)
     # First draw the nodes
@@ -346,4 +322,13 @@ def cairo_surf(tree: libginger.Tree,
 
 
 def png(tree: libginger.Tree) -> bytes:
-    return cairo_surf(tree).write_to_png()
+    s = cairo_surf(tree)
+    x, y, w, h = s.ink_extents()
+    res = cairo.ImageSurface(cairo.FORMAT_ARGB32, math.ceil(w), math.ceil(h))
+    context = cairo.Context(res)
+    with context:
+        context.set_source_rgb(1, 1, 1)  # White
+        context.paint()
+        context.set_source_surface(s, -x, -y)
+        context.paint()
+    return res.write_to_png()
