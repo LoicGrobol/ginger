@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.5.0...HEAD
+### Fixed
+  - Add dependency on`docopt`
 
 ## [0.5.0] - 2017-03-31
 [0.5.0]: https://github.com/LoicGrobol/ginger/compare/v0.4.1...v0.5.0
