@@ -3,7 +3,7 @@ import os.path
 import json
 
 with open('package.json') as package_json:
-    package_metadata = json.load(package_json.decode('utf-8'))
+    package_metadata = json.loads(package_json.read().decode('utf-8'))
 
 import glob
 from setuptools import setup
