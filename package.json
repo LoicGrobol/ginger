@@ -1,6 +1,6 @@
 {
     "name": "ginger",
-    "version": "0.5.1",
+    "version": "0.6.0",
     "description": "Format conversion and graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.",
     "url": "https://github.com/loic-grobol/ginger",
 
