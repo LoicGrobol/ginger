@@ -16,15 +16,29 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ```
 
 ## Installation
+### Installing dependencies
+If you install ginger through pip (see below), the dependencies should be automatically installed. Otherwise, you will need to install the following :
+  - [docopt](http://docopt.org/).
+    - Install it with `pip3 install docopt` or through your package manager of choice
 
-No installation needed, just run `ginger.py`.
-If you want to have it installed at global level, run `pip3 install .`
+### Installing ginger
+You don't actually need to install anything if you satisfy the dependencies above, running `ginger.py` should just work.
 
-Test if everything work by running `ginger examples/test.conll`.
-The output should be the same as the tree above.
+However, if you want to have it installed at global level to get the `ginger` command in your path
+  1. Grab the latest release from [Github](https://github.com/LoicGrobol/ginger/releases/latest)
+  2. Unpack it and open a terminal inside the resulting folder
+  2. Run `pip3 install .`
+
+You can also install it directly from the tip (unstable but usually safe) of the master branch whith
+```bash
+pip3 install git+https://github.com/LoicGrobol/ginger/
+```
+
+Test if everything works by running `ginger examples/test.conll`.
+The output should be the same as the ASCII-art tree above.
 
 ## Usage
-```
+```bash
 ginger [--from <format>] <in-file> [--to] [<out-file>]
 ```
 
@@ -36,7 +50,8 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - `-f`, `--from <format>` input file format, see below (default: `guess`)
   - `-t`, `--to <format>`   output file format, see below (default: `ascii`)
   - `-h`, `--help` Get some help
-  ### Examples
+
+### Examples
   - Print to stdout
   ```
   ginger examples/test.conll
