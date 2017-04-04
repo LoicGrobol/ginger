@@ -77,7 +77,7 @@ def main_entry_point(argv=sys.argv[1:]):
     if arguments['<out-file>'] is None:
         arguments['<out-file>'] = '-'
 
-    with smart_open(arguments['<in-file>']) as in_stream:
+    with smart_open(arguments['<in-file>'], encoding='utf8') as in_stream:
         in_str = in_stream.read()
 
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
@@ -118,7 +118,7 @@ def main_entry_point(argv=sys.argv[1:]):
 
         out_str = '\n\n'.join(formatter(t) for t in treebank)
 
-    with smart_open(arguments['<out-file>'], 'w') as out_stream:
+    with smart_open(arguments['<out-file>'], 'w', encoding='utf8') as out_stream:
         out_stream.write(out_str)
         out_stream.write('\n')
 

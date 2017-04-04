@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.5.1...HEAD
 ### Fixed
   - Issue loading `package.json` in `setup.py` due to encoding
+  - Force UTF-8 encoding on I/O
 
 ## [0.5.1] - 2017-04-03
 [0.5.1]: https://github.com/LoicGrobol/ginger/compare/v0.5.0...v0.5.1
