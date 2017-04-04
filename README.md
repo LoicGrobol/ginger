@@ -83,19 +83,28 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
 #### CoNLL
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
-  - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+  - `conll2009_gold`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+    - Takes only the gold columns into account.
     - The P- and -PRED attributes are preserved in the `misc` attribute of the
+      intermediate CoNLL-U tree.
+  - `conll2009_sys`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+    - Takes only the predicted columns into account.
+    - The gold columns and the -PRED attributes are preserved in the `misc` attribute of the
       intermediate CoNLL-U tree.
 
 #### Software
 Formats used by mainstream NLP tools
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
-  - `mate` Input/Output [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009`)
+  - `mate_gold` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_gold`)
+  - `mate_sys` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_sys`)
 
 ### Output formats
 #### Treebanks
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
-  - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+  - `conll2009_gold` and `conll2009_sys`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+    - `_gold` only fills in the gold columns
+    - `_sys` only fills in the predicted columns
+
 
 Note : no real effort is made to preserve informations that are not relevant to Universal
 Dependencies, so this might be information-destructive, e.g. if converting from CoNLL-2009 to

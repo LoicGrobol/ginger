@@ -14,12 +14,19 @@ Options:
   -h, --help          Show this screen.
 
 Input formats:
-  - `guess`      Try to guess the file format, defaults to CoNLL-U
-  - `conllx`     [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
-  - `conllu`     [CoNLL-U format](http://universaldependencies.org/format.html)
-  - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
-  - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
-  - `mate`       Alias for `conll2009`, used by [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
+  - `guess`           Try to guess the file format, defaults to CoNLL-U
+  - `conllx`          [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
+  - `conllu`          [CoNLL-U format](http://universaldependencies.org/format.html)
+  - `conll2009_gold`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+                      (Gold columns only)
+  - `conll2009_sys`   [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+                      (Predicted columns only)
+  - `talismane`       Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
+  - `mate_gold`       Alias for `conll2009_gold`, used by
+                      [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
+  - `mate_sys`        Alias for `conll2009_sys`, used by
+                      [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
+
 
 Output formats
   - `ascii`  ASCII-art (using Unicode characters, because, yes, we are subversive)
