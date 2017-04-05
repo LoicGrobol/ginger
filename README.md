@@ -17,12 +17,17 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 
 ## Installation
 ### Installing dependencies
-If you install ginger through pip (see below), the dependencies should be automatically installed. Otherwise, you will need to install the following :
-  - [docopt](http://docopt.org/).
-    - Install it with `pip3 install docopt` or through your package manager of choice
+Ginger depends on
+  - [Python](https://www.python.org/): ^3.5
+  - [docopt](http://docopt.org/): ^0.6
+
+If you are using a sensible OS, Python 3 should already be installed, though it might be stuck at an older version (looking at you, Debian).
+If it is the case : it is a shame, pester you sysadmin until they upgrade.
+
+If Python 3 is installed, installing ginger through pip (see below) should take care of the other dependencies.
 
 ### Installing ginger
-You don't actually need to install anything if you satisfy the dependencies above, running `ginger.py` should just work.
+You don't actually need to install anything if you satisfy the dependencies above, running `python3 ginger.py` should just work.
 
 However, if you want to have it installed at global level to get the `ginger` command in your path
   1. Grab the latest release from [Github](https://github.com/LoicGrobol/ginger/releases/latest)
