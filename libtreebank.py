@@ -94,12 +94,16 @@ def conll2009_gold(tree_str: str) -> libginger.Tree:
     res = [root]
     conllx_to_conllu_identifers = {0: 0}
 
-    for i, l in enumerate(l.strip() for l in tree_str.splitlines()):
+    for i, line in enumerate(l.strip() for l in tree_str.splitlines()):
         # Skip comment lines
-        if l.startswith('#'):
+        if line.startswith('#'):
             next
 
-        identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel, fillpred, pred, *apreds = l.split('\t')
+        try:
+            identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel, fillpred, pred, *apreds = line.split('\t')
+        except ValueError:
+            # TODO: Issue a warning here
+            raise libginger.ParsingError('At line {i} : at least 14 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
 
         try:
             identifier = int(identifier)
@@ -190,13 +194,16 @@ def conll2009_sys(tree_str: str) -> libginger.Tree:
     res = [root]
     conllx_to_conllu_identifers = {0: 0}
 
-    for i, l in enumerate(l.strip() for l in tree_str.splitlines()):
+    for i, line in enumerate(l.strip() for l in tree_str.splitlines()):
         # Skip comment lines
-        if l.startswith('#'):
+        if line.startswith('#'):
             next
 
-        identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel, fillpred, pred, *apreds = l.split('\t')
-
+        try:
+            identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel, fillpred, pred, *apreds = line.split('\t')
+        except ValueError:
+            # TODO: Issue a warning here
+            raise libginger.ParsingError('At line {i} : at least 14 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
         try:
             identifier = int(identifier)
         except ValueError:
@@ -316,7 +323,9 @@ def guess(filecontents: str) -> str:
                 return 'talismane'
             return 'conllx'
     elif len(first_line_columns) >= 14:  # 14 columns or more assume CoNLL-2009:
-        return 'conll2009'
+        if any(l.split('\t')[2] != '_' for l in lines if l and not l.isspace()):
+            return 'conll2009_sys'
+        return 'conll2009_gold'
 
     # Default to CoNLL-U
     return "conllu"
