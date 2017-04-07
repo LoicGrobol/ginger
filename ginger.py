@@ -47,6 +47,7 @@ import re
 import signal
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -58,6 +59,14 @@ except ImportError:
     from . import libginger
     from . import libtreebank
     from . import libtreerender
+
+
+def sigint_handler(signal, frame):
+        logging.error('Process interrupted by SIGINT')
+        sys.exit(0)
+
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 
 # Thanks http://stackoverflow.com/a/17603000/760767
@@ -105,10 +114,10 @@ def main_entry_point(argv=sys.argv[1:]):
     treebank = [parser(tree) for tree in re.split('\n\n+', in_str.strip()) if tree and not tree.isspace()]
 
     if arguments['--to'] == 'tikz':
-        out_str = '\n\n'.join(libtreerender.tikz(t) for t in treebank)
+        out_lst = [libtreerender.tikz(t) for t in treebank]
 
     elif arguments['--to'] == 'ascii':
-        out_str = '\n\n'.join(libtreerender.ascii_art(t) for t in treebank)
+        out_lst = [libtreerender.ascii_art(t) for t in treebank]
 
     else:
         try:
@@ -123,10 +132,13 @@ def main_entry_point(argv=sys.argv[1:]):
             argsto=arguments['--to']))
             sys.exit(1)
 
-        out_str = '\n\n'.join(formatter(t) for t in treebank)
+        out_lst = [formatter(t) for t in treebank]
 
     with smart_open(arguments['<out-file>'], 'w', encoding='utf8') as out_stream:
-        out_stream.write(out_str)
+        for t in out_lst[:-1]:
+            out_stream.write(t)
+            out_stream.write('\n\n')
+        out_stream.write(out_lst[-1])
         out_stream.write('\n')
 
 

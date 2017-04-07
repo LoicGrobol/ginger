@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Fixed
   - Format guessing now plays nice with CoNLL-2009
   - Issue proper errors on wrong number of columns for CoNLL-2009
+  - More graceful handling of SIGINT
 
 ## [0.6.0] - 2017-04-03
 [0.6.0]: https://github.com/LoicGrobol/ginger/compare/v0.5.1...v0.6.0
