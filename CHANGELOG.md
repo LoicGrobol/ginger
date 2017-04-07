@@ -11,6 +11,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - Format guessing now plays nice with CoNLL-2009
   - Issue proper errors on wrong number of columns for CoNLL-2009
   - More graceful handling of SIGINT
+  - CoNLL2009-sys now properly exports to CoNLL-2009 sys…
+  - `guess` now correctly guess CoNLL-2009-sys
+  - CoNLL2009-sys parsing correctly deals with PDEPREL and PFEAT values
+
+### Changed
+  - In `libtreebank` : the parsers now deal with whole treebank files
+    (as iterables over lines) instead of on a per-tree basis
 
 ## [0.6.0] - 2017-04-03
 [0.6.0]: https://github.com/LoicGrobol/ginger/compare/v0.5.1...v0.6.0

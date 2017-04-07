@@ -94,10 +94,10 @@ def main_entry_point(argv=sys.argv[1:]):
         arguments['<out-file>'] = '-'
 
     with smart_open(arguments['<in-file>'], encoding='utf8') as in_stream:
-        in_str = in_stream.read()
+        in_lst = list(in_stream.readlines())
 
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
-        arguments['--from'] = libtreebank.guess(in_str)
+        arguments['--from'] = libtreebank.guess(in_lst)
 
     try:
         parser, _ = libtreebank.formats[arguments['--from']]
@@ -111,7 +111,7 @@ def main_entry_point(argv=sys.argv[1:]):
             argsfrom=arguments['--from']))
         sys.exit(1)
 
-    treebank = [parser(tree) for tree in re.split('\n\n+', in_str.strip()) if tree and not tree.isspace()]
+    treebank = parser(in_lst)
 
     if arguments['--to'] == 'tikz':
         out_lst = [libtreerender.tikz(t) for t in treebank]
