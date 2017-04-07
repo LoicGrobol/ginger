@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.7.0...HEAD
+
+## [0.7.0] - 2017-04-07
+[0.7.0]: https://github.com/LoicGrobol/ginger/compare/v0.6.0...v0.7.0
 ### Fixed
   - Format guessing now plays nice with CoNLL-2009
   - Issue proper errors on wrong number of columns for CoNLL-2009
@@ -19,8 +22,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - In `libtreebank` : the parsers now deal with whole treebank files
     (as iterables over lines) instead of on a per-tree basis
 
-## [0.6.0] - 2017-04-03
-[0.6.0]: https://github.com/LoicGrobol/ginger/compare/v0.5.1...v0.6.0
+
 ### Fixed
   - Issue loading `package.json` in `setup.py` due to encoding
   - Force UTF-8 encoding on I/O
