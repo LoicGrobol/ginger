@@ -22,7 +22,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - In `libtreebank` : the parsers now deal with whole treebank files
     (as iterables over lines) instead of on a per-tree basis
 
-
+## [0.6.0] - 2017-04-03
+[0.6.0]: https://github.com/LoicGrobol/ginger/compare/v0.5.1...v0.6.0
 ### Fixed
   - Issue loading `package.json` in `setup.py` due to encoding
   - Force UTF-8 encoding on I/O
