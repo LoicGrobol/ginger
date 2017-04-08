@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - Hardened CoNLL parsing strictness
   - Moved `ParsingError` from `libginger` to `libtreebank`
 
+### Added
+  - Added basic test for CoNLL-U parsing
+
 ## [0.7.0] - 2017-04-07
 [0.7.0]: https://github.com/LoicGrobol/ginger/compare/v0.6.0...v0.7.0
 ### Fixed
