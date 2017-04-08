@@ -40,60 +40,61 @@ def conllu(treebank_lst: ty.Iterable[str]) -> ty.Iterable[libginger.Tree]:
     return (_conllu_tree(t) for t in trees)
 
 
-def _conllu_tree(tree_str: ty.Iterable[str]) -> libginger.Tree:
+def to_conllu(tree: libginger.Tree) -> str:
+    """Return `tree` in CoNLL-U format."""
+    return tree.to_conll()
+
+
+def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
     """Return a tree (that is a list of `Nodes`) from its
        [CoNNL-U string representation](http://universaldependencies.org/format.html)."""
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
     # First get the self-contained values, deal with references later
-    # IMPLEMENTATION: This relies on references being initialisable
-    #                 with identifiers
-    for i, line in enumerate(l.strip() for l in tree_str):
+    # IMPLEMENTATION: This relies on references being initialisable with identifiers instead of
+    #                 actual references. If we  want to avoid it, we could initialise with `None`
+    #                 placeholders, store the identifiers somewhere else, then build the references
+
+    for i, line in enumerate(l.strip() for l in tree_lines_lst):
         # Skip comment lines
         if line.startswith('#'):
             next
 
         try:
-            identifier, form, lemma, upostag, xpostag, feats, head, deprel, deps, misc = line.split('\t')
+            (identifier, form, lemma, upostag, xpostag, feats,
+             head, deprel, deps, misc) = line.split('\t')
         except ValueError:
-            # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : 10 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
+            raise libginger.ParsingError(
+                'At line {i} : 10 columns expected, got {n} ({line!r})'.format(
+                    i=i, n=len(line.split('\t')), line=line))
+
         try:
-            identifier = int(identifier)
+            identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
         except ValueError:
             # TODO: Issue a warning here
             if re.match(r'\d+-\d+', identifier):  # Skip multiword tokens
                 next
             if re.match(r'\d+.\d+', identifier):  # Skip empty nodes
                 next
-            raise libginger.ParsingError('At line {i} : the `id` field does not respect CoNLL-U specifications.'.format(i=i))
+            raise _parse_error_except(i, 'ID', 'CoNLL-U', identifier)
 
         try:
-            feats = dict() if feats == '_' else dict(e.split('=') for e in feats.split('|'))
-        except ValueError:
-            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and empty strings, too
-            if feats.isspace() or not feats:
-                # TODO: Issue a warning here
-                feats = dict()
-            else:
-                raise libginger.ParsingError('At line {i} : the `feats` field does not respect CoNLL-U specifications.'.format(i=i))
+            feats = conll_map_to_dict(feats)
+        except libginger.ParsingError:
+            raise _parse_error_except(i, 'FEATS', 'CoNLL-U', feats)
 
         try:
-            head = int(head)
+            head = _parse_conll_identifier(head, i, 'HEAD')
         except ValueError:
-            raise libginger.ParsingError('At line {i} : the `head` field does not respect CoNLL-U specifications.'.format(i=i))
+            raise _parse_error_except(i, 'HEAD', 'CoNLL-U', head)
 
         try:
             deps = [] if deps == '_' else [e.split(':') for e in deps.split('|')]
         except ValueError as e:
-            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and empty strings, too
-            if deps.isspace() or not deps:
-                # TODO: Add a warning here
-                deps = []
-            else:
-                raise libginger.ParsingError('At line {i} : the `deps` field does not respect CoNLL-U specifications.'.format(i=i))
+            raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
 
-        new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats, head, deprel, deps, misc)
+        new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats, head, deprel,
+                                  deps, misc)
         res.append(new_node)
 
     # Now deal with references, which is easy, since the index of a node in
@@ -115,7 +116,7 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
     """Create an Universal Dependencies tree from a CoNLL-X tree."""
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
-    conllx_to_conllu_identifers = {0: 0}
+    conllx_to_conllu_identifiers = {0: 0}
 
     for i, line in enumerate(l.strip() for l in tree_lst):
         # Skip comment lines
@@ -123,46 +124,50 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             next
 
         try:
-            identifier, form, lemma, upostag, xpostag, feats, head, deprel, phead, pdeprel = line.split('\t')
+            (identifier, form, lemma, upostag, xpostag, feats,
+             head, deprel, phead, pdeprel) = line.split('\t')
         except ValueError:
             # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : 10 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
+            raise libginger.ParsingError(
+                'At line {i} : 10 columns expected, got {n} ({line!r})'.format(
+                    i=i, n=len(line.split('\t')), line=line))
 
         try:
-            identifier = int(identifier)
+            identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
         except ValueError:
-            # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : the `id` field does not respect CoNLL-X specifications ({identifier!r})'.format(i=i, identifier=identifier))
+            raise _parse_error_except(i, 'ID', 'CoNLL-X', identifier)
 
         lemma = re.sub(r'\s', '_', lemma)
 
         try:
-            feats = dict() if feats == '_' else dict(e.split('=') for e in feats.split('|'))
-        except ValueError:
-            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and empty strings, too
+            feats = conll_map_to_dict(feats)
+        except libginger.ParsingError:
+            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and
+            # empty strings, too
             if feats.isspace() or not feats:
                 # TODO: Issue a warning here
                 feats = dict()
             else:
-                raise libginger.ParsingError('At line {i} : the `feats` field does not respect CoNLL-X specifications.'.format(i=i))
+                raise _parse_error_except(i, 'FEATS', 'CoNLL-X', feats)
 
         try:
-            head = int(head)
+            head = _parse_conll_identifier(head, i, 'HEAD')
         except ValueError:
-            raise libginger.ParsingError('At line {i} : the `head` field does not respect CoNLL-X specifications.'.format(i=i))
+            raise _parse_error_except(i, 'HEAD', 'CoNLL-X', head)
+
         try:
-            phead = int(phead)
+            phead = _parse_conll_identifier(phead, i, 'PHEAD')
         except ValueError:
-            if phead == '_' and pdeprel == '_':
+            if phead == '_':
                 phead, pdeprel = None, None
             else:
-                raise libginger.ParsingError('At line {i} : the `phead` field does not respect CoNLL-X specifications.'.format(i=i))
+                raise _parse_error_except(i, 'PHEAD', 'CoNLL-X', phead)
 
         # Deal with multi-token words
         tokens = list(re.findall(r'\w+|\S', form))
         # Deal with the first token
         real_identifier = len(res)
-        conllx_to_conllu_identifers[identifier] = real_identifier
+        conllx_to_conllu_identifiers[identifier] = real_identifier
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
                                   lemma=lemma, upostag=upostag, xpostag=xpostag, feats=feats,
                                   head=head, deprel=deprel,
@@ -175,8 +180,8 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
 
     # Now that we have a `Node` for every node, let's do the linking
     for n in res[1:]:
-        n.head = res[conllx_to_conllu_identifers[n.head]]
-        n.deps = [(res[conllx_to_conllu_identifers[head]], deprel) for head, deprel in n.deps]
+        n.head = res[conllx_to_conllu_identifiers[n.head]]
+        n.deps = [(res[conllx_to_conllu_identifiers[head]], deprel) for head, deprel in n.deps]
 
     return libginger.Tree(res)
 
@@ -194,7 +199,7 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
        The P-attributes and 'pred are stored in the `misc` attribute."""
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
-    conllx_to_conllu_identifers = {0: 0}
+    conllx_to_conllu_identifiers = {0: 0}
 
     for i, line in enumerate(l.strip() for l in tree_lst):
         # Skip comment lines
@@ -202,46 +207,50 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             next
 
         try:
-            identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel, fillpred, pred, *apreds = line.split('\t')
+            (identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel,
+             fillpred, pred, *apreds) = line.split('\t')
         except ValueError:
             # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : at least 14 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
+            raise libginger.ParsingError(
+                'At line {i} : at least 14 columns expected, got {n} ({line!r})'.format(
+                    i=i, n=len(line.split('\t')), line=line))
 
         try:
-            identifier = int(identifier)
+            identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
         except ValueError:
-            # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : the `id` field does not respect CoNLL-2009 specifications.'.format(i=i))
+            raise _parse_error_except(i, 'ID', 'CoNLL-2009', identifier)
 
         lemma = re.sub(r'\s', '_', lemma)
 
         try:
-            feat = dict() if feat == '_' else dict(e.split('=') for e in feat.split('|'))
+            feat = conll_map_to_dict(feat)
         except ValueError:
-            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and empty strings, too
+            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and
+            # empty strings, too
             if feat.isspace() or not feat:
                 # TODO: Issue a warning here
                 feat = dict()
             else:
-                raise libginger.ParsingError('At line {i} : the `feat` field does not respect CoNLL-2009 specifications.'.format(i=i))
+                raise _parse_error_except(i, 'FEAT', 'CoNLL-2009', feat)
 
         try:
-            head = int(head)
+            head = _parse_conll_identifier(head, i, 'HEAD')
         except ValueError:
-            raise libginger.ParsingError('At line {i} : the `head` field does not respect CoNLL-2009 specifications.'.format(i=i))
+            raise _parse_error_except(i, 'HEAD', 'CoNLL-2009', head)
+
         try:
-            phead = int(phead)
+            phead = _parse_conll_identifier(phead, i, 'PHEAD')
         except ValueError:
-            if phead == '_' and pdeprel == '_':
+            if phead == '_':
                 phead, pdeprel = None, None
             else:
-                raise libginger.ParsingError('At line {i} : the `phead` field does not respect CoNLL-2009 specifications.'.format(i=i))
+                raise _parse_error_except(i, 'PHEAD', 'CoNLL-2009', phead)
 
         # Deal with multi-token words
         tokens = list(re.findall(r'\w+|\S', form))
         # Deal with the first token
         real_identifier = len(res)
-        conllx_to_conllu_identifers[identifier] = real_identifier
+        conllx_to_conllu_identifiers[identifier] = real_identifier
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
                                   lemma=lemma, upostag=pos, feats=feat,
                                   head=head, deprel=deprel,
@@ -258,12 +267,13 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         # Now deal with the other tokens, their head will simply be the first token,
         # with the relation 'fixed'
         for t in tokens[1:]:
-            res.append(libginger.Node(identifier=len(res), form=t, head=identifier, deprel='fixed'))
+            res.append(libginger.Node(identifier=len(res), form=t, head=identifier,
+                                      deprel='fixed'))
 
     # Now that we have a `Node` for every node,& let's do the linking
     for n in res[1:]:
-        n.head = res[conllx_to_conllu_identifers[n.head]]
-        n.deps = [(res[conllx_to_conllu_identifers[head]], deprel) for head, deprel in n.deps]
+        n.head = res[conllx_to_conllu_identifiers[n.head]]
+        n.deps = [(res[conllx_to_conllu_identifiers[head]], deprel) for head, deprel in n.deps]
 
     return libginger.Tree(res)
 
@@ -276,7 +286,7 @@ def _node_to_conll2009_gold(node: libginger.Node):
         form='_' if node.form is None else node.form,
         lemma='_' if node.lemma is None else node.lemma,
         upostag='_' if node.upostag is None else node.upostag,
-        feats='|'.join('{feat}={value}'.format(feat=feat, value=value) for feat, value in node.feats.items()),
+        feats=dict_to_conll_map(node.feats),
         head='_' if node.head is None else node.head.identifier,
         deprel='_' if node.deprel is None else node.deprel,
     )
@@ -300,7 +310,7 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
        The gold attributes are stored in the `misc` attribute."""
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
-    conllx_to_conllu_identifers = {0: 0}
+    conllx_to_conllu_identifiers = {0: 0}
 
     for i, line in enumerate(l.strip() for l in tree_lst):
         # Skip comment lines
@@ -308,47 +318,50 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             next
 
         try:
-            identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel, fillpred, pred, *apreds = line.split('\t')
+            (identifier, form, lemma, plemma, pos, ppos, feat, pfeat,
+             head, phead, deprel, pdeprel, fillpred, pred, *apreds) = line.split('\t')
         except ValueError:
-            # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : at least 14 columns expected, got a {n} ({line!r})'.format(i=i, n=len(line.split('\t')), line=line))
+            raise libginger.ParsingError(
+                'At line {i} : at least 14 columns expected, got {n} ({line!r})'.format(
+                    i=i, n=len(line.split('\t')), line=line))
         try:
-            identifier = int(identifier)
+            identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
         except ValueError:
-            # TODO: Issue a warning here
-            raise libginger.ParsingError('At line {i} : the `id` field does not respect CoNLL-2009 specifications.'.format(i=i))
+            raise _parse_error_except(i, 'ID', 'CoNLL-2009', identifier)
 
-        lemma = re.sub(r'\s', '_', plemma)
+        plemma = re.sub(r'\s', '_', plemma)
 
         try:
-            feat = dict() if pfeat == '_' else dict(e.split('=') for e in pfeat.split('|'))
+            pfeat = conll_map_to_dict(pfeat)
         except ValueError:
-            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and empty strings, too
+            # Be nice : if empty, it should be an underscore, but let's be nice with spaces and
+            # empty strings, too
             if pfeat.isspace() or not pfeat:
                 # TODO: Issue a warning here
-                feat = dict()
+                pfeat = dict()
             else:
-                raise libginger.ParsingError('At line {i} : the `pfeat` field does not respect CoNLL-2009 specifications.'.format(i=i))
+                raise _parse_error_except(i, 'PFEAT', 'CoNLL-2009', pfeat)
 
         try:
-            phead = int(phead)
+            phead = _parse_conll_identifier(phead, i, 'PHEAD')
         except ValueError:
-            raise libginger.ParsingError('At line {i} : the `phead` field does not respect CoNLL-2009 specifications.'.format(i=i))
+            raise _parse_error_except(i, 'PHEAD', 'CoNLL-2009', phead)
+
         try:
-            head = int(head)
+            head = _parse_conll_identifier(head, i, 'HEAD')
         except ValueError:
-            if head == '_' and deprel == '_':
+            if head == '_':
                 head, deprel = None, None
             else:
-                raise libginger.ParsingError('At line {i} : the `head` field does not respect CoNLL-2009 specifications.'.format(i=i))
+                raise _parse_error_except(i, 'HEAD', 'CoNLL-2009', head)
 
         # Deal with multi-token words
         tokens = list(re.findall(r'\w+|\S', form))
         # Deal with the first token
         real_identifier = len(res)
-        conllx_to_conllu_identifers[identifier] = real_identifier
+        conllx_to_conllu_identifiers[identifier] = real_identifier
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
-                                  lemma=lemma, upostag=ppos, feats=feat,
+                                  lemma=plemma, upostag=ppos, feats=pfeat,
                                   head=phead, deprel=pdeprel,
                                   deps=[],
                                   misc=dict_to_conll_map(
@@ -367,8 +380,8 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
 
     # Now that we have a `Node` for every node,& let's do the linking
     for n in res[1:]:
-        n.head = res[conllx_to_conllu_identifers[n.head]]
-        n.deps = [(res[conllx_to_conllu_identifers[head]], deprel) for head, deprel in n.deps]
+        n.head = res[conllx_to_conllu_identifiers[n.head]]
+        n.deps = [(res[conllx_to_conllu_identifiers[head]], deprel) for head, deprel in n.deps]
 
     return libginger.Tree(res)
 
@@ -381,7 +394,7 @@ def _node_to_conll2009_sys(node: libginger.Node):
         form='_' if node.form is None else node.form,
         lemma='_' if node.lemma is None else node.lemma,
         upostag='_' if node.upostag is None else node.upostag,
-        feats='|'.join('{feat}={value}'.format(feat=feat, value=value) for feat, value in node.feats.items()),
+        feats=dict_to_conll_map(node.feats),
         head='_' if node.head is None else node.head.identifier,
         deprel='_' if node.deprel is None else node.deprel,
     )
@@ -390,11 +403,6 @@ def _node_to_conll2009_sys(node: libginger.Node):
 def to_conll2009_sys(tree: libginger.Tree) -> str:
     '''Return a CoNLL-2009 representation of the tree.'''
     return '\n'.join(_node_to_conll2009_sys(n) for n in tree.nodes[1:])
-
-
-def to_conllu(tree: libginger.Tree) -> str:
-    """Return `tree` in CoNLL-U format."""
-    return tree.to_conll()
 
 
 # Parser-specific formats
@@ -413,9 +421,59 @@ def _talismane_tree(tree_str: ty.Iterable[str]) -> libginger.Tree:
     return _conllx_tree(conllx_str)
 
 
-def dict_to_conll_map(d: ty.Dict) -> str:
-    'Return the CoNLL standard description of a dict.'
-    return '|'.join('{key}={val}'.format(key=key, val=val) for key, val in d.items())
+# Utilities
+def dict_to_conll_map(d: ty.Dict, *, pair_separator='|', keyval_separator='=') -> str:
+    '''Return the CoNLL standard description of a mapping, that is `|`-separated `key=value` pairs.
+       Return `"_"` if `d` is empty.
+
+       Custom separators may be specified.'''
+    if not d:
+        return '_'
+    return pair_separator.join('{key}{keyval_separator}{val}'.format(
+        key=key, val=val, keyval_separator=keyval_separator)
+                               for key, val in d.items())
+
+
+def conll_map_to_dict(conll_map: str, *, pair_separator='|', keyval_separator='=') -> ty.Dict:
+    '''Parse the CoNLL map format of `|`-separated `key=value` pairs.
+       Return an empty dict if `conll_map` is `_`, a per the standard.
+
+       Custom separators may be specified.'''
+    if conll_map == '_':
+        return dict()
+    try:
+        return dict(e.split(keyval_separator) for e in conll_map.split(pair_separator))
+    except ValueError:
+        raise libginger.ParsingError('Wrong CoNLL map format : {conll_map!r}'.format(
+            conll_map=conll_map
+        ))
+
+
+def _parse_error_except(line: int, field: str, form: str, content: str) -> libginger.ParsingError:
+    '''Return a `Parsing error with the message in the usual format.`'''
+    message = 'At line {line}, the `{field}` field does not respect\
+               {form} specifications : {content!r}'.format(
+                   line=line, field=field, form=form, content=content
+               )
+    return libginger.ParsingError(message)
+
+
+def _parse_conll_identifier(value: str, line: int, field: str, *,
+                            non_zero=False) -> int:
+    '''Parse a CoNLL token identifier, raise the appropriate exception if it is invalid.
+       Just propage the exception if `value` does not parse to an integer.
+
+       If `non_zero` is truthy, raise an exception if `value` is zero.'''
+    res = int(value)
+    if res < 0:
+        raise libginger.ParsingError(
+            'At line {line}, the `{field}` field must be a non-negative integer, got {value!r}'.format(
+                line=line, field=field, value=value))
+    elif non_zero and res == 0:
+        raise libginger.ParsingError(
+            'At line {line}, the `{field}` field must be a positive integer, got {value!r}'.format(
+                line=line, field=field, value=value))
+    return res
 
 
 # Guessing tools
