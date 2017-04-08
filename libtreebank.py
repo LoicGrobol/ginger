@@ -14,6 +14,10 @@ except ImportError:
     from ginger import libginger
 
 
+class ParsingError(Exception):
+    pass
+
+
 def trees_from_conll(lines_lst: ty.Iterable[str]) -> ty.Iterable[str]:
     '''Extract individual tree strings from the lines of a CoNLL-like file.'''
     current = []  # type: ty.List[str]
@@ -64,7 +68,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
             (identifier, form, lemma, upostag, xpostag, feats,
              head, deprel, deps, misc) = line.split('\t')
         except ValueError:
-            raise libginger.ParsingError(
+            raise ParsingError(
                 'At line {i} : 10 columns expected, got {n} ({line!r})'.format(
                     i=i, n=len(line.split('\t')), line=line))
 
@@ -80,7 +84,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
 
         try:
             feats = conll_map_to_dict(feats)
-        except libginger.ParsingError:
+        except ParsingError:
             raise _parse_error_except(i, 'FEATS', 'CoNLL-U', feats)
 
         try:
@@ -128,7 +132,7 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
              head, deprel, phead, pdeprel) = line.split('\t')
         except ValueError:
             # TODO: Issue a warning here
-            raise libginger.ParsingError(
+            raise ParsingError(
                 'At line {i} : 10 columns expected, got {n} ({line!r})'.format(
                     i=i, n=len(line.split('\t')), line=line))
 
@@ -141,7 +145,7 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
 
         try:
             feats = conll_map_to_dict(feats)
-        except libginger.ParsingError:
+        except ParsingError:
             # Be nice : if empty, it should be an underscore, but let's be nice with spaces and
             # empty strings, too
             if feats.isspace() or not feats:
@@ -211,7 +215,7 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
              fillpred, pred, *apreds) = line.split('\t')
         except ValueError:
             # TODO: Issue a warning here
-            raise libginger.ParsingError(
+            raise ParsingError(
                 'At line {i} : at least 14 columns expected, got {n} ({line!r})'.format(
                     i=i, n=len(line.split('\t')), line=line))
 
@@ -321,7 +325,7 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             (identifier, form, lemma, plemma, pos, ppos, feat, pfeat,
              head, phead, deprel, pdeprel, fillpred, pred, *apreds) = line.split('\t')
         except ValueError:
-            raise libginger.ParsingError(
+            raise ParsingError(
                 'At line {i} : at least 14 columns expected, got {n} ({line!r})'.format(
                     i=i, n=len(line.split('\t')), line=line))
         try:
@@ -444,18 +448,18 @@ def conll_map_to_dict(conll_map: str, *, pair_separator='|', keyval_separator='=
     try:
         return dict(e.split(keyval_separator) for e in conll_map.split(pair_separator))
     except ValueError:
-        raise libginger.ParsingError('Wrong CoNLL map format : {conll_map!r}'.format(
+        raise ParsingError('Wrong CoNLL map format : {conll_map!r}'.format(
             conll_map=conll_map
         ))
 
 
-def _parse_error_except(line: int, field: str, form: str, content: str) -> libginger.ParsingError:
+def _parse_error_except(line: int, field: str, form: str, content: str) -> ParsingError:
     '''Return a `Parsing error with the message in the usual format.`'''
     message = 'At line {line}, the `{field}` field does not respect\
                {form} specifications : {content!r}'.format(
                    line=line, field=field, form=form, content=content
                )
-    return libginger.ParsingError(message)
+    return ParsingError(message)
 
 
 def _parse_conll_identifier(value: str, line: int, field: str, *,
@@ -466,11 +470,11 @@ def _parse_conll_identifier(value: str, line: int, field: str, *,
        If `non_zero` is truthy, raise an exception if `value` is zero.'''
     res = int(value)
     if res < 0:
-        raise libginger.ParsingError(
+        raise ParsingError(
             'At line {line}, the `{field}` field must be a non-negative integer, got {value!r}'.format(
                 line=line, field=field, value=value))
     elif non_zero and res == 0:
-        raise libginger.ParsingError(
+        raise ParsingError(
             'At line {line}, the `{field}` field must be a positive integer, got {value!r}'.format(
                 line=line, field=field, value=value))
     return res

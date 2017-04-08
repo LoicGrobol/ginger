@@ -5,10 +5,6 @@ import typing as ty
 import itertools as it
 
 
-class ParsingError(Exception):
-    pass
-
-
 class Node:
     '''A node in an UD graph.'''
     def __init__(self,
