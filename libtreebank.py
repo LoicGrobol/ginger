@@ -348,7 +348,7 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         real_identifier = len(res)
         conllx_to_conllu_identifers[identifier] = real_identifier
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
-                                  lemma=plemma, upostag=ppos, feats=pfeat,
+                                  lemma=lemma, upostag=ppos, feats=feat,
                                   head=phead, deprel=pdeprel,
                                   deps=[],
                                   misc=dict_to_conll_map(
