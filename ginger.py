@@ -42,8 +42,6 @@ import sys
 import contextlib
 from docopt import docopt
 
-import re
-
 import signal
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
