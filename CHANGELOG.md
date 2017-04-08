@@ -6,7 +6,46 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.7.0...HEAD
+### Fixed
+  - Remove obsolete tests
+
+### Changed
+  - Hardened CoNLL parsing strictness
+  - Moved `ParsingError` from `libginger` to `libtreebank`
+
+### Added
+  - Added basic test for CoNLL-U parsing
+
+## [0.7.0] - 2017-04-07
+[0.7.0]: https://github.com/LoicGrobol/ginger/compare/v0.6.0...v0.7.0
+### Fixed
+  - Format guessing now plays nice with CoNLL-2009
+  - Issue proper errors on wrong number of columns for CoNLL-2009
+  - More graceful handling of SIGINT
+  - CoNLL2009-sys now properly exports to CoNLL-2009 sys…
+  - `guess` now correctly guess CoNLL-2009-sys
+  - CoNLL2009-sys parsing correctly deals with PDEPREL and PFEAT values
+
+### Changed
+  - In `libtreebank` : the parsers now deal with whole treebank files
+    (as iterables over lines) instead of on a per-tree basis
+
+## [0.6.0] - 2017-04-03
+[0.6.0]: https://github.com/LoicGrobol/ginger/compare/v0.5.1...v0.6.0
+### Fixed
+  - Issue loading `package.json` in `setup.py` due to encoding
+  - Force UTF-8 encoding on I/O
+
+### Changed
+  - Split the CoNLL-2009/mate format into a Gold and a System version
+    - The format previously known as `conll2009` is now `conll2009_gold`
+    - We have a new `conll2009_sys` that uses predicted columns instead of gold ones
+
+## [0.5.1] - 2017-04-03
+[0.5.1]: https://github.com/LoicGrobol/ginger/compare/v0.5.0...v0.5.1
+### Fixed
+  - Add dependency on`docopt`
 
 ## [0.5.0] - 2017-03-31
 [0.5.0]: https://github.com/LoicGrobol/ginger/compare/v0.4.1...v0.5.0

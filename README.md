@@ -16,16 +16,32 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ```
 
 ## Installation
+### Basic dependencies
+Ginger depends on
+  - [Python](https://www.python.org/): ^3.5
+  - [docopt](http://docopt.org/): ^0.6
 
-No installation needed, just run `ginger.py`. Have a look at [the dependencies](#Dependencies)
-below, though.
+If you are using a sensible OS, Python 3 should already be installed, though it might be stuck at an older version (looking at you, Debian).
+If it is the case : it is a shame, pester you sysadmin until they upgrade.
 
-If you want to have it installed at global level, run `pip3 install .`
+If Python 3 is installed, installing ginger through pip (see below) should take care of the other dependencies.
 
-Test if everything work by running `ginger examples/test.conll`.
-The output should be the same as the tree above.
+### Installing ginger
+You don't actually need to install anything if you satisfy the dependencies above, running `python3 ginger.py` should just work.
 
-## Dependencies
+However, if you want to have it installed at global level to get the `ginger` command in your path
+  1. Grab the latest release from [Github](https://github.com/LoicGrobol/ginger/releases/latest)
+  2. Unpack it and open a terminal inside the resulting folder
+  2. Run `pip3 install .`
+
+You can also install it directly from the tip (unstable but usually safe) of the master branch whith
+```bash
+pip3 install git+https://github.com/LoicGrobol/ginger/
+```
+
+Test if everything works by running `ginger examples/test.conll`.
+The output should be the same as the ASCII-art tree above.
+
 ### Cairo and friends
 The direct graphical outputs depend on [cairo](https://www.cairographics.org/), through
 [cairocffi](https://pypi.python.org/pypi/cairocffi) (through
@@ -37,11 +53,11 @@ the following ways:
     management system of choice
 
 Either way, you will also need to install cairo, but, fortunately, as it is already a dependency of
-a lot of software, you probably already have it! If not, see the
-[cairo website](https://www.cairographics.org/).
+a lot of software, you probably already have it!
+If not, see [cairo's installation instructions(https://www.cairographics.org/download/)).
 
 ## Usage
-```
+```bash
 ginger [--from <format>] <in-file> [--to] [<out-file>]
 ```
 
@@ -53,7 +69,8 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - `-f`, `--from <format>` input file format, see below (default: `guess`)
   - `-t`, `--to <format>`   output file format, see below (default: `ascii`)
   - `-h`, `--help` Get some help
-  ### Examples
+
+### Examples
   - Print to stdout
   ```
   ginger examples/test.conll
@@ -85,19 +102,28 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
 #### CoNLL
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
-  - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+  - `conll2009_gold`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+    - Takes only the gold columns into account.
     - The P- and -PRED attributes are preserved in the `misc` attribute of the
+      intermediate CoNLL-U tree.
+  - `conll2009_sys`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+    - Takes only the predicted columns into account.
+    - The gold columns and the -PRED attributes are preserved in the `misc` attribute of the
       intermediate CoNLL-U tree.
 
 #### Software
 Formats used by mainstream NLP tools
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
-  - `mate` Input/Output [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009`)
+  - `mate_gold` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_gold`)
+  - `mate_sys` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_sys`)
 
 ### Output formats
 #### Treebanks
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
-  - `conll2009`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+  - `conll2009_gold` and `conll2009_sys`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+    - `_gold` only fills in the gold columns
+    - `_sys` only fills in the predicted columns
+
 
 Note : no real effort is made to preserve informations that are not relevant to Universal
 Dependencies, so this might be information-destructive, e.g. if converting from CoNLL-2009 to
