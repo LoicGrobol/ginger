@@ -421,7 +421,7 @@ def _talismane_tree(tree_str: ty.Iterable[str]) -> libginger.Tree:
 
        Talismane outputs are essentially CoNLL-X files, with incompatible
        stylistic idiosyncrasies."""
-    conllx_str = (s.replace(r'\|\t', r'\t') for s in tree_str)
+    conllx_str = [s.replace('|\t', '\t') for s in tree_str]
     return _conllx_tree(conllx_str)
 
 
