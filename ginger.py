@@ -2,18 +2,23 @@
 r"""Format conversion and graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
 
 Usage:
-  ginger [--from <format>] <in-file> [--to <format>] [<out-file>]
+  ginger [--from <format>] <origin> [--to <format>] [<destination>]
 
 Arguments:
-  <in-file>   input file `-` for standard input
-  <out-file>  output destination, `-` for standard input [default: -]
+  <origin>       input origin `-` for standard input
+  <destination>  output destination, `-` for standard output [default: -]
+
+See below for details on the authorized types of input and output.
 
 Options:
-  -f, --from <format> input file format, see below [default: guess]
-  -t, --to <format>   output file format, see below [default: ascii]
-  -h, --help          Show this screen.
+  -f, --from <format>  input format, see below [default: guess]
+  -t, --to <format>    output format, see below [default: ascii]
+  -h, --help           Show this screen.
 
 Input formats:
+The input must be either the path to an existing file or `-` for standard input. The data that
+it contains must be in one of the following formats:
+
   - `guess`           Try to guess the file format, defaults to CoNLL-U
   - `conllx`          [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu`          [CoNLL-U format](http://universaldependencies.org/format.html)
@@ -27,12 +32,18 @@ Input formats:
   - `mate_sys`        Alias for `conll2009_sys`, used by
                       [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
 
+Output formats:
 
-Output formats
-  - Text formats. Those can't be used without any dependency
-    - `ascii`  ASCII-art (using unicode character, because, yes, we are subversive)
-    - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` libraries
-  - Image formats. Uses cairo, requires dependencies and have different convenrions see README.md
+  - Text formats: to use these formats, the output destination must be either a file and thus must
+                  not be the path to an existing directory, or `-` for the standard output.
+     - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
+     - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
+  - Image formats: these require the installation of the cairo dependencies. Additionally, the
+                   output destination must be either a directory and thus must not be the path of
+                   an existing file, or `-` for the standard output, in which case the byte streams
+                   corresponding to different trees will be separated by NULL bytes.
+     - `png`
+     - `svg`
 
 Example:
   `ginger -f conllu input.conll -t tikz output.tex`
@@ -73,7 +84,14 @@ signal.signal(signal.SIGINT, sigint_handler)
 @contextlib.contextmanager
 def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
     if filename == '-':
-        fh = sys.stdin if 'r' in mode else sys.stdout
+        if 'r' in mode:
+            stream = sys.stdin
+        else:
+            stream = sys.stdout
+        if 'b' in mode:
+            fh = stream.buffer
+        else:
+            fh = stream
     else:
         fh = open(filename, mode, *args, **kwargs)
 
@@ -84,16 +102,17 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
             fh.close()
         except AttributeError:
             pass
-
+            
+def directory_output(directory_path: str, )
 
 def main_entry_point(argv=sys.argv[1:]):
     arguments = docopt(__doc__, version=__version__, argv=argv)
     # Since there are no support for default positional arguments in
     # docopt yet. Might be useful for complex default values, too
-    if arguments['<out-file>'] is None:
-        arguments['<out-file>'] = '-'
+    if arguments['<destination>'] is None:
+        arguments['<destination>'] = '-'
 
-    with smart_open(arguments['<in-file>'], encoding='utf8') as in_stream:
+    with smart_open(arguments['<origin>'], encoding='utf8') as in_stream:
         in_lst = list(in_stream.readlines())
 
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
@@ -116,10 +135,10 @@ def main_entry_point(argv=sys.argv[1:]):
     # Cairo-based outputs
     if arguments['--to'] in ('png', 'svg'):
         if arguments['--to'] == 'png':
-            out_bytes = libtreerender.to_png(treebank[0])
+            out_bytes_lst = [libtreerender.to_png(t) for t in treebank]
         if arguments['--to'] == 'svg':
-            out_bytes = libtreerender.to_svg(treebank[0])
-        with open(arguments['<out-file>'], 'wb') as out_stream:
+            out_bytes_lst = [libtreerender.to_svg(t) for t in treebank]
+        with open(arguments['<destination>'], 'wb') as out_stream:
             out_stream.write(out_bytes)
     # Text outputs
     else:
@@ -146,7 +165,7 @@ def main_entry_point(argv=sys.argv[1:]):
 
             out_lst = [formatter(t) for t in treebank]
 
-    with smart_open(arguments['<out-file>'], 'w', encoding='utf8') as out_stream:
+    with smart_open(arguments['<destination>'], 'w', encoding='utf8') as out_stream:
         for t in out_lst[:-1]:
             out_stream.write(t)
             out_stream.write('\n\n')
