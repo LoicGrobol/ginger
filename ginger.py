@@ -36,7 +36,7 @@ Example:
   `ginger -f conllu input.conll -t tikz output.tex`
 """
 
-__version__ = 'ginger 0.8.0'
+__version__ = 'ginger 0.8.1'
 
 import sys
 import contextlib
