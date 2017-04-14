@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.8.0...HEAD
+### Fixed
+  - CoNLL-U export now deals correctly with **all** empty fields
 
 ## [0.8.0] - 2017-04-14
 [0.8.0]: https://github.com/LoicGrobol/ginger/compare/v0.7.0...v0.8.0

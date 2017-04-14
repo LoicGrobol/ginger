@@ -1,6 +1,4 @@
 r"""A toolkit for [Universal Dependencies](http://universaldependencies.org)."""
-import re
-
 import typing as ty
 import itertools as it
 
@@ -46,11 +44,11 @@ class Node:
             lemma='_' if self.lemma is None else self.lemma,
             upostag='_' if self.upostag is None else self.upostag,
             xpostag='_' if self.xpostag is None else self.xpostag,
-            feats='|'.join('{feat}={value}'.format(feat=feat, value=value) for feat, value in self.feats.items()),
+            feats='_' if not self.feats else '|'.join('{feat}={value}'.format(feat=feat, value=value) for feat, value in self.feats.items()),
             head='_' if self.head is None else self.head.identifier,
             deprel='_' if self.deprel is None else self.deprel,
-            deps='|'.join('{head}:{dep}'.format(head=head, dep=dep) for head, dep in self.deps),
-            misc='_' if self.misc is not None else self.misc
+            deps='_' if not self.deps else '|'.join('{head}:{dep}'.format(head=head, dep=dep) for head, dep in self.deps),
+            misc='_' if self.misc is None else self.misc
         )
 
     def __repr__(self):
