@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.7.0...HEAD
 ### Fixed
+  - Fixed bad formatting on parsing error
   - Remove obsolete tests
 
 ### Changed
