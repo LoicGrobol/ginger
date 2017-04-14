@@ -6,10 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.8.0...HEAD
+
+## [0.8.0] - 2017-04-14
+[0.8.0]: https://github.com/LoicGrobol/ginger/compare/v0.7.0...v0.8.0
 ### Fixed
   - Fixed bad formatting on parsing error
-  - Remove obsolete tests
+  - Remove obsolete testspython
+  - Fixed Talismane parsing
 
 ### Changed
   - Hardened CoNLL parsing strictness
