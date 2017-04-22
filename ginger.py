@@ -131,8 +131,7 @@ def directory_multi_output(path: ty.Union[pathlib.Path, str],
         # In most cases, this should use a single call to `path.iterdir()`, so caching it
         # is probably overkill
         file_name = next(n for n in names if n not in path.iterdir())
-        with (path/file_name).open('wb') as out_stream:
-            out_stream.write(file_content)
+        (path/file_name).write_bytes(file_content)
 
 
 def stream_multi_output(stream: ty.BinaryIO,
