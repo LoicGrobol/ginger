@@ -421,7 +421,7 @@ def _talismane_tree(tree_str: ty.Iterable[str]) -> libginger.Tree:
 
        Talismane outputs are essentially CoNLL-X files, with incompatible
        stylistic idiosyncrasies."""
-    conllx_str = (s.replace(r'\|\t', r'\t') for s in tree_str)
+    conllx_str = [s.replace('|\t', '\t') for s in tree_str]
     return _conllx_tree(conllx_str)
 
 
@@ -455,8 +455,8 @@ def conll_map_to_dict(conll_map: str, *, pair_separator='|', keyval_separator='=
 
 def _parse_error_except(line: int, field: str, form: str, content: str) -> ParsingError:
     '''Return a `Parsing error with the message in the usual format.`'''
-    message = 'At line {line}, the `{field}` field does not respect\
-               {form} specifications : {content!r}'.format(
+    message = ('At line {line},'
+               'the `{field}` field does not respect {form} specifications : {content!r}').format(
                    line=line, field=field, form=form, content=content
                )
     return ParsingError(message)
