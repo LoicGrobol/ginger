@@ -51,8 +51,13 @@ Example:
 
 __version__ = 'ginger 0.8.1'
 
+import typing as ty
+import itertools as it
+
 import sys
 import contextlib
+import pathlib
+
 from docopt import docopt
 
 import signal
@@ -102,8 +107,47 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
             fh.close()
         except AttributeError:
             pass
-            
-def directory_output(directory_path: str, )
+
+
+def directory_multi_output(path: ty.Union[pathlib.Path, str],
+                           data: ty.Iterable[bytes],
+                           name_format: str = '{i}'):
+    '''Write the elements of `data` to individual files in `path`.
+       The file names will be `n=name_format.format(i=<number>)` where
+       `<number>` is the first integer such that `n` is not an
+       existing file name in `path`.
+
+         - `path` **must not** be the path to an existing non-directory
+            file.'''
+    path = pathlib.Path(path)  # Enforce `path`'s type
+    if path.exists() and not path.is_dir():
+        raise IOError('`path` must not be an existing non-directory file.')
+    if not path.exists():
+        path.mkdir(parents=True)
+
+    # Reuse the same iterator to find available names, to save on calls to `path.iterdir()`
+    names = (name_format.format(i=i) for i in it.count())
+    for file_content in data:
+        # In most cases, this should use a single call to `path.iterdir()`, so caching it
+        # is probably overkill
+        file_name = next(n for n in names if n not in path.iterdir())
+        with (path/file_name).open('wb') as out_stream:
+            out_stream.write(file_content)
+
+
+def stream_multi_output(stream: ty.BinaryIO,
+                        data: ty.Iterable[bytes],
+                        separator: ty.Union[bytes, str] = b'\x00'):
+    '''Write the elements of `data` to `stream`, separated by `separator`'''
+    separator = bytes(separator)
+    data_iter = iter(data)
+
+    # Write the first element without `separator before it`
+    stream.write(next(data_iter))
+    for file_content in data_iter:
+        stream.write(separator)
+        stream.write(file_content)
+
 
 def main_entry_point(argv=sys.argv[1:]):
     arguments = docopt(__doc__, version=__version__, argv=argv)
@@ -138,8 +182,12 @@ def main_entry_point(argv=sys.argv[1:]):
             out_bytes_lst = [libtreerender.to_png(t) for t in treebank]
         if arguments['--to'] == 'svg':
             out_bytes_lst = [libtreerender.to_svg(t) for t in treebank]
-        with open(arguments['<destination>'], 'wb') as out_stream:
-            out_stream.write(out_bytes)
+        if arguments['<destination>'] == '-':
+            with smart_open(arguments['<destination>'], 'wb') as out_stream:
+                stream_multi_output(out_stream, out_bytes_lst)
+        else:
+            directory_multi_output(arguments['<destination>'], out_bytes_lst,
+                                   name_format='{{i}}.{ext}'.format(ext=arguments['--to']))
     # Text outputs
     else:
         # Text-based graphics
@@ -165,12 +213,12 @@ def main_entry_point(argv=sys.argv[1:]):
 
             out_lst = [formatter(t) for t in treebank]
 
-    with smart_open(arguments['<destination>'], 'w', encoding='utf8') as out_stream:
-        for t in out_lst[:-1]:
-            out_stream.write(t)
-            out_stream.write('\n\n')
-        out_stream.write(out_lst[-1])
-        out_stream.write('\n')
+        with smart_open(arguments['<destination>'], 'w', encoding='utf8') as out_stream:
+            for t in out_lst[:-1]:
+                out_stream.write(t)
+                out_stream.write('\n\n')
+            out_stream.write(out_lst[-1])
+            out_stream.write('\n')
 
 
 if __name__ == '__main__':
