@@ -121,7 +121,7 @@ def directory_multi_output(path: ty.Union[pathlib.Path, str],
             file.'''
     path = pathlib.Path(path)  # Enforce `path`'s type
     if path.exists() and not path.is_dir():
-        raise IOError('`path` must not be an existing non-directory file.')
+        raise IOError('{path} is an existing non-directory file.'.format(path=path))
     if not path.exists():
         path.mkdir(parents=True)
 
