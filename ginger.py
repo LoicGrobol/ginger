@@ -110,7 +110,7 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
 
 
 def directory_multi_output(path: ty.Union[pathlib.Path, str],
-                           data: ty.Iterable[bytes],
+                           data: ty.Iterable[ty.Union[str, bytes]],
                            name_format: str = '{i}'):
     '''Write the elements of `data` to individual files in `path`.
        The file names will be `n=name_format.format(i=<number>)` where
@@ -131,7 +131,10 @@ def directory_multi_output(path: ty.Union[pathlib.Path, str],
         # In most cases, this should use a single call to `path.iterdir()`, so caching it
         # is probably overkill
         file_name = next(n for n in names if n not in path.iterdir())
-        (path/file_name).write_bytes(file_content)
+        try:
+            (path/file_name).write_bytes(file_content)
+        except TypeError:
+            (path/file_name).write_text(file_content)
 
 
 def stream_multi_output(stream: ty.BinaryIO,
