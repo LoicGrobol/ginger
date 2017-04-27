@@ -50,7 +50,7 @@ class Node(UDNode):
             lemma='_' if self.lemma is None else self.lemma,
             upostag='_' if self.upostag is None else self.upostag,
             xpostag='_' if self.xpostag is None else self.xpostag,
-            feats='_' if not self.feats else '|'.join('{f}={v}'.format(
+            feats='_' if not self.feats else '|'.join('{feat}={value}'.format(
                 feat=feat, value=value) for feat, value in self.feats.items()),
             head='_' if self.head is None else self.head.identifier,
             deprel='_' if self.deprel is None else self.deprel,

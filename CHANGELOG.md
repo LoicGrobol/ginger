@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.8.1...HEAD
 ### Added
   - Now support multi-word tokens for CoNLL-U files
+
 ### Fixed
   - Correctly catch format errors on CoNLL identifiers
 
