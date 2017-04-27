@@ -86,8 +86,8 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - `guess` Try to guess the file format, defaults to CoNLL-U
 
 #### CoNLL
-  - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
+  - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conll2009_gold`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
     - Takes only the gold columns into account.
     - The P- and -PRED attributes are preserved in the `misc` attribute of the
