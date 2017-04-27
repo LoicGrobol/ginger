@@ -72,40 +72,46 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
                 'At line {i} : 10 columns expected, got {n} ({line!r})'.format(
                     i=i, n=len(line.split('\t')), line=line))
 
-        try:
-            identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
-        except ValueError:
-            # TODO: Issue a warning here
-            if re.match(r'\d+-\d+', identifier):  # Skip multiword tokens
-                next
-            if re.match(r'\d+.\d+', identifier):  # Skip empty nodes
-                next
-            raise _parse_error_except(i, 'ID', 'CoNLL-U', identifier)
+        # Deal with multi-word tokens
+        if re.match(r'\d+-\d+', identifier):  # Add a multiword token
+            a, b = identifier.split('-')
+            new_node = libginger.MultiTokenNode(range(a, b+1), form)
+        else:
+            try:
+                identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
+            except ValueError:
+                # TODO: Issue a warning here
+                if re.match(r'\d+.\d+', identifier):  # Skip empty nodes
+                    next
+                raise _parse_error_except(i, 'ID', 'CoNLL-U', identifier)
 
-        try:
-            feats = conll_map_to_dict(feats)
-        except ParsingError:
-            raise _parse_error_except(i, 'FEATS', 'CoNLL-U', feats)
+            try:
+                feats = conll_map_to_dict(feats)
+            except ParsingError:
+                raise _parse_error_except(i, 'FEATS', 'CoNLL-U', feats)
 
-        try:
-            head = _parse_conll_identifier(head, i, 'HEAD')
-        except ValueError:
-            raise _parse_error_except(i, 'HEAD', 'CoNLL-U', head)
+            try:
+                head = _parse_conll_identifier(head, i, 'HEAD')
+            except ValueError:
+                raise _parse_error_except(i, 'HEAD', 'CoNLL-U', head)
 
-        try:
-            deps = [] if deps == '_' else [e.split(':') for e in deps.split('|')]
-        except ValueError as e:
-            raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
+            try:
+                deps = [] if deps == '_' else [e.split(':') for e in deps.split('|')]
+            except ValueError as e:
+                raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
 
-        new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats, head, deprel,
-                                  deps, misc)
+            new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats, head, deprel,
+                                      deps, misc)
         res.append(new_node)
 
-    # Now deal with references, which is easy, since the index of a node in
-    # `res` is exactly its identifier
-    for n in res[1:]:
-        n.head = res[n.head]
-        n.deps = [(res[head], dep) for head, dep in n.deps]
+    # Now deal with references
+    for node in res[1:]:
+        if isinstance(node, libginger.MultiTokenNode):
+            node.span = [n for n in res if n.identifier in node.span]
+        else:
+            node.head = next(n for n in res if n.identifier == node.head)
+            node.deps = [(next(n for n in res if n.identifier == head), dep)
+                         for head, dep in node.deps]
 
     return libginger.Tree(res)
 
