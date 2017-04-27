@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.8.1...HEAD
+### Added
+  - Now support multi-word tokens for CoNLL-U files
 ### Fixed
   - Correctly catch format errors on CoNLL identifiers
 
@@ -19,7 +21,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [0.8.0]: https://github.com/LoicGrobol/ginger/compare/v0.7.0...v0.8.0
 ### Fixed
   - Fixed bad formatting on parsing error
-  - Remove obsolete testspython
+  - Remove obsolete tests
   - Fixed Talismane parsing
 
 ### Changed
