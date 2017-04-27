@@ -470,11 +470,11 @@ def _parse_conll_identifier(value: str, line: int, field: str, *,
        If `non_zero` is truthy, raise an exception if `value` is zero.'''
     res = int(value)
     if res < 0:
-        raise ParsingError(
+        raise ValueError(
             'At line {line}, the `{field}` field must be a non-negative integer, got {value!r}'.format(
                 line=line, field=field, value=value))
     elif non_zero and res == 0:
-        raise ParsingError(
+        raise ValueError(
             'At line {line}, the `{field}` field must be a positive integer, got {value!r}'.format(
                 line=line, field=field, value=value))
     return res
