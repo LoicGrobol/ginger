@@ -106,29 +106,20 @@ class Tree:
        with some constraints:
            1. The nodes are sorted as in
               [the CoNLL-U specification](http://universaldependencies.org/format.html)
-           2. The node identifier are connex integers.
-           3. The nodes do not reference nodes that are not in the tree.
-           4. The first node (indice 0) is a special root node
+           2. The nodes do not reference nodes that are not in the tree.
+           3. The first node (indice 0) is a special root node
              - Its identifier must be 0.
              - Its form should be "ROOT".
              - All of its other attributes should be left empty.'''
     def __init__(self, nodes: ty.Iterable[UDNode]):
         '''Return a new tree whose nodes are those in `nodes`.
 
-           The nodes should respect the constraints 1 through 2, 3 and 4 described in
+           The nodes should respect the constraints 1 through 3 described in
            the docstring of `Tree`.'''
         self.all_nodes = nodes
-        self.nodes = sorted(nodes, key=lambda x: x.identifier)
+        self.word_sequence = [n for n in self.all_nodes if isinstance(n, Node)]
+        self.nodes = self.word_sequence
         self.root = self.nodes[0]
-
-    @property
-    def word_sequence(self) -> ty.Iterable[Node]:
-        '''Return the syntaxic word sequence as described in
-           [the CoNLL-U specification](http://universaldependencies.org/format.html#words-tokens-and-empty-nodes).'''
-        for node in self.all_nodes:
-            if not isinstance(node, Node):
-                continue
-            yield node
 
     @property
     def raw_token_sequence(self) -> ty.Iterable[UDNode]:
@@ -142,11 +133,6 @@ class Tree:
                 current_span = node.span
 
             yield node
-
-    @property
-    def nodes(self) -> ty.List[Node]:
-        '''Return the syntactic word sequence as a sorted list.'''
-        return sorted(self.word_sequence, key=lambda x: x.identifier)
 
     def descendance(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:
         """Extract the descendance of a node, does not perform any copy or

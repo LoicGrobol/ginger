@@ -18,6 +18,12 @@ class ParsingError(Exception):
     pass
 
 
+class PlaceholderNode(libginger.UDNode):
+    '''A Node that serves as a placeholder for a Node that has not been created yet.'''
+    def __init__(self, identifier):
+        self.identifier = identifier
+
+
 def trees_from_conll(lines_lst: ty.Iterable[str]) -> ty.Iterable[str]:
     '''Extract individual tree strings from the lines of a CoNLL-like file.'''
     current = []  # type: ty.List[str]
@@ -54,6 +60,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
        [CoNNL-U string representation](http://universaldependencies.org/format.html)."""
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
+    full_nodes = [root]  # Efficient storage of referenceable nodes for faster retrival
     # First get the self-contained values, deal with references later
     # IMPLEMENTATION: This relies on references being initialisable with identifiers instead of
     #                 actual references. If we  want to avoid it, we could initialise with `None`
@@ -73,9 +80,10 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
                     i=i, n=len(line.split('\t')), line=line))
 
         # Deal with multi-word tokens
-        if re.match(r'\d+-\d+', identifier):  # Add a multiword token
+        if not identifier.isnumeric() and re.match(r'\d+-\d+', identifier):
             a, b = identifier.split('-')
-            new_node = libginger.MultiTokenNode(range(a, b+1), form)
+            new_node = libginger.MultiTokenNode((PlaceholderNode(i)
+                                                 for i in range(int(a), int(b)+1)), form)
         else:
             try:
                 identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
@@ -100,16 +108,17 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
             except ValueError as e:
                 raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
 
-            new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats, head, deprel,
-                                      deps, misc)
+            new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats,
+                                      head, deprel, deps, misc)
+            full_nodes.append(new_node)
         res.append(new_node)
 
     # Now deal with references
     for node in res[1:]:
         if isinstance(node, libginger.MultiTokenNode):
-            node.span = [n for n in res if n.identifier in node.span]
+            node.span = [full_nodes[placeholder.identifier] for placeholder in node.span]
         else:
-            node.head = next(n for n in res if n.identifier == node.head)
+            node.head = full_nodes[node.head]
             node.deps = [(next(n for n in res if n.identifier == head), dep)
                          for head, dep in node.deps]
 
