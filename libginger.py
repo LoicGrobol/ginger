@@ -81,6 +81,10 @@ class MultiTokenNode(UDNode):
                  form: str = None):
         self.span = list(span)
         self.form = form
+        self.start = self.span[0].identifier
+        self.end = self.span[-1].identifier
+        self.identifier = '{start}-{end}'.format(start=self.start,
+                                                 end=self.end)
 
     def to_conll(self) -> str:
         '''Return the CoNLL-U representation of the node'''
@@ -88,11 +92,6 @@ class MultiTokenNode(UDNode):
             identifier=self.identifier,
             form='_' if self.form is None else self.form
         )
-
-    @property
-    def identifier(self):
-        return '{min}-{max}'.format(min=self.span[0].identifier,
-                                    max=self.span[-1].identifier)
 
     def __repr__(self):
         return 'MultiTokenNode({span}, {form})'.format(
