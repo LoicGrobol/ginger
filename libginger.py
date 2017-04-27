@@ -145,7 +145,7 @@ class Tree:
 
     @property
     def nodes(self) -> ty.List[Node]:
-        '''Return the syntaxic word sequence as a sorted list.'''
+        '''Return the syntactic word sequence as a sorted list.'''
         return sorted(self.word_sequence, key=lambda x: x.identifier)
 
     def descendance(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:
@@ -166,7 +166,7 @@ class Tree:
 
     def to_conll(self) -> str:
         '''Return a CoNLL-U representation of the tree.'''
-        return '\n'.join(n.to_conll() for n in self.nodes[1:])
+        return '\n'.join(n.to_conll() for n in self.all_nodes[1:])
 
     def __str__(self):
-        return '\n'.join(str(n) for n in self.nodes)
+        return '\n'.join(str(n) for n in self.all_nodes)
