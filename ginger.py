@@ -140,7 +140,7 @@ def directory_multi_output(path: ty.Union[pathlib.Path, str],
 def stream_multi_output(stream: ty.BinaryIO,
                         data: ty.Iterable[bytes],
                         separator: ty.Union[bytes, str] = b'\x00'):
-    '''Write the elements of `data` to `stream`, separated by `separator`'''
+    '''Write the elements of `data` to `stream`, separated by `separator`.'''
     separator = bytes(separator)
     data_iter = iter(data)
 
