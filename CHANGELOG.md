@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.8.1...HEAD
+### Fixed
+  - Correctly catch format errors on CoNLL identifiers
 
 ## [0.8.1] - 2017-04-14
 [0.8.1]: https://github.com/LoicGrobol/ginger/compare/v0.8.0...v0.8.1

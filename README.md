@@ -86,7 +86,7 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - `guess` Try to guess the file format, defaults to CoNLL-U
 
 #### CoNLL
-  - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
+  - `conllu` [CoNLL-U v2 format](http://universaldependencies.org/format.html)
   - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
   - `conll2009_gold`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
     - Takes only the gold columns into account.
@@ -127,9 +127,11 @@ These output formats are meant to be used by third-party tools that generate gra
 ## Development
 Development and releases on [Github](https://github.com/loic-grobol/ginger).
 
-### Dependencies
-  - No dependencies for the main content
-  - The unit tests are in `test/` and use [pytest](http://pytest.org). They are a bit of a joke right now, though.
+## Further notes
+  - When importing non-CoNLL-U treebanks, node forms with spaces are considered to be fixed expressions, and are treated according to [UD guidelines](http://universaldependencies.org/u/dep/fixed.html) by splitting them in single-token nodes linked by `fixed` dependencies
+    This mean that the exceptions mentioned in [the UDv2 guidelines](http://universaldependencies.org/v2/segmentation.html) are not supported for those imports.
+    They are supported when importing from CoNLL-U, though.
+
 
 ## License
 This licence (the so-called “MIT License”) applies to all the files in this repository.
