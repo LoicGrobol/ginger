@@ -9,7 +9,7 @@ import typing as ty
 import re
 
 try:
-    import libginger
+    from . import libginger
 except ImportError:
     from ginger import libginger
 

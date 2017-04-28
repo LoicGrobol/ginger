@@ -50,13 +50,13 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 try:
-    import libginger
-    import libtreebank
-    import libtreerender
-except ImportError:
     from . import libginger
     from . import libtreebank
     from . import libtreerender
+except ImportError:
+    from ginger import libginger
+    from ginger import libtreebank
+    from ginger import libtreerender
 
 
 def sigint_handler(signal, frame):
