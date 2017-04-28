@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.9.1...HEAD
+
+## [0.9.1] - 2017-04-28
+[0.9.1]: https://github.com/LoicGrobol/ginger/compare/v0.9.0...v0.9.1
 ### Fixed
   - (libginger) `Tree.raw_token_sequence` should work correctly
   - Allow vendoring a version when another version is globally installed
