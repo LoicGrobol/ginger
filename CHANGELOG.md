@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.9.0...HEAD
+### Fixed
+  - (libginger) `Tree.raw_token_sequence` should work correctly
 
 ## [0.9.0] - 2017-04-27
 [0.9.0]: https://github.com/LoicGrobol/ginger/compare/v0.8.1...v0.9.0
