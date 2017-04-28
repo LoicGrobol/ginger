@@ -126,7 +126,7 @@ class Tree:
            [the CoNLL-U specification](http://universaldependencies.org/format.html#words-tokens-and-empty-nodes).'''
         current_span = None
         for node in self.all_nodes:
-            if node in current_span:
+            if current_span and node in current_span:
                 continue
             elif isinstance(node, MultiTokenNode):
                 current_span = node.span
