@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.9.2...HEAD
+### Fixed
+  - Improved release message
 
 ## [0.9.2] - 2017-05-04
 [0.9.2]: https://github.com/LoicGrobol/ginger/compare/v0.9.1...0.9.2
