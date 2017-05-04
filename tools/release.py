@@ -106,7 +106,7 @@ def main_entry_point(argv=sys.argv[1:]):
 
     # Commit and push the changes in git
     # Extract the change list from the change log
-    changes = log_from_changes(changes_from_log(changelog_str))
+    changes = log_from_changes(changes_from_log(changelog_str)).replace('###', '##')
 
     repo_url = package_data["url"]
     changes = ('# {}\n'.format(package_new_version) +
@@ -128,7 +128,7 @@ def main_entry_point(argv=sys.argv[1:]):
 
     tag_name = 'v{}'.format(package_new_version)
     with tempfile.NamedTemporaryFile(mode='w') as tag_message_file:
-        tag_message_file.write(changes.replace('###', '##'))
+        tag_message_file.write(changes)
         tag_message_file.flush()
 
         subprocess.run([*git_options, 'tag',
