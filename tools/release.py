@@ -82,7 +82,7 @@ def main_entry_point(argv=sys.argv[1:]):
     # Set the version in the main script
     main_path = package_dir/'ginger.py'
     main_str = main_path.read_text()
-    new_main_str = re.sub(r"(__version__ = (['\"])){}\2".format(package_current_version),
+    new_main_str = re.sub(r"(__version__ = (['\"]){} ){}\2".format(package_data["name"], package_current_version),
                           r'\g<1>{}\g<2>'.format(package_new_version),
                           main_str)
     main_path.write_text(new_main_str)
