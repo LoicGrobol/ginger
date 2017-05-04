@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.1...HEAD
+
+## [0.10.1] - 2017-05-04
+[0.10.1]: https://github.com/LoicGrobol/ginger/compare/v0.10.0...0.10.1
 
 ## [0.10.0] - 2017-05-04
 [0.10.0]: https://github.com/LoicGrobol/ginger/compare/v0.9.2...0.10.0
