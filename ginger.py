@@ -36,10 +36,11 @@ Example:
   `ginger -f conllu input.conll -t tikz output.tex`
 """
 
-__version__ = 'ginger 0.9.1'
+__version__ = 'ginger 0.9.0.9.2'
 
 import sys
 import contextlib
+import pathlib
 from docopt import docopt
 
 import signal
@@ -49,12 +50,18 @@ signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 import logging
 logging.basicConfig(level=logging.INFO)
 
+# Usual frobbing of packages, due to Python's insane importing policy
+if __name__ == "__main__" and __package__ is None:
+    from sys import path
+    ginger_root = pathlib.Path(__file__).resolve().parents[1]
+    path.insert(0, str(ginger_root))
+    import ginger  # noqa
+    __package__ = "ginger"
+
 try:
-    from . import libginger
     from . import libtreebank
     from . import libtreerender
 except ImportError:
-    from ginger import libginger
     from ginger import libtreebank
     from ginger import libtreerender
 
