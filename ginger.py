@@ -134,7 +134,7 @@ def main_entry_point(argv=sys.argv[1:]):
 
         if formatter is None:
             logging.error('{argsto!r} is not supported as an output format'.format(
-            argsto=arguments['--to']))
+                argsto=arguments['--to']))
             sys.exit(1)
 
         out_lst = [formatter(t) for t in treebank]

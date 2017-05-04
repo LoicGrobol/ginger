@@ -1,14 +1,17 @@
-import os
+import pathlib
 from sys import path
-PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-path.append(PATH)
 
-import textwrap
-
+# Usual frobbing of packages, due to Python's insane importing policy
+if __name__ == "__main__" and __package__ is None:
+    from sys import path
+    ginger_root = pathlib.Path(__file__).resolve().parents[2]
+    path.insert(0, str(ginger_root))
+    import ginger  # noqa
+    __package__ = "ginger.tests"
 
 import pytest
 
-import libtreebank
+from ginger import libtreebank
 
 
 def test_conllu_parse_basic():
