@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.1...HEAD
+### Fixed
+  - Importing in tests now works as it should
 
 ## [0.10.1] - 2017-05-04
 [0.10.1]: https://github.com/LoicGrobol/ginger/compare/v0.10.0...0.10.1
