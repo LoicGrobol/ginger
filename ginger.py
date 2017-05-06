@@ -49,7 +49,7 @@ Example:
   `ginger -f conllu input.conll -t tikz output.tex`
 """
 
-__version__ = 'ginger 0.8.1'
+__version__ = 'ginger 0.10.1'
 
 import typing as ty
 import itertools as it
@@ -67,14 +67,20 @@ signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 import logging
 logging.basicConfig(level=logging.INFO)
 
+# Usual frobbing of packages, due to Python's insane importing policy
+if __name__ == "__main__" and __package__ is None:
+    from sys import path
+    ginger_root = pathlib.Path(__file__).resolve().parents[1]
+    path.insert(0, str(ginger_root))
+    import ginger  # noqa
+    __package__ = "ginger"
+
 try:
-    import libginger
-    import libtreebank
-    import libtreerender
-except ImportError:
-    from . import libginger
     from . import libtreebank
     from . import libtreerender
+except ImportError:
+    from ginger import libtreebank
+    from ginger import libtreerender
 
 
 def sigint_handler(signal, frame):
@@ -211,7 +217,12 @@ def main_entry_point(argv=sys.argv[1:]):
             if formatter is None:
                 logging.error('{argsto!r} is not supported as an output format'.format(
                 argsto=arguments['--to']))
-                sys.exit(1)
+            sys.exit(1)
+
+        if formatter is None:
+            logging.error('{argsto!r} is not supported as an output format'.format(
+                argsto=arguments['--to']))
+            sys.exit(1)
 
             out_lst = [formatter(t) for t in treebank]
 

@@ -6,7 +6,41 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.1...HEAD
+### Fixed
+  - Importing in tests now works as it should
+
+## [0.10.1] - 2017-05-04
+[0.10.1]: https://github.com/LoicGrobol/ginger/compare/v0.10.0...0.10.1
+### Fixed
+  - Version number in `ginger.py`
+
+## [0.10.0] - 2017-05-04
+[0.10.0]: https://github.com/LoicGrobol/ginger/compare/v0.9.2...0.10.0
+### Fixed
+  - Improved release message
+
+## [0.9.2] - 2017-05-04
+[0.9.2]: https://github.com/LoicGrobol/ginger/compare/v0.9.1...0.9.2
+### Added
+  - An [auto-release script](tools/release.py) that works in a fashion similar to [apm](https://github.com/atom/apm).
+
+### Fixed
+  - Running vendored versions from other folders should work
+
+## [0.9.1] - 2017-04-28
+[0.9.1]: https://github.com/LoicGrobol/ginger/compare/v0.9.0...v0.9.1
+### Fixed
+  - (libginger) `Tree.raw_token_sequence` should work correctly
+  - Allow vendoring a version when another version is globally installed
+
+## [0.9.0] - 2017-04-27
+[0.9.0]: https://github.com/LoicGrobol/ginger/compare/v0.8.1...v0.9.0
+### Added
+  - Now support multi-word tokens for CoNLL-U files
+
+### Fixed
+  - Correctly catch format errors on CoNLL identifiers
 
 ## [0.8.1] - 2017-04-14
 [0.8.1]: https://github.com/LoicGrobol/ginger/compare/v0.8.0...v0.8.1
@@ -17,7 +51,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [0.8.0]: https://github.com/LoicGrobol/ginger/compare/v0.7.0...v0.8.0
 ### Fixed
   - Fixed bad formatting on parsing error
-  - Remove obsolete testspython
+  - Remove obsolete tests
   - Fixed Talismane parsing
 
 ### Changed

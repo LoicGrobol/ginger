@@ -12,7 +12,7 @@ except ImportError:  # don't break if cairo is not available
     cairo = None
 
 try:
-    import libginger
+    from . import libginger
 except ImportError:
     from ginger import libginger
 

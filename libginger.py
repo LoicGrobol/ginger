@@ -3,19 +3,24 @@ import typing as ty
 import itertools as it
 
 
-class Node:
-    '''A node in an UD graph.'''
+class UDNode:
+    '''A generic for UD nodes (full, multi-token and empty).'''
+    pass
+
+
+class Node(UDNode):
+    '''A full node in an UD graph.'''
     def __init__(self,
                  identifier: int,
-                 form: str =None,
-                 lemma: str =None,
-                 upostag: str =None,
-                 xpostag: str =None,
-                 feats: ty.Dict[str, str] =None,
-                 head: 'Node' =None,
-                 deprel: str =None,
-                 deps: ty.List[ty.Tuple['Node', str]] =None,
-                 misc: str =None):
+                 form: str = None,
+                 lemma: str = None,
+                 upostag: str = None,
+                 xpostag: str = None,
+                 feats: ty.Dict[str, str] = None,
+                 head: 'Node' = None,
+                 deprel: str = None,
+                 deps: ty.List[ty.Tuple['Node', str]] = None,
+                 misc: str = None):
         """See the [CoNLL-U](http://universaldependencies.org/format.html)
            specification for details on the fields.
 
@@ -38,23 +43,27 @@ class Node:
 
     def to_conll(self) -> str:
         '''Return the CoNLL-U representation of the node.'''
-        return '{identifier}\t{form}\t{lemma}\t{upostag}\t{xpostag}\t{feats}\t{head}\t{deprel}\t{deps}\t{misc}'.format(
+        return ('{identifier}\t{form}\t{lemma}\t{upostag}\t{xpostag}\t{feats}'
+                '\t{head}\t{deprel}\t{deps}\t{misc}').format(
             identifier='_' if self.identifier is None else self.identifier,
             form='_' if self.form is None else self.form,
             lemma='_' if self.lemma is None else self.lemma,
             upostag='_' if self.upostag is None else self.upostag,
             xpostag='_' if self.xpostag is None else self.xpostag,
-            feats='_' if not self.feats else '|'.join('{feat}={value}'.format(feat=feat, value=value) for feat, value in self.feats.items()),
+            feats='_' if not self.feats else '|'.join('{feat}={value}'.format(
+                feat=feat, value=value) for feat, value in self.feats.items()),
             head='_' if self.head is None else self.head.identifier,
             deprel='_' if self.deprel is None else self.deprel,
-            deps='_' if not self.deps else '|'.join('{head}:{dep}'.format(head=head, dep=dep) for head, dep in self.deps),
+            deps='_' if not self.deps else '|'.join('{head}:{dep}'.format(
+                head=head, dep=dep) for head, dep in self.deps),
             misc='_' if self.misc is None else self.misc
         )
 
     def __repr__(self):
-        return 'Node({identifier}, {form}, {lemma}, {upostag}, {xpostag}, {feats}, {head}, {deprel}, {deps}, {misc})'.format(
-            identifier=self.identifier, form=self.form, lemma=self.lemma, upostag=self.upostag, xpostag=self.xpostag,
-            feats=self.feats,
+        return ('Node({identifier}, {form}, {lemma}, {upostag}, {xpostag},'
+                '{feats}, {head}, {deprel}, {deps}, {misc})').format(
+            identifier=self.identifier, form=self.form, lemma=self.lemma,
+            upostag=self.upostag, xpostag=self.xpostag, feats=self.feats,
             head='None' if self.head is None else self.head.identifier,
             deprel=self.deprel,
             deps=list((h.identifier, r) for h, r in self.deps),
@@ -62,24 +71,67 @@ class Node:
         )
 
 
+class MultiTokenNode(UDNode):
+    '''A node in a UD that represent a compound othographic form that
+       spans several words.
+
+         - `span` **must** be an iterable over **connex** `Node`s.'''
+    def __init__(self,
+                 span: ty.Iterable[Node],
+                 form: str = None):
+        self.span = list(span)
+        self.form = form
+        self.start = self.span[0].identifier
+        self.end = self.span[-1].identifier
+        self.identifier = '{start}-{end}'.format(start=self.start,
+                                                 end=self.end)
+
+    def to_conll(self) -> str:
+        '''Return the CoNLL-U representation of the node'''
+        return '{identifier}\t{form}\t_\t_\t_\t_\t_\t_\t_\t_'.format(
+            identifier=self.identifier,
+            form='_' if self.form is None else self.form
+        )
+
+    def __repr__(self):
+        return 'MultiTokenNode({span}, {form})'.format(
+            span=[n.identifier for n in self.span],
+            form='_' if self.form is None else self.form
+        )
+
+
 class Tree:
     '''A dependency tree. Conceptually just a list of nodes
        with some constraints:
-           1. The nodes are sorted by identifier.
-           2. The node identifier are connex integers.
-           3. The nodes do not reference nodes that are not in the tree.
-           4. The first node (indice 0) is a special root node
+           1. The nodes are sorted as in
+              [the CoNLL-U specification](http://universaldependencies.org/format.html)
+           2. The nodes do not reference nodes that are not in the tree.
+           3. The first node (indice 0) is a special root node
              - Its identifier must be 0.
              - Its form should be "ROOT".
              - All of its other attributes should be left empty.'''
-    def __init__(self, nodes: ty.Iterable[Node]):
+    def __init__(self, nodes: ty.Iterable[UDNode]):
         '''Return a new tree whose nodes are those in `nodes`.
 
-           The nodes should respect the constraints 2, 3 and 4 described in
+           The nodes should respect the constraints 1 through 3 described in
            the docstring of `Tree`.'''
-        self.nodes = sorted(nodes, key=lambda x: x.identifier)
-        self.nodes.sort(key=lambda x: x.identifier)
+        self.all_nodes = nodes
+        self.word_sequence = [n for n in self.all_nodes if isinstance(n, Node)]
+        self.nodes = self.word_sequence
         self.root = self.nodes[0]
+
+    @property
+    def raw_token_sequence(self) -> ty.Iterable[UDNode]:
+        '''Return the orthographic token sequence as described in
+           [the CoNLL-U specification](http://universaldependencies.org/format.html#words-tokens-and-empty-nodes).'''
+        current_span = None
+        for node in self.all_nodes:
+            if current_span and node in current_span:
+                continue
+            elif isinstance(node, MultiTokenNode):
+                current_span = node.span
+
+            yield node
 
     def descendance(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:
         """Extract the descendance of a node, does not perform any copy or
@@ -99,7 +151,7 @@ class Tree:
 
     def to_conll(self) -> str:
         '''Return a CoNLL-U representation of the tree.'''
-        return '\n'.join(n.to_conll() for n in self.nodes[1:])
+        return '\n'.join(n.to_conll() for n in self.all_nodes[1:])
 
     def __str__(self):
-        return '\n'.join(str(n) for n in self.nodes)
+        return '\n'.join(str(n) for n in self.all_nodes)

@@ -9,13 +9,19 @@ import typing as ty
 import re
 
 try:
-    import libginger
+    from . import libginger
 except ImportError:
     from ginger import libginger
 
 
 class ParsingError(Exception):
     pass
+
+
+class PlaceholderNode(libginger.UDNode):
+    '''A Node that serves as a placeholder for a Node that has not been created yet.'''
+    def __init__(self, identifier):
+        self.identifier = identifier
 
 
 def trees_from_conll(lines_lst: ty.Iterable[str]) -> ty.Iterable[str]:
@@ -54,6 +60,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
        [CoNNL-U string representation](http://universaldependencies.org/format.html)."""
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
+    full_nodes = [root]  # Efficient storage of referenceable nodes for faster retrival
     # First get the self-contained values, deal with references later
     # IMPLEMENTATION: This relies on references being initialisable with identifiers instead of
     #                 actual references. If we  want to avoid it, we could initialise with `None`
@@ -72,40 +79,48 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
                 'At line {i} : 10 columns expected, got {n} ({line!r})'.format(
                     i=i, n=len(line.split('\t')), line=line))
 
-        try:
-            identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
-        except ValueError:
-            # TODO: Issue a warning here
-            if re.match(r'\d+-\d+', identifier):  # Skip multiword tokens
-                next
-            if re.match(r'\d+.\d+', identifier):  # Skip empty nodes
-                next
-            raise _parse_error_except(i, 'ID', 'CoNLL-U', identifier)
+        # Deal with multi-word tokens
+        if not identifier.isnumeric() and re.match(r'\d+-\d+', identifier):
+            a, b = identifier.split('-')
+            new_node = libginger.MultiTokenNode((PlaceholderNode(i)
+                                                 for i in range(int(a), int(b)+1)), form)
+        else:
+            try:
+                identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
+            except ValueError:
+                # TODO: Issue a warning here
+                if re.match(r'\d+.\d+', identifier):  # Skip empty nodes
+                    next
+                raise _parse_error_except(i, 'ID', 'CoNLL-U', identifier)
 
-        try:
-            feats = conll_map_to_dict(feats)
-        except ParsingError:
-            raise _parse_error_except(i, 'FEATS', 'CoNLL-U', feats)
+            try:
+                feats = conll_map_to_dict(feats)
+            except ParsingError:
+                raise _parse_error_except(i, 'FEATS', 'CoNLL-U', feats)
 
-        try:
-            head = _parse_conll_identifier(head, i, 'HEAD')
-        except ValueError:
-            raise _parse_error_except(i, 'HEAD', 'CoNLL-U', head)
+            try:
+                head = _parse_conll_identifier(head, i, 'HEAD')
+            except ValueError:
+                raise _parse_error_except(i, 'HEAD', 'CoNLL-U', head)
 
-        try:
-            deps = [] if deps == '_' else [e.split(':') for e in deps.split('|')]
-        except ValueError as e:
-            raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
+            try:
+                deps = [] if deps == '_' else [e.split(':') for e in deps.split('|')]
+            except ValueError as e:
+                raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
 
-        new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats, head, deprel,
-                                  deps, misc)
+            new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats,
+                                      head, deprel, deps, misc)
+            full_nodes.append(new_node)
         res.append(new_node)
 
-    # Now deal with references, which is easy, since the index of a node in
-    # `res` is exactly its identifier
-    for n in res[1:]:
-        n.head = res[n.head]
-        n.deps = [(res[head], dep) for head, dep in n.deps]
+    # Now deal with references
+    for node in res[1:]:
+        if isinstance(node, libginger.MultiTokenNode):
+            node.span = [full_nodes[placeholder.identifier] for placeholder in node.span]
+        else:
+            node.head = full_nodes[node.head]
+            node.deps = [(next(n for n in res if n.identifier == head), dep)
+                         for head, dep in node.deps]
 
     return libginger.Tree(res)
 
@@ -470,11 +485,11 @@ def _parse_conll_identifier(value: str, line: int, field: str, *,
        If `non_zero` is truthy, raise an exception if `value` is zero.'''
     res = int(value)
     if res < 0:
-        raise ParsingError(
+        raise ValueError(
             'At line {line}, the `{field}` field must be a non-negative integer, got {value!r}'.format(
                 line=line, field=field, value=value))
     elif non_zero and res == 0:
-        raise ParsingError(
+        raise ValueError(
             'At line {line}, the `{field}` field must be a positive integer, got {value!r}'.format(
                 line=line, field=field, value=value))
     return res
