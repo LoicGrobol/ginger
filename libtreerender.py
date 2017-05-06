@@ -4,6 +4,7 @@ import typing as ty
 
 import re
 import math
+import functools
 
 try:
     import cairocffi as cairo
@@ -305,30 +306,52 @@ def cairo_surf(tree: libginger.Tree,
     context.stroke()
 
     # Now draw the arcs
+    arrowhead_size = font_size/100
     for head, foot in deps:
+        # Arc
         head_rect, foot_rect = node_rects[head], node_rects[foot]
-        start = Point(head_rect.x + head_rect.w/2, head_rect.y)
-        end = Point(foot_rect.x + foot_rect.w/2 +
-                    arrow_shift*(1 if foot.identifier < head.identifier else -1),
-                    foot_rect.y)
+        start = Point(head_rect.x + head_rect.w/2 +
+                      (-arrow_shift if foot.identifier < head.identifier else arrow_shift),
+                      head_rect.y)
+        end = Point(foot_rect.x + foot_rect.w/2, foot_rect.y-arrowhead_size)
         origin_speed = math.floor(abs(end.x-start.x)*energy)
         control1 = (start.x, start.y-origin_speed)
         control2 = (end.x, end.y-origin_speed)
         context.move_to(*start)
         context.curve_to(*control1, *control2, *end)
-
-    context.stroke()
+        arrowhead(context, arrowhead_size)
+        context.stroke()
     return res
 
 
-def to_png(tree: libginger.Tree) -> bytes:
+def arrowhead(context: cairo.Context,
+              size: float,
+              direction: Point = None,
+              front_angle: float = math.pi/4,
+              back_angle: float = math.pi/2):
+    '''Add an arrow head to the current path, starting at the current point.'''
+    if direction is None:
+        direction = Point(0, 1)
+    halfwidth = math.tan(front_angle/2) * size
+    back_height = halfwidth/math.tan(back_angle/2)
+    with context:
+        context.move_to(*context.get_current_point())
+        context.rotate(-math.atan2(direction.x, direction.y))
+        context.rel_line_to(halfwidth, -back_height)
+        context.rel_line_to(-halfwidth, size)
+        context.rel_line_to(-halfwidth, -size)
+        context.close_path()
+
+
+def to_png(tree: libginger.Tree, scale=10) -> bytes:
     s = cairo_surf(tree)
     x, y, w, h = s.ink_extents()
-    res = cairo.ImageSurface(cairo.FORMAT_ARGB32, math.ceil(w), math.ceil(h))
+    res = cairo.ImageSurface(cairo.FORMAT_ARGB32, scale*math.ceil(w), scale*math.ceil(h))
     context = cairo.Context(res)
     with context:
         context.set_source_rgb(1, 1, 1)  # White
         context.paint()
+        context.scale(scale)
         context.set_source_surface(s, -x, -y)
         context.paint()
     return res.write_to_png()
