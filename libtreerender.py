@@ -4,7 +4,7 @@ import typing as ty
 
 import re
 import math
-import functools
+import io
 
 try:
     import cairocffi as cairo
@@ -235,23 +235,27 @@ def tex_escape(text: str) -> str:
     return regex.sub(lambda match: conv[match.group()], text)
 
 
-# Syntactic sugar for rectangles
-Rect = ty.NamedTuple('Rect', (('x', int), ('y', int), ('w', int), ('h', int)))
-# Syntactic sugar for points
-Point = ty.NamedTuple('Point', (('x', int), ('y', int)))
+# Syntactic sugar
+Real = ty.Union[int, float]
+Rect = ty.NamedTuple('Rect', (('x', Real), ('y', Real), ('w', Real), ('h', Real)))
+Point = ty.NamedTuple('Point', (('x', Real), ('y', Real)))
 
 
 def cairo_surf(tree: libginger.Tree,
+               colour: ty.Tuple[float, float, float, float] = (0, 0, 0, 1),
+               line_width: float = 1.0,
                font_size: int = 20,
                token_node_distance: int = 20,
                node_part_margin: int = None,
                arrow_shift: int = 6,
                energy: float = 0.5) -> cairo.RecordingSurface:
-    '''Render a tree in a cairo surface.
+    '''Render a tree in a cairo recording surface.
 
        ## Parameters
+         - `colour`  the colour of the drawing as an RGBA vector in $[0, 1]⁴$
+         - `line_width`  the width of the lines, obviously
          - `font_size`  the font size used
-         - `token_node_distance`  the horizontal soacing between two nodes
+         - `token_node_distance`  the horizontal spacing between two nodes
          - `node_part_margin`  the vertical spacing between node attributes
                                (default: $⌈`token_node_distance`/3⌉$)
          - `arrow_shift` the horizontal padding between arrows of opposite
@@ -290,11 +294,10 @@ def cairo_surf(tree: libginger.Tree,
     # And take into account in node rects
     node_rects = dict((n, Rect(x, y, w, nodes_height)) for n, (x, y, w, h) in node_rects.items())
 
-    # Find out the largest arc height
-    # First, get the relations
-    deps = [(node.head, node) for node in tree.nodes[1:] if node.head is not tree.nodes[0]]
+    # Now draw
+    context.set_source_rgba(*colour)
+    context.set_line_width(line_width)
 
-    context.set_source_rgba(0, 0, 0)
     # First draw the nodes
     context.move_to(0, 0)
     for node, (x, y, w, h) in ((n, node_rects[n]) for n in tree.nodes[1:]):
@@ -305,9 +308,15 @@ def cairo_surf(tree: libginger.Tree,
             context.show_text(p)
     context.stroke()
 
+    # Find out the largest arc height
+    # First, get the relations
+    deps = [(node.head, node, node.deprel)
+            for node in tree.nodes[1:]
+            if node.head is not tree.nodes[0]]
+
     # Now draw the arcs
     arrowhead_size = font_size/100
-    for head, foot in deps:
+    for head, foot, tag in deps:
         # Arc
         head_rect, foot_rect = node_rects[head], node_rects[foot]
         start = Point(head_rect.x + head_rect.w/2 +
@@ -343,15 +352,30 @@ def arrowhead(context: cairo.Context,
         context.close_path()
 
 
-def to_png(tree: libginger.Tree, scale=10) -> bytes:
+def to_png(tree: libginger.Tree,
+           scale: int = 10,
+           background_colour: ty.Tuple[float, float, float, float] = (1, 1, 1, 1)) -> bytes:
     s = cairo_surf(tree)
     x, y, w, h = s.ink_extents()
     res = cairo.ImageSurface(cairo.FORMAT_ARGB32, scale*math.ceil(w), scale*math.ceil(h))
     context = cairo.Context(res)
-    with context:
-        context.set_source_rgb(1, 1, 1)  # White
-        context.paint()
-        context.scale(scale)
-        context.set_source_surface(s, -x, -y)
-        context.paint()
+    context.set_source_rgba(*background_colour)
+    context.paint()
+    context.scale(scale)
+    context.set_source_surface(s, -x, -y)
+    context.paint()
     return res.write_to_png()
+
+
+def to_svg(tree: libginger.Tree) -> bytes:
+    s = cairo_surf(tree)
+    x, y, w, h = s.ink_extents()
+
+    out = io.BytesIO()
+    res = cairo.SVGSurface(out, math.ceil(w), math.ceil(h))
+    context = cairo.Context(res)
+    context.set_source_surface(s, 0., 0.)
+    context.paint()
+    res.flush()
+    res.finish()
+    return out.getvalue()
