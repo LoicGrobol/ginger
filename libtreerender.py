@@ -248,7 +248,7 @@ def cairo_surf(tree: libginger.Tree,
                token_node_distance: int = 20,
                node_part_margin: int = None,
                arrow_shift: int = 6,
-               energy: float = 0.5) -> cairo.RecordingSurface:
+               energy: float = 0.5) -> 'cairo.RecordingSurface':
     '''Render a tree in a cairo recording surface.
 
        ## Parameters
