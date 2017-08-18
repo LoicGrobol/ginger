@@ -1,4 +1,4 @@
-Change Log
+Changelog
 ==========
 All notable changes to this project will be documented in this file.
 
@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
   - Full UD for the first example of [`/examples/test.conll`](/examples/test.conll)
+  - Format the changelog according to [Keep a Changelog v1.0.0](http://keepachangelog.com/en/1.0.0)
 
 ## [0.10.1] - 2017-05-04
 [0.10.1]: https://github.com/LoicGrobol/ginger/compare/v0.10.0...0.10.1
