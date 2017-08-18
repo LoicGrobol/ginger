@@ -2,16 +2,12 @@ import os.path
 
 import json
 
-with open('/home/lgrobol/Documents/nlp/dev/ginger/package.json', encoding='utf8') as package_json:
+with open('package.json', encoding='utf8') as package_json:
     package_metadata = json.load(package_json)
 
 import glob
-import setuptools
-with open('/home/lgrobol/Documents/nlp/dev/ginger/install.log', 'w') as log:
-    log.write('setuptools\n')
-    log.write(setuptools.__file__+'\n')
 
-from setuptools import setup as _setup
+from setuptools import setup
 import itertools
 from setuptools.command.install import install as _install
 import pip
@@ -41,14 +37,6 @@ for package, data_patterns_lst in package_metadata["packages_data"].items():
 
 # Ensure that `package.json` is in the root package
 packages_data[package_metadata["name"]] = packages_data.get(package_metadata["name"], []) + ['package.json']
-
-
-def setup(*args, **kwargs):
-    with open('/home/lgrobol/Documents/nlp/dev/ginger/install.log', 'a') as log:
-        log.write('setup args\n')
-        log.write(str(args)+'\n')
-        log.write(str(kwargs)+'\n')
-    _setup(*args, **kwargs)
 
 
 setup(
