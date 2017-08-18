@@ -2,11 +2,16 @@ import os.path
 
 import json
 
-with open('package.json', encoding='utf8') as package_json:
+with open('/home/lgrobol/Documents/nlp/dev/ginger/package.json', encoding='utf8') as package_json:
     package_metadata = json.load(package_json)
 
 import glob
-from setuptools import setup
+import setuptools
+with open('/home/lgrobol/Documents/nlp/dev/ginger/install.log', 'w') as log:
+    log.write('setuptools\n')
+    log.write(setuptools.__file__+'\n')
+
+from setuptools import setup as _setup
 import itertools
 from setuptools.command.install import install as _install
 import pip
@@ -38,6 +43,14 @@ for package, data_patterns_lst in package_metadata["packages_data"].items():
 packages_data[package_metadata["name"]] = packages_data.get(package_metadata["name"], []) + ['package.json']
 
 
+def setup(*args, **kwargs):
+    with open('/home/lgrobol/Documents/nlp/dev/ginger/install.log', 'a') as log:
+        log.write('setup args\n')
+        log.write(str(args)+'\n')
+        log.write(str(kwargs)+'\n')
+    _setup(*args, **kwargs)
+
+
 setup(
     name=package_metadata["name"],
 
@@ -62,7 +75,7 @@ setup(
                       for dep, spec in package_metadata["dependencies"].items()
                       if not spec.startswith('file:')],
 
-    extra_requires={group: ['{dep}{spec}'.format(dep=dep, spec=spec)
+    extras_require={group: ['{dep}{spec}'.format(dep=dep, spec=spec)
                             for dep, spec in groupdeps.items()
                             if not spec.startswith('file:')]
                     for group, groupdeps in package_metadata["extras"].items()},
