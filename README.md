@@ -32,7 +32,7 @@ You don't actually need to install anything if you satisfy the dependencies abov
 However, if you want to have it installed at global level to get the `ginger` command in your path
   1. Grab the latest release from [Github](https://github.com/LoicGrobol/ginger/releases/latest)
   2. Unpack it and open a terminal inside the resulting folder
-  2. Run `pip3 install .`
+  3. Run `pip3 install .`
 
 You can also install it directly from the tip (unstable but usually safe) of the master branch whith
 ```bash
@@ -48,13 +48,16 @@ The direct graphical outputs depend on [cairo](https://www.cairographics.org/), 
 [cffi](https://pypi.python.org/pypi/cffi)). These are entirely facultative, and you can install them
 the following ways:
 
+  - Check if cairo is installed (e.g. by running `ldconfig -p | grep libcairo`)
+    - If it is not, see [cairo's installation instructions(https://www.cairographics.org/download/))
   - If you are installing ginger through pip, use `pip3 install .[graphics]`
+    - This might fail because of pip's quirks (as in installing dependencies in a weird order)
+      in that case, try either to install `cffi` manually with pip, or to install `libcffi`
+      (presumably using your distro's package manager)
   - Else, you can install them yourself using `pip3 install cffi cairocffi`, or using your package
     management system of choice
 
-Either way, you will also need to install cairo, but, fortunately, as it is already a dependency of
-a lot of software, you probably already have it!
-If not, see [cairo's installation instructions(https://www.cairographics.org/download/)).
+Either way, you will also need to install cairo, but, fortunately, .
 
 ## Usage
 ```bash
