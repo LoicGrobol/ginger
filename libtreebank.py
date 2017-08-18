@@ -30,12 +30,12 @@ def trees_from_conll(lines_lst: ty.Iterable[str]) -> ty.Iterable[str]:
     for line in lines_lst:
         # Skip comment lines
         if line.startswith('#'):
-            next
+            continue
         elif line.isspace():
             if current:
                 yield current
                 current = []
-            next
+            continue
         else:
             current.append(line)
     # Flush the buffer at the end of the file
@@ -69,7 +69,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
     for i, line in enumerate(l.strip() for l in tree_lines_lst):
         # Skip comment lines
         if line.startswith('#'):
-            next
+            continue
 
         try:
             (identifier, form, lemma, upostag, xpostag, feats,
@@ -90,7 +90,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
             except ValueError:
                 # TODO: Issue a warning here
                 if re.match(r'\d+.\d+', identifier):  # Skip empty nodes
-                    next
+                    continue
                 raise _parse_error_except(i, 'ID', 'CoNLL-U', identifier)
 
             try:
@@ -140,7 +140,7 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
     for i, line in enumerate(l.strip() for l in tree_lst):
         # Skip comment lines
         if line.startswith('#'):
-            next
+            continue
 
         try:
             (identifier, form, lemma, upostag, xpostag, feats,
@@ -223,7 +223,7 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
     for i, line in enumerate(l.strip() for l in tree_lst):
         # Skip comment lines
         if line.startswith('#'):
-            next
+            continue
 
         try:
             (identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel,
@@ -334,7 +334,7 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
     for i, line in enumerate(l.strip() for l in tree_lst):
         # Skip comment lines
         if line.startswith('#'):
-            next
+            continue
 
         try:
             (identifier, form, lemma, plemma, pos, ppos, feat, pfeat,
@@ -482,7 +482,8 @@ def _parse_conll_identifier(value: str, line: int, field: str, *,
     '''Parse a CoNLL token identifier, raise the appropriate exception if it is invalid.
        Just propage the exception if `value` does not parse to an integer.
 
-       If `non_zero` is truthy, raise an exception if `value` is zero.'''
+       If `non_zero` is truthy, raise an exception if `value` is zero.
+       `field` and `line` are only used for the error message.'''
     res = int(value)
     if res < 0:
         raise ValueError(
