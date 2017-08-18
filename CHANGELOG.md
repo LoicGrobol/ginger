@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Fixed
   - Importing in tests now works as it should
 
+### Changed
+  - Full UD for the first example of [`/examples/test.conll`](/examples/test.conll)
+
 ## [0.10.1] - 2017-05-04
 [0.10.1]: https://github.com/LoicGrobol/ginger/compare/v0.10.0...0.10.1
 ### Fixed
