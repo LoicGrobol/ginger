@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.1...HEAD
 ### Fixed
   - Importing in tests now works as it should
+  - Stupid confusion between `next` and `continue`
 
 ### Changed
   - Full UD for the first example of [`/examples/test.conll`](/examples/test.conll)
