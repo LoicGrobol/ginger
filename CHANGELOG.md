@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.1...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.2...HEAD
+
+## [0.10.2] - 2017-08-22
+[0.10.2]: https://github.com/LoicGrobol/ginger/compare/v0.10.1...0.10.2
 ### Fixed
   - Importing in tests now works as it should
   - Stupid confusion between `next` and `continue`
