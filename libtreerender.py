@@ -242,7 +242,7 @@ Point = ty.NamedTuple('Point', (('x', Real), ('y', Real)))
 
 
 def cairo_surf(tree: libginger.Tree,
-               colour: ty.Tuple[float, float, float, float] = (0, 0, 0, 1),
+               colour: ty.Tuple[float, float, float, float] = (0., 0., 0., 1.),
                line_width: float = 1.0,
                font_size: int = 20,
                token_node_distance: int = 20,
@@ -374,7 +374,7 @@ def to_svg(tree: libginger.Tree) -> bytes:
     out = io.BytesIO()
     res = cairo.SVGSurface(out, math.ceil(w), math.ceil(h))
     context = cairo.Context(res)
-    context.set_source_surface(s, 0., 0.)
+    context.set_source_surface(s, -x, -y)
     context.paint()
     res.flush()
     res.finish()
