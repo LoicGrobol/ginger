@@ -110,7 +110,7 @@ class Tree:
              - Its identifier must be 0.
              - Its form should be "ROOT".
              - All of its other attributes should be left empty.'''
-    def __init__(self, nodes: ty.Iterable[UDNode]):
+    def __init__(self, nodes: ty.Iterable[UDNode], sent_id: str = None, text: str = None):
         '''Return a new tree whose nodes are those in `nodes`.
 
            The nodes should respect the constraints 1 through 3 described in
@@ -119,6 +119,8 @@ class Tree:
         self.word_sequence = [n for n in self.all_nodes if isinstance(n, Node)]
         self.nodes = self.word_sequence
         self.root = self.nodes[0]
+        self.sent_id = sent_id
+        self.text = None
 
     @property
     def raw_token_sequence(self) -> ty.Iterable[UDNode]:

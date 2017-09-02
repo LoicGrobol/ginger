@@ -28,10 +28,7 @@ def trees_from_conll(lines_lst: ty.Iterable[str]) -> ty.Iterable[str]:
     '''Extract individual tree strings from the lines of a CoNLL-like file.'''
     current = []  # type: ty.List[str]
     for line in lines_lst:
-        # Skip comment lines
-        if line.startswith('#'):
-            continue
-        elif line.isspace():
+        if line.isspace():
             if current:
                 yield current
                 current = []
@@ -61,6 +58,8 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
     full_nodes = [root]  # Efficient storage of referenceable nodes for faster retrival
+    # We will fill these out if they are given
+    metadata = {}  # type: ty.Dict[str, str]
     # First get the self-contained values, deal with references later
     # IMPLEMENTATION: This relies on references being initialisable with identifiers instead of
     #                 actual references. If we  want to avoid it, we could initialise with `None`
@@ -69,6 +68,10 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
     for i, line in enumerate(l.strip() for l in tree_lines_lst):
         # Skip comment lines
         if line.startswith('#'):
+            # Extract metadata
+            metadata_match = re.match(r'#\s*(?P<key>[^\s=]+)\s*=\s*(?P<value>.*)', line)
+            if metadata_match:
+                metadata[metadata_match.group('key')] = metadata_match.group('value')
             continue
 
         try:
@@ -122,7 +125,8 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
             node.deps = [(next(n for n in res if n.identifier == head), dep)
                          for head, dep in node.deps]
 
-    return libginger.Tree(res)
+    return libginger.Tree(res, **{key: value for key, value in metadata.items()
+                                  if key in ('sent_id', 'text')})
 
 
 def conllx(treebank_lst: ty.Iterable[str]) -> ty.Iterable[libginger.Tree]:

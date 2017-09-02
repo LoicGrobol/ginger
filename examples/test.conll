@@ -1,3 +1,5 @@
+# sent_id = 1
+# text = Je reconnais l'existence du kiwi
 1	Je	il	PRON	_	Number=Sing|Person=1|PronType=Prs	2	nsubj	_	_
 2	reconnais	reconnaître	VERB	_	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	0	root	_	_
 3	l'	le	DET	_	Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	SpaceAfter=No
