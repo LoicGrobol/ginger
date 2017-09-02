@@ -109,12 +109,12 @@ def main_entry_point(argv=sys.argv[1:]):
     except KeyError:
         logging.error('{argsfrom!r} is not a supported format'.format(
             argsfrom=arguments['--from']))
-        sys.exit(1)
+        return 1
 
     if parser is None:
         logging.error('{argsfrom!r} is not supported as an input format'.format(
             argsfrom=arguments['--from']))
-        sys.exit(1)
+        return 1
 
     treebank = parser(in_lst)
 
@@ -130,12 +130,12 @@ def main_entry_point(argv=sys.argv[1:]):
         except KeyError:
             logging.error('{argsto!r} is not a supported format'.format(
                 argsto=arguments['--to']))
-            sys.exit(1)
+            return 1
 
         if formatter is None:
             logging.error('{argsto!r} is not supported as an output format'.format(
                 argsto=arguments['--to']))
-            sys.exit(1)
+            return 1
 
         out_lst = [formatter(t) for t in treebank]
 
