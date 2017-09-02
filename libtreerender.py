@@ -50,8 +50,11 @@ def tikz(tree: libginger.Tree) -> str:
     token_nodes = '\n        '.join(token_nodes_lst)
 
     # Now the relations
-    relations_lst = [dep_template.format(head=n.head.identifier, foot=n.identifier, deprel=tex_escape(n.deprel),
-                                         energy=energy, arrow_shift=arrow_shift,
+    relations_lst = [dep_template.format(head=n.head.identifier,
+                                         foot=n.identifier,
+                                         deprel=tex_escape(n.deprel),
+                                         energy=energy,
+                                         arrow_shift=arrow_shift,
                                          direction='-' if n.head.identifier > n.identifier else '')
                      for n in draw_nodes if n.head.identifier != 0]
     dependencies = '\n        '.join(relations_lst)
@@ -71,7 +74,7 @@ def tikz(tree: libginger.Tree) -> str:
 \end{{scope}}
 
 {roots}
-\end{{tikzpicture}}''')[1:]  # Stupid trick for nice display
+\end{{tikzpicture}}''')[1:]  # Stupid trick for nice(r) display
     return res_template.format(token_nodes=token_nodes,
                                dependencies=dependencies,
                                roots=roots)
@@ -126,7 +129,8 @@ def ascii_art(tree: libginger.Tree) -> str:
     # destination.
     # First get the relations with their real index in this tree instead of the identifier
     # (which might have an arbitrary start, or worse, be non-connex if this was an extracted subtree)
-    relations = [(i, tree.nodes.index(n.head)) for i, n in enumerate(tree.nodes) if n.head in tree.nodes]
+    relations = [(i, tree.nodes.index(n.head)) for i, n in enumerate(tree.nodes)
+                 if n.head in tree.nodes]
 
     relations.sort(key=lambda x: (abs(x[0]-x[1]), min(x)))
     # Then a counter of unfinished incoming arrows. There shouldn't ever be more than one
@@ -151,7 +155,8 @@ def ascii_art(tree: libginger.Tree) -> str:
 
     while relations:
         # Get the next non-crossing relation on this line
-        index, current_relation = next(((i, r) for i, r in enumerate(relations) if min(r) >= current_token),
+        index, current_relation = next(((i, r) for i, r in enumerate(relations)
+                                        if min(r) >= current_token),
                                        (None, None))
         if index is None:  # None such relation : fill with spaces and go to next line
             fill_until(len(tree.nodes), ' ')
