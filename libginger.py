@@ -120,7 +120,7 @@ class Tree:
         self.nodes = self.word_sequence
         self.root = self.nodes[0]
         self.sent_id = sent_id
-        self.text = None
+        self.text = text
 
     @property
     def raw_token_sequence(self) -> ty.Iterable[UDNode]:
