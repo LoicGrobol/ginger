@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
   - Support for CoNLL-U `sent_id` and `text` metadata
 
+### Changed
+  - Return proper exit codes
+
 ## [0.10.3] - 2017-08-22
 [0.10.3]: https://github.com/LoicGrobol/ginger/compare/v0.10.2...0.10.3
 ### Fixed
