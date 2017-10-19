@@ -65,8 +65,8 @@ def tikz(tree: libginger.Tree) -> str:
     roots = '\n        '.join(root_lst)
     res_template = (r'''
 \begin{{tikzpicture}}[>=stealth, token/.style={{text height=1em, rectangle split, rectangle split parts=3}},
-                           dep/.style={{font=\small\itshape, midway, above=-.2em}},
-                           root/.style={{font=\small\itshape, above}}]
+                      dep/.style={{font=\small\itshape, midway, above=-.2em}},
+                      root/.style={{font=\small\itshape, above}}]
 \path[anchor=base]
     {token_nodes};
 \begin{{scope}}[local bounding box=arcs]
