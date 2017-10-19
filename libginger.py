@@ -77,7 +77,7 @@ class MultiTokenNode(UDNode):
 
          - `span` **must** be an iterable over **connex** `Node`s.'''
     def __init__(self,
-                 span: ty.Iterable[Node],
+                 span: ty.Iterable[UDNode],
                  form: str = None):
         self.span = list(span)
         self.form = form
@@ -125,7 +125,10 @@ class Tree:
     @property
     def raw_token_sequence(self) -> ty.Iterable[UDNode]:
         '''Return the orthographic token sequence as described in
-           [the CoNLL-U specification](http://universaldependencies.org/format.html#words-tokens-and-empty-nodes).'''
+           [the CoNLL-U specification][1].
+
+           [1]: (http://universaldependencies.org/format.html#words-tokens-and-empty-nodes
+           '''
         current_span = None
         for node in self.all_nodes:
             if current_span and node in current_span:
