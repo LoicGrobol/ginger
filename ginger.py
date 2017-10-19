@@ -148,4 +148,4 @@ def main_entry_point(argv=sys.argv[1:]):
 
 
 if __name__ == '__main__':
-    main_entry_point()
+    sys.exit(main_entry_point())
