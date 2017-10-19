@@ -108,7 +108,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
 
             try:
                 deps = [] if deps == '_' else [e.split(':') for e in deps.split('|')]
-            except ValueError as e:
+            except ValueError:
                 raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
 
             new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats,
@@ -274,6 +274,7 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         # Deal with the first token
         real_identifier = len(res)
         conllx_to_conllu_identifiers[identifier] = real_identifier
+        # TODO: update this to use `PlaceholderNode`s
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
                                   lemma=lemma, upostag=pos, feats=feat,
                                   head=head, deprel=deprel,
@@ -304,7 +305,8 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
 def _node_to_conll2009_gold(node: libginger.Node):
     '''Return CoNLL-2009 representation of a `Node`.
        This writes the informations in the gold columns only.'''
-    return '{identifier}\t{form}\t{lemma}\t_\t{upostag}\t_\t{feats}\t_\t{head}\t_\t{deprel}\t_\t_\t_\t_'.format(
+    return ('{identifier}\t{form}\t{lemma}'
+            '\t_\t{upostag}\t_\t{feats}\t_\t{head}\t_\t{deprel}\t_\t_\t_\t_').format(
         identifier='_' if node.identifier is None else node.identifier,
         form='_' if node.form is None else node.form,
         lemma='_' if node.lemma is None else node.lemma,
@@ -484,7 +486,7 @@ def _parse_error_except(line: int, field: str, form: str, content: str) -> Parsi
 def _parse_conll_identifier(value: str, line: int, field: str, *,
                             non_zero=False) -> int:
     '''Parse a CoNLL token identifier, raise the appropriate exception if it is invalid.
-       Just propage the exception if `value` does not parse to an integer.
+       Just propagate the exception if `value` does not parse to an integer.
 
        If `non_zero` is truthy, raise an exception if `value` is zero.
        `field` and `line` are only used for the error message.'''
@@ -508,7 +510,7 @@ def guess(filelines: ty.Iterable[str]) -> str:
     first_line_columns = next(l for l in lines if l).split('\t')
 
     if len(first_line_columns) == 10:  # 10 columns, assuming CoNLL-[XU] of some kind
-        # CoNLL-X
+        # CoNLL-X iff the penultimate column is not `_` or a CoNLL mapping
         if not re.match(r'_|^([^:|]+:[^:|])(\|[^:|]+:[^:|])*$', first_line_columns[-2]):
             if any(l.split('\t')[5].endswith('|') for l in lines if l and not l.isspace()):
                 return 'talismane'
