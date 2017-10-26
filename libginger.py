@@ -115,7 +115,7 @@ class Tree:
 
            The nodes should respect the constraints 1 through 3 described in
            the docstring of `Tree`.'''
-        self.all_nodes = nodes
+        self.all_nodes = list(nodes)
         self.word_sequence = [n for n in self.all_nodes if isinstance(n, Node)]
         self.nodes = self.word_sequence
         self.root = self.nodes[0]
