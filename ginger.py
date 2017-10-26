@@ -46,7 +46,6 @@ from docopt import docopt
 import signal
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -55,7 +54,7 @@ if __name__ == "__main__" and __package__ is None:
     from sys import path
     ginger_root = pathlib.Path(__file__).resolve().parents[1]
     path.insert(0, str(ginger_root))
-    import ginger  # noqa
+    import ginger  # NOQA
     __package__ = "ginger"
 
 try:
@@ -67,8 +66,8 @@ except ImportError:
 
 
 def sigint_handler(signal, frame):
-        logging.error('Process interrupted by SIGINT')
-        sys.exit(0)
+    logging.error('Process interrupted by SIGINT')
+    sys.exit(0)
 
 
 signal.signal(signal.SIGINT, sigint_handler)
