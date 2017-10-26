@@ -22,7 +22,7 @@ Ginger depends on
   - [docopt](http://docopt.org/): ^0.6
 
 If you are using a sensible OS, Python 3 should already be installed, though it might be stuck at an older version (looking at you, Debian).
-If it is the case : it is a shame, pester you sysadmin until they upgrade.
+If it is the case : it is a shame, pester your sysadmin until they upgrade.
 
 If Python 3 is installed, installing ginger through pip (see below) should take care of the other dependencies.
 
