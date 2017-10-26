@@ -24,8 +24,29 @@ class PlaceholderNode(libginger.UDNode):
         self.identifier = identifier
 
 
-def trees_from_conll(lines_lst: ty.Iterable[str]) -> ty.Iterable[str]:
-    '''Extract individual tree strings from the lines of a CoNLL-like file.'''
+def trees_from_conll(conll: ty.Union[str, ty.TextIO, ty.Iterable[str]]
+                     ) -> ty.Iterable[str]:
+    '''Extract individual tree strings from a CoNLL file.
+
+       `#conll` may be one of the following, tried in that order:
+
+         - A File-like object opened in reading text mode
+         - A string, the path to a text file
+         - A string containing the whole file
+         - An iterable of strings, the lines of a CoNLL file
+    '''
+    try:
+        lines_lst = conll.readlines()
+    except AttributeError:
+        try:
+            with open(conll) as conll_stream:
+                lines_lst = conll_stream.readlines()
+        except (FileNotFoundError, TypeError) as e:
+            try:
+                lines_lst = conll.splitlines()
+            except AttributeError:
+                lines_lst = list(conll)
+
     current = []  # type: ty.List[str]
     for line in lines_lst:
         if line.isspace():
@@ -41,7 +62,7 @@ def trees_from_conll(lines_lst: ty.Iterable[str]) -> ty.Iterable[str]:
 
 
 # Generic formats
-def conllu(treebank_lst: ty.Iterable[str]) -> ty.Iterable[libginger.Tree]:
+def conllu(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]) -> ty.Iterable[libginger.Tree]:
     '''Parse a CoNLL-U treebank file and return its trees.'''
     trees = trees_from_conll(treebank_lst)
     return (_conllu_tree(t) for t in trees)
@@ -69,7 +90,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
         # Skip comment lines
         if line.startswith('#'):
             # Extract metadata
-            metadata_match = re.match(r'#\s*(?P<key>[^\s=]+)\s*=\s*(?P<value>.*)', line)
+            metadata_match = re.match(r'#\s*(?P<key>.+)\s*=\s*(?P<value>.*)', line)
             if metadata_match:
                 metadata[metadata_match.group('key')] = metadata_match.group('value')
             continue
@@ -129,7 +150,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
                                   if key in ('sent_id', 'text')})
 
 
-def conllx(treebank_lst: ty.Iterable[str]) -> ty.Iterable[libginger.Tree]:
+def conllx(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]) -> ty.Iterable[libginger.Tree]:
     '''Parse a CoNLL-X treebank file and return its trees.'''
     trees = trees_from_conll(treebank_lst)
     return (_conllx_tree(t) for t in trees)
@@ -209,7 +230,8 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
     return libginger.Tree(res)
 
 
-def conll2009_gold(treebank_lst: ty.Iterable[str]) -> ty.Iterable[libginger.Tree]:
+def conll2009_gold(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]
+                   ) -> ty.Iterable[libginger.Tree]:
     '''Parse a CoNLL-2009 gold treebank file and return its trees.'''
     trees = trees_from_conll(treebank_lst)
     return (_conll2009_gold_tree(t) for t in trees)
@@ -322,7 +344,8 @@ def to_conll2009_gold(tree: libginger.Tree) -> str:
     return '\n'.join(_node_to_conll2009_gold(n) for n in tree.nodes[1:])
 
 
-def conll2009_sys(treebank_lst: ty.Iterable[str]) -> ty.Iterable[libginger.Tree]:
+def conll2009_sys(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]
+                  ) -> ty.Iterable[libginger.Tree]:
     '''Parse a CoNLL-U treebank file and return its trees.'''
     trees = trees_from_conll(treebank_lst)
     return (_conll2009_sys_tree(t) for t in trees)
@@ -431,8 +454,9 @@ def to_conll2009_sys(tree: libginger.Tree) -> str:
 
 
 # Parser-specific formats
-def talismane(treebank_lst: ty.Iterable[str]) -> ty.Iterable[libginger.Tree]:
-    '''Parse a CoNLL-U treebank file and return its trees.'''
+def talismane(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]
+              ) -> ty.Iterable[libginger.Tree]:
+    '''Parse a Talismane CoNLL-X treebank file and return its trees.'''
     trees = trees_from_conll(treebank_lst)
     return (_talismane_tree(t) for t in trees)
 
@@ -503,10 +527,17 @@ def _parse_conll_identifier(value: str, line: int, field: str, *,
 
 
 # Guessing tools
-def guess(filelines: ty.Iterable[str]) -> str:
+def guess(treebank: ty.Union[str, ty.TextIO, ty.Iterable[str]]) -> str:
     """Guess the format of a file. Return the name of the format in a way
        as a key in `formats`."""
-    lines = iter(filelines)
+    try:
+        lines = iter(treebank)
+    except TypeError:
+        try:
+            lines = iter(open(treebank))
+        except (FileNotFoundError, TypeError) as e:
+            lines = treebank.splitlines()
+
     first_line_columns = next(l for l in lines if l).split('\t')
 
     if len(first_line_columns) == 10:  # 10 columns, assuming CoNLL-[XU] of some kind
