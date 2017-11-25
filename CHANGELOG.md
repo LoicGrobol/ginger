@@ -24,7 +24,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [0.10.3]: https://github.com/LoicGrobol/ginger/compare/v0.10.2...0.10.3
 ### Fixed
   - Importing in tests now works as it should
-  - Stupid confusion between `next` and `continue`
+  - Actually ignore lines that should be ignored in treebanks
 
 ### Changed
   - Full UD for the first example of [`/examples/test.conll`](/examples/test.conll)
