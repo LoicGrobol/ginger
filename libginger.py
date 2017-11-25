@@ -78,13 +78,15 @@ class MultiTokenNode(UDNode):
          - `span` **must** be an iterable over **connex** `Node`s.'''
     def __init__(self,
                  span: ty.Iterable[UDNode],
-                 form: str = None):
+                 form: str = None,
+                 misc: str = None):
         self.span = list(span)
         self.form = form
         self.start = self.span[0].identifier
         self.end = self.span[-1].identifier
         self.identifier = '{start}-{end}'.format(start=self.start,
                                                  end=self.end)
+        self.misc = misc
 
     def to_conll(self) -> str:
         '''Return the CoNLL-U representation of the node'''

@@ -106,8 +106,9 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
         # Deal with multi-word tokens
         if not identifier.isnumeric() and re.match(r'\d+-\d+', identifier):
             a, b = identifier.split('-')
-            new_node = libginger.MultiTokenNode((PlaceholderNode(i)
-                                                 for i in range(int(a), int(b)+1)), form)
+            new_node = libginger.MultiTokenNode(
+                (PlaceholderNode(i) for i in range(int(a), int(b)+1)),
+                form, misc)
         else:
             try:
                 identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)

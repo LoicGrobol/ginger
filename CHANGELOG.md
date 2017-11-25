@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
   - Return proper exit codes
+  - `libginger.MultiTokenNode`s now has `misc` fields
 
 ### Fixed
   - `libginger.Tree.raw_token_sequence` is now actually UD-compliant
