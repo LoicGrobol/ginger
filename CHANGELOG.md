@@ -11,8 +11,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - Support for CoNLL-U `sent_id` and `text` metadata
 
 ### Changed
-  - Return proper exit codes
-  - `libginger.MultiTokenNode`s now has `misc` fields
+  - `ginger` returns proper exit codes
+  - Support for `identifier` and `misc` fields for all UD Nodes, including `libginger.MultiTokenNode`
 
 ### Fixed
   - `libginger.Tree.raw_token_sequence` is now actually UD-compliant
