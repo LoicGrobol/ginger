@@ -5,7 +5,13 @@ import itertools as it
 
 class UDNode:
     '''A generic for UD nodes (full, multi-token and empty).'''
-    pass
+    def __init__(self, identifier, misc: str = None):
+        self.identifier = identifier
+        self.misc = misc
+
+    @property
+    def has_space_after(self) -> bool:
+        return self.misc and 'SpaceAfter=No' not in self.misc
 
 
 class Node(UDNode):
@@ -30,7 +36,7 @@ class Node(UDNode):
              - `deps` is a Python list
              - `feats` is a Python dict
              - empty fields are either `None` or empty depending on the field type"""
-        self.identifier = identifier
+        super().__init__(identifier, misc)
         self.form = form
         self.lemma = lemma
         self.upostag = upostag
@@ -39,13 +45,12 @@ class Node(UDNode):
         self.head = head
         self.deprel = deprel
         self.deps = deps if deps is not None else []
-        self.misc = misc
 
     def to_conll(self) -> str:
         '''Return the CoNLL-U representation of the node.'''
         return ('{identifier}\t{form}\t{lemma}\t{upostag}\t{xpostag}\t{feats}'
                 '\t{head}\t{deprel}\t{deps}\t{misc}').format(
-            identifier='_' if self.identifier is None else self.identifier,
+            identifier=self.identifier,
             form='_' if self.form is None else self.form,
             lemma='_' if self.lemma is None else self.lemma,
             upostag='_' if self.upostag is None else self.upostag,
@@ -84,15 +89,15 @@ class MultiTokenNode(UDNode):
         self.form = form
         self.start = self.span[0].identifier
         self.end = self.span[-1].identifier
-        self.identifier = '{start}-{end}'.format(start=self.start,
-                                                 end=self.end)
-        self.misc = misc
+        identifier = '{start}-{end}'.format(start=self.start, end=self.end)
+        super().__init__(identifier, misc)
 
     def to_conll(self) -> str:
         '''Return the CoNLL-U representation of the node'''
-        return '{identifier}\t{form}\t_\t_\t_\t_\t_\t_\t_\t_'.format(
+        return '{identifier}\t{form}\t_\t_\t_\t_\t_\t_\t_\t{misc}'.format(
             identifier=self.identifier,
-            form='_' if self.form is None else self.form
+            form='_' if self.form is None else self.form,
+            misc='_' if self.misc is None else self.misc
         )
 
     def __repr__(self):
