@@ -135,7 +135,6 @@ class Tree:
                 continue
             elif isinstance(node, MultiTokenNode):
                 current_span = node.span
-                continue
             yield node
 
     def descendance(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:
