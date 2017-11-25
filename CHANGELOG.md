@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.3...HEAD
 ### Added
   - Support for CoNLL-U `sent_id` and `text` metadata
+  - UD Nodes ()`libginger.UDNodes` and subtypes) have a new `space_after: bool` property corresponding to UD 'SpaceAfter'
 
 ### Changed
   - `ginger` returns proper exit codes
