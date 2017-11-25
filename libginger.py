@@ -127,7 +127,7 @@ class Tree:
         '''Return the orthographic token sequence as described in
            [the CoNLL-U specification][1].
 
-           [1]: (http://universaldependencies.org/format.html#words-tokens-and-empty-nodes
+           [1]: http://universaldependencies.org/format.html#words-tokens-and-empty-nodes
            '''
         current_span = None
         for node in self.all_nodes:
@@ -135,7 +135,7 @@ class Tree:
                 continue
             elif isinstance(node, MultiTokenNode):
                 current_span = node.span
-
+                continue
             yield node
 
     def descendance(self, root: Node, blacklist: ty.Iterable[str] =None) -> ty.List[Node]:

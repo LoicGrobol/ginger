@@ -13,6 +13,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
   - Return proper exit codes
 
+### Fixed
+  - `libginger.Tree.raw_token_sequence` is now actually UD-compliant and doesn't include words that are part of a multi-word token anymore. E.g. doesn't include *vamos* and *nos* if those are part of *vámonos*.
+
 ## [0.10.3] - 2017-08-22
 [0.10.3]: https://github.com/LoicGrobol/ginger/compare/v0.10.2...0.10.3
 ### Fixed
