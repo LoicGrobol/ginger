@@ -130,7 +130,7 @@ class Tree:
            [1]: http://universaldependencies.org/format.html#words-tokens-and-empty-nodes
            '''
         current_span = None
-        for node in self.all_nodes:
+        for node in self.all_nodes[1:]:
             if current_span and node in current_span:
                 continue
             elif isinstance(node, MultiTokenNode):
