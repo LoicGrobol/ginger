@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - `libginger.Tree.raw_token_sequence` is now actually UD-compliant
     - It doesn't include words that are part of a multi-word token anymore. E.g. only *vámonos* and not *vamos* and *nos*.
     - It doesn't return the root node anymore.
+  - `libginger.Tree.word_sequence` is now actually UD-compliant, as it does not include the root node anymore
 
 ## [0.10.3] - 2017-08-22
 [0.10.3]: https://github.com/LoicGrobol/ginger/compare/v0.10.2...0.10.3
