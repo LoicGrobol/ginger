@@ -25,7 +25,7 @@ class Node(UDNode):
                  feats: ty.Dict[str, str] = None,
                  head: 'Node' = None,
                  deprel: str = None,
-                 deps: ty.List[ty.Tuple['Node', str]] = None,
+                 deps: ty.Iterable[ty.Tuple['Node', str]] = None,
                  misc: str = None):
         """See the [CoNLL-U](http://universaldependencies.org/format.html)
            specification for details on the fields.
@@ -44,7 +44,7 @@ class Node(UDNode):
         self.feats = feats if feats is not None else dict()
         self.head = head
         self.deprel = deprel
-        self.deps = deps if deps is not None else []
+        self.deps = list(deps) if deps is not None else []
 
     def to_conll(self) -> str:
         '''Return the CoNLL-U representation of the node.'''
