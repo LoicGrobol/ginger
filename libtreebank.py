@@ -133,6 +133,9 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
             except ValueError:
                 raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
 
+            (form, lemma, upostag, xpostag, deprel, misc) = (
+                e if e != '_' else None for e in (form, lemma, upostag, xpostag, deprel, misc))
+
             new_node = libginger.Node(identifier, form, lemma, upostag, xpostag, feats,
                                       head, deprel, deps, misc)
             full_nodes.append(new_node)
@@ -157,6 +160,7 @@ def conllx(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]) -> ty.Itera
     return (_conllx_tree(t) for t in trees)
 
 
+# TODO: Check how we deal with multi-token words
 def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
     """Create an Universal Dependencies tree from a CoNLL-X tree."""
     root = libginger.Node(identifier=0, form='ROOT')
@@ -213,6 +217,10 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         # Deal with the first token
         real_identifier = len(res)
         conllx_to_conllu_identifiers[identifier] = real_identifier
+
+        (lemma, upostag, xpostag, deprel, pdeprel) = (
+            e if e != '_' else None for e in (lemma, upostag, xpostag, deprel, pdeprel))
+
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
                                   lemma=lemma, upostag=upostag, xpostag=xpostag, feats=feats,
                                   head=head, deprel=deprel,
@@ -297,6 +305,10 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         # Deal with the first token
         real_identifier = len(res)
         conllx_to_conllu_identifiers[identifier] = real_identifier
+
+        (lemma, plemma, pos, ppos, deprel, pdeprel, fillpred, *apreds) = (
+            e if e != '_' else None for e in
+            (lemma, plemma, pos, ppos, deprel, pdeprel, fillpred, *apreds))
         # TODO: update this to use `PlaceholderNode`s
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
                                   lemma=lemma, upostag=pos, feats=feat,
@@ -409,6 +421,11 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         # Deal with the first token
         real_identifier = len(res)
         conllx_to_conllu_identifiers[identifier] = real_identifier
+
+        (lemma, plemma, pos, ppos, deprel, pdeprel, fillpred, *apreds) = (
+            e if e != '_' else None for e in
+            (lemma, plemma, pos, ppos, deprel, pdeprel, fillpred, *apreds))
+
         res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
                                   lemma=plemma, upostag=ppos, feats=pfeat,
                                   head=phead, deprel=pdeprel,

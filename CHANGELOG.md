@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - `ginger` returns proper exit codes
   - Support for `identifier` and `misc` fields for all UD Nodes, including `libginger.MultiTokenNode`
   - Support for arbitrary iterables for `deps` in `libginger.Node` constructor
+  - `_` columns in CoNLL files are now translated to `None` attributes instead of a litteral
+    `_`
 
 ### Fixed
   - `libginger.Tree.raw_token_sequence` is now actually UD-compliant
