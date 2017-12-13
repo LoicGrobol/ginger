@@ -97,7 +97,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
 
         try:
             (identifier, form, lemma, upostag, xpostag, feats,
-             head, deprel, deps, misc) = (c if c != '_' else None for c in line.split('\t'))
+             head, deprel, deps, misc) = line.split('\t')
         except ValueError:
             raise ParsingError(
                 'At line {i} : 10 columns expected, got {n} ({line!r})'.format(
@@ -170,7 +170,7 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
 
         try:
             (identifier, form, lemma, upostag, xpostag, feats,
-             head, deprel, phead, pdeprel) = (c if c != '_' else None for c in line.split('\t'))
+             head, deprel, phead, pdeprel) = line.split('\t')
         except ValueError:
             # TODO: Issue a warning here
             raise ParsingError(
@@ -254,7 +254,7 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
 
         try:
             (identifier, form, lemma, plemma, pos, ppos, feat, pfeat, head, phead, deprel, pdeprel,
-             fillpred, pred, *apreds) = (c if c != '_' else None for c in line.split('\t'))
+             fillpred, pred, *apreds) = line.split('\t')
         except ValueError:
             # TODO: Issue a warning here
             raise ParsingError(
@@ -367,10 +367,8 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             continue
 
         try:
-            (identifier, form, lemma,
-             plemma, pos, ppos, feat, pfeat,
-             head, phead, deprel, pdeprel,
-             fillpred, pred, *apreds) = (c if c != '_' else None for c in line.split('\t'))
+            (identifier, form, lemma, plemma, pos, ppos, feat, pfeat,
+             head, phead, deprel, pdeprel, fillpred, pred, *apreds) = line.split('\t')
         except ValueError:
             raise ParsingError(
                 'At line {i} : at least 14 columns expected, got {n} ({line!r})'.format(
