@@ -101,7 +101,8 @@ def ascii_art(tree: libginger.Tree) -> str:
        ┌─────────│┤   ┌─────│┐      ┌───│┤        │┌──────┐│      │        ┌───│┤     ┌─────│┤       │┌─┐
        ↓         ↓│   ↓     ↓│      ↓   ↓│        ↓│      ↓│      ↓        ↓   ↓│     ↓     ↓│       ↓│ ↓
        première  est  bien  simple  je  voudrais  savoir  depuis  combien  de  temps  vous  habitez  à  Orléans
-      ````'''
+      ````
+      '''
     res = ['  '.join(t.form for t in tree.nodes)]  # Two space to be able to deal with single-letter tokens
 
     # The first line above the words is easy: only arrow heads (every word) and butts (for non-leaves)
