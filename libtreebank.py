@@ -90,7 +90,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
         # Skip comment lines
         if line.startswith('#'):
             # Extract metadata
-            metadata_match = re.match(r'#\s*(?P<key>.+)\s*=\s*(?P<value>.*)', line)
+            metadata_match = re.match(r'#\s*(?P<key>.+?)\s*=\s*(?P<value>.*)', line)
             if metadata_match:
                 metadata[metadata_match.group('key')] = metadata_match.group('value')
             continue
@@ -106,6 +106,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
         # Deal with multi-word tokens
         if not identifier.isnumeric() and re.match(r'\d+-\d+', identifier):
             a, b = identifier.split('-')
+            form, misc = (e if e != '_' else None for e in (form, misc))
             new_node = libginger.MultiTokenNode(
                 (PlaceholderNode(i) for i in range(int(a), int(b)+1)),
                 form, misc)
