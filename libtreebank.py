@@ -23,6 +23,9 @@ class PlaceholderNode(libginger.UDNode):
     def __init__(self, identifier):
         self.identifier = identifier
 
+    def __repr__(self):
+        return 'PlaceholderNode(identifier={i!r})'.format(i=self.identifier)
+
 
 def trees_from_conll(conll: ty.Union[str, ty.TextIO, ty.Iterable[str]]
                      ) -> ty.Iterable[str]:
@@ -65,7 +68,8 @@ def trees_from_conll(conll: ty.Union[str, ty.TextIO, ty.Iterable[str]]
 def conllu(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]) -> ty.Iterable[libginger.Tree]:
     '''Parse a CoNLL-U treebank file and return its trees.'''
     trees = trees_from_conll(treebank_lst)
-    return (_conllu_tree(t) for t in trees)
+    res = [_conllu_tree(t) for t in trees]
+    return res
 
 
 def to_conllu(tree: libginger.Tree) -> str:
@@ -82,9 +86,6 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
     # We will fill these out if they are given
     metadata = {}  # type: ty.Dict[str, str]
     # First get the self-contained values, deal with references later
-    # IMPLEMENTATION: This relies on references being initialisable with identifiers instead of
-    #                 actual references. If we  want to avoid it, we could initialise with `None`
-    #                 placeholders, store the identifiers somewhere else, then build the references
 
     for i, line in enumerate(l.strip() for l in tree_lines_lst):
         if line.startswith('#'):
@@ -124,12 +125,16 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
                 raise _parse_error_except(i, 'FEATS', 'CoNLL-U', feats)
 
             try:
-                head = _parse_conll_identifier(head, i, 'HEAD')
+                head = PlaceholderNode(_parse_conll_identifier(head, i, 'HEAD'))
             except ValueError:
                 raise _parse_error_except(i, 'HEAD', 'CoNLL-U', head)
 
             try:
-                deps = [] if deps == '_' else [e.split(':') for e in deps.split('|')]
+                if deps == '_':
+                    deps = []
+                else:
+                    deps = [(PlaceholderNode(_parse_conll_identifier(n, i, 'HEAD')), d)
+                            for n, d in (e.split(':') for e in deps.split('|'))]
             except ValueError:
                 raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
 
@@ -146,8 +151,8 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
         if isinstance(node, libginger.MultiTokenNode):
             node.span = [full_nodes[placeholder.identifier] for placeholder in node.span]
         else:
-            node.head = full_nodes[node.head]
-            node.deps = [(next(n for n in res if n.identifier == head), dep)
+            node.head = full_nodes[node.head.identifier]
+            node.deps = [(next(n for n in res if n.identifier == head.identifier), dep)
                          for head, dep in node.deps]
 
     return libginger.Tree(res, **{key: value for key, value in metadata.items()
