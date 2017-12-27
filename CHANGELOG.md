@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
   - Support for CoNLL-U `sent_id` and `text` metadata
   - UD Nodes (`libginger.UDNodes` and subtypes) have a new `space_after: bool` property corresponding to UD 'SpaceAfter'
+  - A tree with extended dependencies in [`test.conll`](examples/test.conll)
 
 ### Changed
   - `ginger` returns proper exit codes
