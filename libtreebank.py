@@ -87,7 +87,6 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
     #                 placeholders, store the identifiers somewhere else, then build the references
 
     for i, line in enumerate(l.strip() for l in tree_lines_lst):
-        # Skip comment lines
         if line.startswith('#'):
             # Extract metadata
             metadata_match = re.match(r'#\s*(?P<key>.+?)\s*=\s*(?P<value>.*)', line)
