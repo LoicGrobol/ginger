@@ -41,7 +41,7 @@ def trees_from_conll(conll: ty.Union[str, ty.TextIO, ty.Iterable[str]]
         try:
             with open(conll) as conll_stream:
                 lines_lst = conll_stream.readlines()
-        except (FileNotFoundError, TypeError) as e:
+        except (FileNotFoundError, TypeError, OSError) as e:
             try:
                 lines_lst = conll.splitlines()
             except AttributeError:
@@ -49,7 +49,7 @@ def trees_from_conll(conll: ty.Union[str, ty.TextIO, ty.Iterable[str]]
 
     current = []  # type: ty.List[str]
     for line in lines_lst:
-        if line.isspace():
+        if not line or line.isspace():
             if current:
                 yield current
                 current = []
