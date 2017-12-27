@@ -9,8 +9,17 @@
 6	le	le	DET	_	Definite=Def|Gender=Masc|Number=Sing|PronType=Art	7	det	_	_
 7	kiwi	kiwi	NOUN	_	Gender=Masc|Number=Sing	4	nmod	_	SpaceAfter=No
 
-
+# sent_id = 2
+# text = tu veux du ŝucre
 1	tu	tu	CLS	_	_	2	subj	_	_
 2	veux	vouloir	VRB	_	_	0	root	_	_
 3	du	de+le	PRE	_	_	2	comp	_	_
 4	sucre	sucre	NOM	_	_	3	dep	_	_
+
+# sent_id = 3
+# text = a long and wide river
+1	a	a	DET	DT	Definite=Ind|PronType=Art	5	det	_	_
+2	long	long	ADJ	JJ	Degree=Pos	5	amod	_	_
+3	and	and	CCONJ	CC	_	4	cc	_	_
+4	wide	wide	ADJ	JJ	Degree=Pos	2	conj	_	_
+5	river	river	NOUN	NN	Number=Sing	0	root	4:amod	SpaceAfter=No
