@@ -1,4 +1,3 @@
-# Explicitly local directory
 local/
 
 # Byte-compiled / optimized / DLL files
@@ -90,3 +89,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# PyCharm project settings
+.idea

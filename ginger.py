@@ -49,10 +49,7 @@ Example:
   `ginger -f conllu input.conll -t tikz output.tex`
 """
 
-__version__ = 'ginger 0.10.2'
-
-import typing as ty
-import itertools as it
+__version__ = 'ginger 0.11.0'
 
 import sys
 import contextlib
@@ -63,7 +60,6 @@ from docopt import docopt
 import signal
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -72,7 +68,7 @@ if __name__ == "__main__" and __package__ is None:
     from sys import path
     ginger_root = pathlib.Path(__file__).resolve().parents[1]
     path.insert(0, str(ginger_root))
-    import ginger  # noqa
+    import ginger  # NOQA
     __package__ = "ginger"
 
 try:
@@ -84,8 +80,8 @@ except ImportError:
 
 
 def sigint_handler(signal, frame):
-        logging.error('Process interrupted by SIGINT')
-        sys.exit(0)
+    logging.error('Process interrupted by SIGINT')
+    sys.exit(0)
 
 
 signal.signal(signal.SIGINT, sigint_handler)
@@ -175,12 +171,12 @@ def main_entry_point(argv=sys.argv[1:]):
     except KeyError:
         logging.error('{argsfrom!r} is not a supported format'.format(
             argsfrom=arguments['--from']))
-        sys.exit(1)
+        return 1
 
     if parser is None:
         logging.error('{argsfrom!r} is not supported as an input format'.format(
             argsfrom=arguments['--from']))
-        sys.exit(1)
+        return 1
 
     treebank = parser(in_lst)
 
@@ -217,12 +213,12 @@ def main_entry_point(argv=sys.argv[1:]):
             if formatter is None:
                 logging.error('{argsto!r} is not supported as an output format'.format(
                 argsto=arguments['--to']))
-            sys.exit(1)
+            return 1
 
         if formatter is None:
             logging.error('{argsto!r} is not supported as an output format'.format(
                 argsto=arguments['--to']))
-            sys.exit(1)
+            return 1
 
             out_lst = [formatter(t) for t in treebank]
 
@@ -235,4 +231,4 @@ def main_entry_point(argv=sys.argv[1:]):
 
 
 if __name__ == '__main__':
-    main_entry_point()
+    sys.exit(main_entry_point())
