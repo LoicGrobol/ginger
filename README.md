@@ -32,11 +32,11 @@ You don't actually need to install anything if you satisfy the dependencies abov
 However, if you want to have it installed at global level to get the `ginger` command in your path
   1. Grab the latest release from [Github](https://github.com/LoicGrobol/ginger/releases/latest)
   2. Unpack it and open a terminal inside the resulting folder
-  3. Run `pip3 install .`
+  3. Run `python3 -m pip install .`
 
 You can also install it directly from the tip (unstable but usually safe) of the master branch whith
 ```bash
-pip3 install git+https://github.com/LoicGrobol/ginger/
+python3 -m pip install git+https://github.com/LoicGrobol/ginger/
 ```
 
 Test if everything works by running `ginger examples/test.conll`.
