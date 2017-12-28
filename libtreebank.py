@@ -18,6 +18,20 @@ class ParsingError(Exception):
     pass
 
 
+class FieldParsingError(ParsingError):
+    '''A parsing error for when a column does not respect a format`'''
+    def __init__(self,
+                 line: int = None,
+                 field: str = None,
+                 form: str = None,
+                 content: str = None):
+        message = ('At line {line},'
+                   'the `{field}` field does not respect {form} specifications :'
+                   '{content!r}').format(
+                       line=line, field=field, form=form, content=content)
+        super().__init__(message)
+
+
 class PlaceholderNode(libginger.UDNode):
     '''A Node that serves as a placeholder for a Node that has not been created yet.'''
     def __init__(self, identifier):
@@ -117,17 +131,17 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
                 # TODO: Issue a warning here
                 if re.match(r'\d+.\d+', identifier):  # Skip empty nodes
                     continue
-                raise _parse_error_except(i, 'ID', 'CoNLL-U', identifier)
+                raise FieldParsingError(i, 'ID', 'CoNLL-U', identifier)
 
             try:
                 feats = conll_map_to_dict(feats)
             except ParsingError:
-                raise _parse_error_except(i, 'FEATS', 'CoNLL-U', feats)
+                raise FieldParsingError(i, 'FEATS', 'CoNLL-U', feats)
 
             try:
                 head = PlaceholderNode(_parse_conll_identifier(head, i, 'HEAD'))
             except ValueError:
-                raise _parse_error_except(i, 'HEAD', 'CoNLL-U', head)
+                raise FieldParsingError(i, 'HEAD', 'CoNLL-U', head)
 
             try:
                 if deps == '_':
@@ -136,7 +150,7 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
                     deps = [(PlaceholderNode(_parse_conll_identifier(n, i, 'HEAD')), d)
                             for n, d in (e.split(':') for e in deps.split('|'))]
             except ValueError:
-                raise _parse_error_except(i, 'DEPS', 'CoNLL-U', deps)
+                raise FieldParsingError(i, 'DEPS', 'CoNLL-U', deps)
 
             (form, lemma, upostag, xpostag, deprel, misc) = (
                 e if e != '_' else None for e in (form, lemma, upostag, xpostag, deprel, misc))
@@ -189,7 +203,7 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         try:
             identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
         except ValueError:
-            raise _parse_error_except(i, 'ID', 'CoNLL-X', identifier)
+            raise FieldParsingError(i, 'ID', 'CoNLL-X', identifier)
 
         lemma = re.sub(r'\s', '_', lemma)
 
@@ -202,12 +216,12 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
                 # TODO: Issue a warning here
                 feats = dict()
             else:
-                raise _parse_error_except(i, 'FEATS', 'CoNLL-X', feats)
+                raise FieldParsingError(i, 'FEATS', 'CoNLL-X', feats)
 
         try:
             head = _parse_conll_identifier(head, i, 'HEAD')
         except ValueError:
-            raise _parse_error_except(i, 'HEAD', 'CoNLL-X', head)
+            raise FieldParsingError(i, 'HEAD', 'CoNLL-X', head)
 
         try:
             phead = _parse_conll_identifier(phead, i, 'PHEAD')
@@ -215,7 +229,7 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             if phead == '_':
                 phead, pdeprel = None, None
             else:
-                raise _parse_error_except(i, 'PHEAD', 'CoNLL-X', phead)
+                raise FieldParsingError(i, 'PHEAD', 'CoNLL-X', phead)
 
         # Deal with multi-token words
         tokens = list(re.findall(r'\w+|\S', form))
@@ -277,7 +291,7 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         try:
             identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
         except ValueError:
-            raise _parse_error_except(i, 'ID', 'CoNLL-2009', identifier)
+            raise FieldParsingError(i, 'ID', 'CoNLL-2009', identifier)
 
         lemma = re.sub(r'\s', '_', lemma)
 
@@ -290,12 +304,12 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
                 # TODO: Issue a warning here
                 feat = dict()
             else:
-                raise _parse_error_except(i, 'FEAT', 'CoNLL-2009', feat)
+                raise FieldParsingError(i, 'FEAT', 'CoNLL-2009', feat)
 
         try:
             head = _parse_conll_identifier(head, i, 'HEAD')
         except ValueError:
-            raise _parse_error_except(i, 'HEAD', 'CoNLL-2009', head)
+            raise FieldParsingError(i, 'HEAD', 'CoNLL-2009', head)
 
         try:
             phead = _parse_conll_identifier(phead, i, 'PHEAD')
@@ -303,7 +317,7 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             if phead == '_':
                 phead, pdeprel = None, None
             else:
-                raise _parse_error_except(i, 'PHEAD', 'CoNLL-2009', phead)
+                raise FieldParsingError(i, 'PHEAD', 'CoNLL-2009', phead)
 
         # Deal with multi-token words
         tokens = list(re.findall(r'\w+|\S', form))
@@ -393,7 +407,7 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         try:
             identifier = _parse_conll_identifier(identifier, i, 'ID', non_zero=True)
         except ValueError:
-            raise _parse_error_except(i, 'ID', 'CoNLL-2009', identifier)
+            raise FieldParsingError(i, 'ID', 'CoNLL-2009', identifier)
 
         plemma = re.sub(r'\s', '_', plemma)
 
@@ -406,12 +420,12 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
                 # TODO: Issue a warning here
                 pfeat = dict()
             else:
-                raise _parse_error_except(i, 'PFEAT', 'CoNLL-2009', pfeat)
+                raise FieldParsingError(i, 'PFEAT', 'CoNLL-2009', pfeat)
 
         try:
             phead = _parse_conll_identifier(phead, i, 'PHEAD')
         except ValueError:
-            raise _parse_error_except(i, 'PHEAD', 'CoNLL-2009', phead)
+            raise FieldParsingError(i, 'PHEAD', 'CoNLL-2009', phead)
 
         try:
             head = _parse_conll_identifier(head, i, 'HEAD')
@@ -419,7 +433,7 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             if head == '_':
                 head, deprel = None, None
             else:
-                raise _parse_error_except(i, 'HEAD', 'CoNLL-2009', head)
+                raise FieldParsingError(i, 'HEAD', 'CoNLL-2009', head)
 
         # Deal with multi-token words
         tokens = list(re.findall(r'\w+|\S', form))
@@ -519,15 +533,6 @@ def conll_map_to_dict(conll_map: str, *, pair_separator='|', keyval_separator='=
         raise ParsingError('Wrong CoNLL map format : {conll_map!r}'.format(
             conll_map=conll_map
         ))
-
-
-def _parse_error_except(line: int, field: str, form: str, content: str) -> ParsingError:
-    '''Return a `Parsing error with the message in the usual format.`'''
-    message = ('At line {line},'
-               'the `{field}` field does not respect {form} specifications : {content!r}').format(
-                   line=line, field=field, form=form, content=content
-               )
-    return ParsingError(message)
 
 
 def _parse_conll_identifier(value: str, line: int, field: str, *,
