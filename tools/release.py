@@ -113,7 +113,7 @@ def main_entry_point(argv=sys.argv[1:]):
                changes +
                ('\n\n' 'See the full diff at'
                 '<{repo_url}/compare/v{package_current_version}...v{package_new_version}>' '\n\n'
-                'See [the change log](CHANGELOG.md) for more informations about past releases.'
+                'See [the changelog](CHANGELOG.md) for more informations about past releases.'
                 ).format(repo_url=repo_url,
                          package_new_version=package_new_version,
                          package_current_version=package_current_version))

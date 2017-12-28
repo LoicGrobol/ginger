@@ -6,17 +6,41 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.10.2...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.11.0...HEAD
 
-## [0.10.2] - 2017-08-22
-[0.10.2]: https://github.com/LoicGrobol/ginger/compare/v0.10.1...0.10.2
+## [0.11.0] - 2017-12-27
+[0.11.0]: https://github.com/LoicGrobol/ginger/compare/v0.10.3...0.11.0
+### Added
+  - Support for CoNLL-U `sent_id` and `text` metadata
+  - UD Nodes (`libginger.UDNodes` and subtypes) have a new `space_after: bool` property corresponding to UD 'SpaceAfter'
+  - A tree with extended dependencies in [`test.conll`](examples/test.conll)
+
+### Changed
+  - `ginger` returns proper exit codes
+  - Support for `identifier` and `misc` fields for all UD Nodes, including `libginger.MultiTokenNode`
+  - Support for arbitrary iterables for `deps` in `libginger.Node` constructor
+  - `_` columns in CoNLL files are now translated to `None` attributes instead of a litteral `_`
+
+### Fixed
+  - `libginger.Tree.raw_token_sequence` is now actually UD-compliant
+    - It doesn't include words that are part of a multi-word token anymore. E.g. only *vámonos* and not *vamos* and *nos*.
+    - It doesn't return the root node anymore.
+  - `libginger.Tree.word_sequence` is now actually UD-compliant, as it does not include the root node anymore
+  - `libtreebank.conll…` direct str parsing should work now
+  - CoNLL-U metadata are now properly read
+
+## [0.10.3] - 2017-08-22
+[0.10.3]: https://github.com/LoicGrobol/ginger/compare/v0.10.2...0.10.3
 ### Fixed
   - Importing in tests now works as it should
-  - Stupid confusion between `next` and `continue`
+  - Actually ignore lines that should be ignored in treebanks
 
 ### Changed
   - Full UD for the first example of [`/examples/test.conll`](/examples/test.conll)
   - Format the changelog according to [Keep a Changelog v1.0.0](http://keepachangelog.com/en/1.0.0)
+
+## [0.10.2] - 2017-08-22 [YANKED]
+[0.10.2]: https://github.com/LoicGrobol/ginger/compare/v0.10.1...0.10.2
 
 ## [0.10.1] - 2017-05-04
 [0.10.1]: https://github.com/LoicGrobol/ginger/compare/v0.10.0...0.10.1
