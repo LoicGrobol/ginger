@@ -125,7 +125,7 @@ class Tree:
         self.all_nodes = list(nodes)
         self.word_sequence = [n for n in self.all_nodes[1:] if isinstance(n, Node)]
         self.nodes = self.word_sequence
-        self.root = self.nodes[0]
+        self.root = self.all_nodes[0]
         self.sent_id = sent_id
         self.text = text
 
