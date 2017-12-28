@@ -7,7 +7,7 @@ import math
 import io
 
 try:
-    import cairocffi as cairo
+    import cairo
 except ImportError:  # don't break if cairo is not available
     # TODO: Issue a warning here
     cairo = None
@@ -46,7 +46,7 @@ def tikz(tree: libginger.Tree) -> str:
 
     # First the token nodes
     # We don't draw the root node as a normal node
-    draw_nodes = tree.nodes[1:]
+    draw_nodes = tree.word_sequence
     # Special case for the first node
     first_token = draw_nodes[0]
     token_nodes_lst = [first_token_node_template.format(
@@ -103,20 +103,6 @@ def ascii_art(tree: libginger.Tree) -> str:
     '''Return an ASCII-art representation of the dependency tree.
 
        Only the relations, not the relation types (that would make it prohibitively large).
-
-       ## Example
-       (only the result)
-       ```
-                 │
-                 │┌─────────────────────────────────────────────────────────────────────────┐
-                 │├─────────────────────┐                                                   │
-                 ││                     │                  ┌───────────────────┐            │
-                 │├─────────┐           │                  │      ┌────────────│┐           │
-                 ││         │           │┌────────┐        │      │            ││           │┌───────┐
-       ┌─────────│┤   ┌─────│┐      ┌───│┤        │┌──────┐│      │        ┌───│┤     ┌─────│┤       │┌─┐
-       ↓         ↓│   ↓     ↓│      ↓   ↓│        ↓│      ↓│      ↓        ↓   ↓│     ↓     ↓│       ↓│ ↓
-       première  est  bien  simple  je  voudrais  savoir  depuis  combien  de  temps  vous  habitez  à  Orléans
-      ````
       '''
     res = ['  '.join(t.form for t in tree.nodes)]  # Two space to be able to deal with single-letter tokens
 
@@ -286,7 +272,7 @@ def cairo_surf(tree: libginger.Tree,
     # This dict associate every node to its Rect
     node_rects = {}  # type: ty.Dict[libginger.Node, Rect]
     current_x = 0
-    for n in tree.nodes[1:]:
+    for n in tree.word_sequence:
         parts_extents = [context.text_extents(s if s is not None else '_')
                          for s in (n.form, n.lemma, n.upostag)]
         w = max(e[2] for e in parts_extents)
@@ -298,7 +284,7 @@ def cairo_surf(tree: libginger.Tree,
     part_height = math.ceil(max(h for _, _, _, h in node_rects.values())/3)
     nodes_height = 3*part_height
     # And take into account in node rects
-    node_rects = dict((n, Rect(x, y, w, nodes_height)) for n, (x, y, w, h) in node_rects.items())
+    node_rects = {n: Rect(x, y, w, nodes_height) for n, (x, y, w, h) in node_rects.items()}
 
     # Now draw
     context.set_source_rgba(*colour)
@@ -306,7 +292,7 @@ def cairo_surf(tree: libginger.Tree,
 
     # First draw the nodes
     context.move_to(0, 0)
-    for node, (x, y, w, h) in ((n, node_rects[n]) for n in tree.nodes[1:]):
+    for node, (x, y, w, h) in ((n, node_rects[n]) for n in tree.word_sequence):
         parts = (s if s is not None else '_' for s in (node.form, node.lemma, node.upostag))
         for i, p in enumerate(parts, start=1):
             margin = math.floor((w - context.text_extents(p)[2])/2)
@@ -317,11 +303,10 @@ def cairo_surf(tree: libginger.Tree,
     # Find out the largest arc height
     # First, get the relations
     deps = [(node.head, node, node.deprel)
-            for node in tree.nodes[1:]
-            if node.head is not tree.nodes[0]]
+            for node in tree.word_sequence if node.head is not tree.root]
 
     # Now draw the arcs
-    arrowhead_size = font_size/100
+    arrowhead_size = font_size/50
     for head, foot, tag in deps:
         # Arc
         head_rect, foot_rect = node_rects[head], node_rects[foot]
@@ -349,28 +334,31 @@ def arrowhead(context: cairo.Context,
         direction = Point(0, 1)
     halfwidth = math.tan(front_angle/2) * size
     back_height = halfwidth/math.tan(back_angle/2)
-    with context:
-        context.move_to(*context.get_current_point())
-        context.rotate(-math.atan2(direction.x, direction.y))
-        context.rel_line_to(halfwidth, -back_height)
-        context.rel_line_to(-halfwidth, size)
-        context.rel_line_to(-halfwidth, -size)
-        context.close_path()
+
+    context.move_to(*context.get_current_point())
+    context.rotate(-math.atan2(direction.x, direction.y))
+    context.rel_line_to(halfwidth, -back_height)
+    context.rel_line_to(-halfwidth, size)
+    context.rel_line_to(-halfwidth, -size)
+    context.close_path()
 
 
 def to_png(tree: libginger.Tree,
            scale: int = 10,
-           background_colour: ty.Tuple[float, float, float, float] = (1, 1, 1, 1)) -> bytes:
+           background_colour: ty.Tuple[float, float, float, float] = (1, 1, 1, 0)) -> bytes:
     s = cairo_surf(tree)
     x, y, w, h = s.ink_extents()
     res = cairo.ImageSurface(cairo.FORMAT_ARGB32, scale*math.ceil(w), scale*math.ceil(h))
     context = cairo.Context(res)
     context.set_source_rgba(*background_colour)
     context.paint()
-    context.scale(scale)
+    context.scale(scale, scale)
     context.set_source_surface(s, -x, -y)
     context.paint()
-    return res.write_to_png()
+
+    out = io.BytesIO()
+    res.write_to_png(out)
+    return out.getvalue()
 
 
 def to_svg(tree: libginger.Tree) -> bytes:
