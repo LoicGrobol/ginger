@@ -149,7 +149,7 @@ def stream_multi_output(stream: ty.BinaryIO,
     separator = bytes(separator)
     data_iter = iter(data)
 
-    # Write the first element without `separator before it`
+    # Write the first element without separator before it
     stream.write(next(data_iter))
     for file_content in data_iter:
         stream.write(separator)
@@ -184,11 +184,13 @@ def main_entry_point(argv=sys.argv[1:]):
     treebank = parser(in_lst)
 
     # Cairo-based outputs
-    if arguments['--to'] in ('png', 'svg'):
+    if arguments['--to'] in {'png', 'svg', 'pdf'}:
         if arguments['--to'] == 'png':
             out_bytes_lst = [libtreerender.to_png(t) for t in treebank]
         if arguments['--to'] == 'svg':
             out_bytes_lst = [libtreerender.to_svg(t) for t in treebank]
+        if arguments['--to'] == 'pdf':
+            out_bytes_lst = [libtreerender.to_pdf(t) for t in treebank]
         if arguments['<destination>'] == '-':
             with smart_open(arguments['<destination>'], 'wb') as out_stream:
                 stream_multi_output(out_stream, out_bytes_lst)

@@ -306,7 +306,7 @@ def cairo_surf(tree: libginger.Tree,
             for node in tree.word_sequence if node.head is not tree.root]
 
     # Now draw the arcs
-    arrowhead_size = font_size/50
+    arrowhead_size = font_size/3
     for head, foot, tag in deps:
         # Arc
         head_rect, foot_rect = node_rects[head], node_rects[foot]
@@ -319,13 +319,14 @@ def cairo_surf(tree: libginger.Tree,
         control2 = (end.x, end.y-origin_speed)
         context.move_to(*start)
         context.curve_to(*control1, *control2, *end)
-        arrowhead(context, arrowhead_size)
         context.stroke()
+        arrowhead(context, arrowhead_size, end)
     return res
 
 
 def arrowhead(context: cairo.Context,
               size: float,
+              position: Point,
               direction: Point = None,
               front_angle: float = math.pi/4,
               back_angle: float = math.pi/2):
@@ -335,12 +336,12 @@ def arrowhead(context: cairo.Context,
     halfwidth = math.tan(front_angle/2) * size
     back_height = halfwidth/math.tan(back_angle/2)
 
-    context.move_to(*context.get_current_point())
+    context.move_to(*position)
     context.rotate(-math.atan2(direction.x, direction.y))
     context.rel_line_to(halfwidth, -back_height)
     context.rel_line_to(-halfwidth, size)
     context.rel_line_to(-halfwidth, -size)
-    context.close_path()
+    context.fill()
 
 
 def to_png(tree: libginger.Tree,
@@ -366,10 +367,25 @@ def to_svg(tree: libginger.Tree) -> bytes:
     x, y, w, h = s.ink_extents()
 
     out = io.BytesIO()
-    res = cairo.SVGSurface(out, math.ceil(w), math.ceil(h))
+    res = cairo.SVGSurface(out, w, h)
     context = cairo.Context(res)
     context.set_source_surface(s, -x, -y)
     context.paint()
     res.flush()
     res.finish()
+
+    return out.getvalue()
+
+def to_pdf(tree: libginger.Tree) -> bytes:
+    s = cairo_surf(tree)
+    x, y, w, h = s.ink_extents()
+
+    out = io.BytesIO()
+    res = cairo.PDFSurface(out, w, h)
+    context = cairo.Context(res)
+    context.set_source_surface(s, -x, -y)
+    context.paint()
+    res.flush()
+    res.finish()
+
     return out.getvalue()
