@@ -11,7 +11,7 @@ class UDNode:
 
     @property
     def space_after(self) -> bool:
-        return self.misc and 'SpaceAfter=No' not in self.misc
+        return not (self.misc and 'SpaceAfter=No' in self.misc)
 
 
 class Node(UDNode):
