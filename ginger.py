@@ -132,10 +132,7 @@ def directory_multi_output(path: ty.Union[pathlib.Path, str],
 
     # Reuse the same iterator to find available names, to save on calls to `path.iterdir()`
     names = (name_format.format(i=i) for i in it.count())
-    for file_content in data:
-        # In most cases, this should use a single call to `path.iterdir()`, so caching it
-        # is probably overkill
-        file_name = next(n for n in names if n not in path.iterdir())
+    for file_content, file_name in zip(data, (n for n in names if not (path/n).exists())):
         try:
             (path/file_name).write_bytes(file_content)
         except TypeError:
