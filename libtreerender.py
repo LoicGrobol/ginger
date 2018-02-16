@@ -97,7 +97,7 @@ def tikz(tree: libginger.Tree) -> str:
 
 # TODO: This (the code) could probably be prettier
 # TODO: For extra display prettiness, a node should be able to have both a forward and a backward outgoing arrow
-#       at the same level. Same for nodes that have an incoming and an outgoig backward (resp. forward) arrow
+#       at the same level. Same for nodes that have an incoming and an outgoing backward (resp. forward) arrow
 #       (Possibly too tricky to code wrt the benefits)
 def ascii_art(tree: libginger.Tree) -> str:
     '''Return an ASCII-art representation of the dependency tree.
@@ -375,6 +375,7 @@ def to_svg(tree: libginger.Tree) -> bytes:
     res.finish()
 
     return out.getvalue()
+
 
 def to_pdf(tree: libginger.Tree) -> bytes:
     s = cairo_surf(tree)
