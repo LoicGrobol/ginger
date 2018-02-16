@@ -157,7 +157,7 @@ class Tree:
             d = it.chain.from_iterable(aux(c) for c in children)
             return it.chain([node], d)
 
-        res = list(aux(root))
+        res = sorted(aux(root), key=lambda x: x.identifier)
         return res
 
     def to_conll(self) -> str:

@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Fixed
   - `libginger.Tree.root` is now the actual root of the tree
   - `libginger.UDNode.space_after` is now correctly true if `misc` is empty
+  - `libginger.Tree.descendance` is now sorted
 
 ## [0.11.0] - 2017-12-27
 [0.11.0]: https://github.com/LoicGrobol/ginger/compare/v0.10.3...0.11.0
