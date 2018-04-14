@@ -186,7 +186,7 @@ def main_entry_point(argv=None):
 
     treebank = parser(in_lst)
 
-    # Cairo-based outputs
+    # Binary outputs
     if arguments['--to'] in {'png', 'svg', 'pdf'}:
         if arguments['--to'] == 'png':
             out_bytes_lst = [libtreerender.to_png(t) for t in treebank]
@@ -199,7 +199,7 @@ def main_entry_point(argv=None):
                 stream_multi_output(out_stream, out_bytes_lst)
         else:
             directory_multi_output(arguments['<destination>'], out_bytes_lst,
-                                   name_format='{{i}}.{ext=arguments["--to"]}')
+                                   name_format=f'{{i}}.{arguments["--to"]}')
     # Text outputs
     else:
         # Text-based graphics
