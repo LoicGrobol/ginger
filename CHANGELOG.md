@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.12.0...HEAD
 
 ## [0.12.0] - 2018-04-14
-[0]: https://github.com/LoicGrobol/ginger/compare/v0.11.0...0.12.0
+[0.12.0]: https://github.com/LoicGrobol/ginger/compare/v0.11.0...0.12.0
 ### Fixed
   - `libginger.Tree.root` is now the actual root of the tree
   - `libginger.UDNode.space_after` is now correctly true if `misc` is empty
@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
   - Use the regular setuptools install mechanisms instead of our previous homebrewn solution
   - Move dist files to [`ginger/`](/ginger/)
- 
+
 
 ## [0.11.0] - 2017-12-27
 [0.11.0]: https://github.com/LoicGrobol/ginger/compare/v0.10.3...0.11.0

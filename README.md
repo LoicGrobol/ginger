@@ -80,7 +80,7 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - Get help
   ```
   ginger --help
-```
+  ```
 
 ### Input formats
   - `guess` Try to guess the file format, defaults to CoNLL-U
@@ -99,6 +99,7 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
 
 #### Software
 Formats used by mainstream NLP tools
+
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
   - `mate_gold` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_gold`)
   - `mate_sys` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_sys`)
@@ -117,6 +118,7 @@ itself, the P- attributes will be dropped.
 
 #### Text-based graphics
 These output formats are meant to be used by third-party tools that generate graphic outputs :
+
   - `ascii` ASCII-art (using Unicode characters, because, yes, we are subversive)
   - `tikz`  TikZ code.
     - Uses the `positioning`, `calc` and `shapes.multipart` libraries. Do not forget to include them in your document.
