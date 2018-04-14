@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
   - `libginger.UDNode.space_after` is now correctly true if `misc` is empty
   - `libginger.Tree.descendance` is now sorted
 
+### Changed
+  - Use the regular setuptools install mechanisms instead of our previous homebrewn solution
+  - Move dist files to [`ginger/`](/ginger/)
+ 
+
 ## [0.11.0] - 2017-12-27
 [0.11.0]: https://github.com/LoicGrobol/ginger/compare/v0.10.3...0.11.0
 ### Added
