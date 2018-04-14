@@ -38,17 +38,13 @@ an existing directory, or `-` for the standard output.
   - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
 
 ### Image formats
-These require the installation of the cairo dependencies. Additionally, the output destination must
-be either a directory and thus must not be the path of an existing file, or `-` for the standard
-output, in which case the byte streams corresponding to different trees will be separated by NULL
-bytes.
-These require the installation of the cairo dependencies. Additionally, the output destination must
-be either a directory and thus must not be the path of an existing file, or `-` for the standard
-output, in which case the byte streams corresponding to different trees will be separated by NULL
-bytes.
+To use these formats, the output destination must be either a directory and thus must not be the
+path of an existing file, or `-` for the standard output, in which case the byte streams
+corresponding to different trees will be separated by NULL bytes.
 
-     - `png`
-     - `svg`
+  - `png`
+  - `svg`
+  - `pdf`
 
 ## Example:
   `ginger -f conllu input.conll -t tikz output.tex`

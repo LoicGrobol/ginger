@@ -18,6 +18,7 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ## Installation
 ### Basic dependencies
 Ginger depends on
+
   - [Python](https://www.python.org/): ^3.6
   - [docopt](http://docopt.org/): ^0.6
 
@@ -123,25 +124,49 @@ Formats used by mainstream NLP tools
 
 ### Output formats
 #### Treebanks
-  - `conllu` [CoNLL-U format](http://universaldependencies.org/format.html)
-  - `conll2009_gold` and `conll2009_sys`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
-    - `_gold` only fills in the gold columns
-    - `_sys` only fills in the predicted columns
+The input must be either the path to an existing file or `-` for standard input. The data that
+it contains must be in one of the following formats:
+
+  - `guess`           Try to guess the file format, defaults to CoNLL-U
+  - `conllx`          [CoNLL-X format][2]
+  - `conllu`          [CoNLL-U format][3]
+  - `conll2009_gold`  [CoNLL-2009 format][4] (Gold columns only)
+  - `conll2009_sys`   [CoNLL-2009 format][4] (Predicted columns only)
+  - `talismane`       Outputs of [Talismane][5]
+  - `mate_gold`       Alias for `conll2009_gold`, used by [mate-tools][1]
+  - `mate_sys`        Alias for `conll2009_sys`, used by [mate-tools][1]
 
 
 Note : no real effort is made to preserve informations that are not relevant to Universal
 Dependencies, so this might be information-destructive, e.g. if converting from CoNLL-2009 to
 itself, the P- attributes will be dropped.
 
-#### Text-based graphics
-These output formats are meant to be used by third-party tools that generate graphic outputs :
+#### Text formats
+To use these formats, the output destination must be either a file and thus must not be the path to
+an existing directory, or `-` for the standard output.
 
-  - `ascii` ASCII-art (using Unicode characters, because, yes, we are subversive)
-  - `tikz`  TikZ code.
-    - Uses the `positioning`, `calc` and `shapes.multipart` libraries. Do not forget to include them in your document.
+  - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
+  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
     - The output is only the `\tikzpicture` part, not a whole compilable document, there is
-      [an example](examples/tree.tex) of such a document in `example`.
-    - The code is quite verbose since we chose to rely on TikZ' own arithmetic capabilities in order to allow easier edition and reuse of the generated code.
+    [an example](examples/tree.tex) of such a document in `example`.
+    - The code is quite verbose since we chose to rely on TikZ' own arithmetic capabilities in
+    order to allow easier edition and reuse of the generated code.
+
+### Image formats
+To use these formats, the output destination must be either a directory and thus must not be the
+path of an existing file, or `-` for the standard output, in which case the byte streams
+corresponding to different trees will be separated by NULL bytes.
+
+  - `png`
+  - `svg`
+  - `pdf`
+
+[1]: http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html
+[2]: https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/
+[3]: http://universaldependencies.org/format.html
+[4]: http://ufal.mff.cuni.cz/conll2009-st/task-description.html
+[5]: http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html
+[6]: http://universaldependencies.org
 
 ## Development
 Development and releases on [Github](https://github.com/loic-grobol/ginger).
