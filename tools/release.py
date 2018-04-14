@@ -193,11 +193,11 @@ def log_from_changes(changes: ty.Dict) -> str:
 def git_dirty(package_dir):
     git_dir = package_dir/'.git'
     fail = subprocess.run([
-        'git', 'diff-index',
+        'git',
         '--git-dir', str(git_dir),
         '--work-tree', str(package_dir),
         '--quiet', '--cached',
-        'HEAD',
+        'diff-index', 'HEAD',
     ]).returncode
     return fail
 
