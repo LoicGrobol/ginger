@@ -7,30 +7,31 @@ Options:
   --name, -n <name>  A (code?)name for the release
 '''
 
-__version__ = 'release 0.0.0'
+__version__ = '0.0.1'
 
-
-import sys
 import json
+import datetime
 import pathlib
 import re
-import datetime
 import subprocess
 import tempfile
 
 import typing as ty
 
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 
-from docopt import docopt
 import appdirs
 import requests
 
-CONFIG_PATH = pathlib.Path(appdirs.user_config_dir('diroll', False, __version__.split(' ')[-1]))/'config.json'
+from setuptools.config import read_configuration
+from docopt import docopt
+
+CONFIG_PATH = pathlib.Path(appdirs.user_config_dir('diroll', False, __version__))/'config.json'
 
 
 class Version:
     '''Semver versions.'''
+
     def __init__(self, major: int, minor: int, patch: int):
         self.major = major
         self.minor = minor
@@ -41,12 +42,10 @@ class Version:
         return cls(*(int(l) for l in version_str.split('.')))
 
     def __str__(self):
-        return '{major}.{minor}.{patch}'.format(major=self.major,
-                                                minor=self.minor,
-                                                patch=self.patch)
+        return f'{self.major}.{self.minor}.{self.patch}'
 
 
-def main_entry_point(argv=sys.argv[1:]):
+def main_entry_point(argv=None):
     arguments = docopt(__doc__, version=__version__, argv=argv)
 
     if arguments["--name"] is None:
@@ -55,12 +54,12 @@ def main_entry_point(argv=sys.argv[1:]):
     package_dir = pathlib.Path(__file__).resolve().parents[1]
 
     if git_dirty(package_dir):
-        raise Exception('Uncommitted changes in {package_dir}.'.format(package_dir))
+        raise Exception(f'Uncommitted changes in {package_dir}.')
 
-    # Get the current version from `package.json`
-    package_data = get_package_data(package_dir)
+    # Get the current version from `setup.cfg`
+    package_data = read_configuration(package_dir/'setup.cfg')['metadata']
 
-    package_current_version = Version.from_string(package_data["version"])
+    package_current_version = Version.from_string(package_data['version'])
 
     # Increment the appropriate level
     if arguments['major']:
@@ -75,32 +74,39 @@ def main_entry_point(argv=sys.argv[1:]):
     else:
         package_new_version = Version.from_string(arguments['<version>'])
 
-    # Set the version in `package.json`
-    package_data["version"] = str(package_new_version)
-    set_package_data(package_dir, package_data)
+    # Set the version in `__init__.py`
+    init_path = package_dir/package_data['name']/'__init__.py'
+    with init_path.open('r') as init_stream:
+        init_content = init_stream.read()
 
-    # Set the version in the main script
-    main_path = package_dir/'ginger.py'
-    main_str = main_path.read_text()
-    new_main_str = re.sub(r"(__version__ = (['\"]){} ){}\2".format(package_data["name"], package_current_version),
-                          r'\g<1>{}\g<2>'.format(package_new_version),
-                          main_str)
-    main_path.write_text(new_main_str)
+    init_content = re.sub(
+        rf'__version__\s*=\s*{package_current_version}',
+        f'__version__ = {package_new_version}',
+        init_content,
+    )
+
+    with init_path.open('w') as init_stream:
+        init_stream.write(init_content)
 
     # Release in change log
     changelog_path = package_dir/'CHANGELOG.md'
     changelog_str = changelog_path.read_text()
 
-    new_changelog_str = re.sub((
+    release_date = datetime.date.today().isoformat()
+    new_changelog_str = re.sub(
+        (
             r'## \[Unreleased\]' '\n'
-            r'\[Unreleased\]: (?P<url>.*?)/compare/.+HEAD').format(package_current_version), (
+            r'\[Unreleased\]: (?P<url>.*?)/compare/.+HEAD'
+        ),
+        (
             '## [Unreleased]\n'
-            r'[Unreleased]: \g<url>/compare/v{0}...HEAD' '\n\n'
-            r'## [{0}] - {2}' '\n'
-            r'[{0}]: \g<url>/compare/v{1}...{0}').format(package_new_version,
-                                                         package_current_version,
-                                                         datetime.date.today().isoformat()),
-            changelog_str)
+            fr'[Unreleased]: \g<url>/compare/v{package_new_version}...HEAD' '\n\n'
+            fr'## [{package_new_version}] - {release_date}' '\n'
+            f'[{package_new_version}]:'
+            fr'\g<url>/compare/v{package_current_version}...{package_new_version}'
+        ),
+        changelog_str
+    )
 
     changelog_path.write_text(new_changelog_str)
 
@@ -109,39 +115,38 @@ def main_entry_point(argv=sys.argv[1:]):
     changes = log_from_changes(changes_from_log(changelog_str)).replace('###', '##')
 
     repo_url = package_data["url"]
-    changes = ('# {}\n'.format(package_new_version) +
-               changes +
-               ('\n\n' 'See the full diff at'
-                '<{repo_url}/compare/v{package_current_version}...v{package_new_version}>' '\n\n'
-                'See [the changelog](CHANGELOG.md) for more informations about past releases.'
-                ).format(repo_url=repo_url,
-                         package_new_version=package_new_version,
-                         package_current_version=package_current_version))
+    changes = (
+        f'# {package_new_version}\n'
+        + changes
+        + '\n\n' 'See the full diff at'
+        f'<{repo_url}/compare/v{package_current_version}...v{package_new_version}>' '\n\n'
+        'See [the changelog](CHANGELOG.md) for more informations about past releases.'
+    )
 
     git_dir = package_dir/'.git'
-    git_options = ['git', '--git-dir', str(git_dir),  '--work-tree', str(package_dir)]
-    subprocess.run([*git_options, 'add',
-                    str(package_dir/'package.json'),
-                    str(changelog_path),
-                    str(main_path)], check=True)
-    subprocess.run([*git_options, 'commit', '-m', 'Release v{}'.format(package_new_version)])
+    git_options = ['git', '--git-dir', str(git_dir), '--work-tree', str(package_dir)]
+    subprocess.run(
+        [*git_options, 'add', str(package_dir/'setup.cfg'), str(changelog_path)],
+        check=True,
+    )
+    subprocess.run([*git_options, 'commit', '-m', f'Release v{package_new_version}'])
 
-    tag_name = 'v{}'.format(package_new_version)
+    tag_name = f'v{package_new_version}'
     with tempfile.NamedTemporaryFile(mode='w') as tag_message_file:
         tag_message_file.write(changes)
         tag_message_file.flush()
 
-        subprocess.run([*git_options, 'tag',
-                        '-F', tag_message_file.name,
-                        '--cleanup=verbatim',
-                        tag_name], check=True)
-        subprocess.run([*git_options, 'push',
-                        '--follow-tags', '--atomic'], check=True)
+        subprocess.run(
+            [*git_options, 'tag', '-F', tag_message_file.name, '--cleanup=verbatim', tag_name],
+            check=True,
+        )
+        subprocess.run(
+            [*git_options, 'push', '--follow-tags', '--atomic'],
+            check=True,
+        )
 
-    release_github(repo_url,
-                   tag_name, '{tag_name} {release_name}'.format(tag_name=tag_name,
-                                                                release_name=arguments['--name']),
-                   changes=changes)
+    release_name = arguments['--name']
+    release_github(repo_url, tag_name, f'{tag_name} {release_name}', changes=changes)
 
 
 def changes_from_log(changelog: str, *,
@@ -164,8 +169,7 @@ def changes_from_log(changelog: str, *,
     if source_version is None:
         end_re = re.compile(r'##[^#]')
     else:
-        end_re = re.compile(r'##.*{source_version}'.format(
-            dest_version=re.escape(source_version)))
+        end_re = re.compile(r'##.*{re.escape(source_version)}')
     section_re = re.compile(r'###\s*(?P<name>.*)')
     item_re = re.compile(r'\s+\-\s*(?P<content>.*)')
     while not end_re.match(current_line):
@@ -185,30 +189,22 @@ def changes_from_log(changelog: str, *,
 
 
 def log_from_changes(changes: ty.Dict) -> str:
-    halfway = {title: '\n'.join('  - {}'.format(item) for item in content)
+    halfway = {title: '\n'.join(f'  - {item}' for item in content)
                for title, content in changes.items()}
-    res = '\n\n'.join('### {title}\n{content}'.format(title=title, content=content)
-                      for title, content in halfway.items())
+    res = '\n\n'.join(f'### {title}\n{content}' for title, content in halfway.items())
     return res
-
-
-def set_package_data(package_dir: pathlib.Path, data: ty.Dict):
-    package_data_path = package_dir/'package.json'
-    with package_data_path.open('w') as package_stream:
-        json.dump(data, package_stream, indent=4, ensure_ascii=False)
-
-
-def get_package_data(package_dir: pathlib.Path):
-    package_data_path = package_dir/'package.json'
-    package_data_str = package_data_path.read_text()
-    return json.loads(package_data_str, object_pairs_hook=OrderedDict)
 
 
 def git_dirty(package_dir):
     git_dir = package_dir/'.git'
-    fail = subprocess.run(['git', '--git-dir', str(git_dir),  '--work-tree', str(package_dir),
-                           'diff-index', '--quiet', '--cached',
-                           'HEAD']).returncode
+    fail = subprocess.run([
+        'git',
+        '--git-dir', str(git_dir),
+        '--work-tree', str(package_dir),
+        'diff-index',
+        '--quiet', '--cached',
+        'HEAD',
+    ]).returncode
     return fail
 
 
@@ -235,9 +231,9 @@ def get_github_token(url):
     try:
         username, token = config["access"][url]
     except KeyError:
-        print("No access for {url} yet.".format(url=url))
-        username = input("User name for {url}: ".format(url=url))
-        token = input("Token for {url} (get one from https://github.com/settings/tokens/new): ".format(url=url))
+        print(f"No access for {url} yet.")
+        username = input(f"User name for {url}: ")
+        token = input(f"Token for {url} (get one from https://github.com/settings/tokens/new): ")
         config["access"][url] = (username, token)
         set_config(config)
     return username, token
@@ -254,5 +250,4 @@ def release_github(repo_url, tag, name, changes):
 
 
 if __name__ == '__main__':
-    # print(changes_from_log(open('CHANGELOG.md').read()))
     main_entry_point()

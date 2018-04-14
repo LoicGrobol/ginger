@@ -18,7 +18,7 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ## Installation
 ### Basic dependencies
 Ginger depends on
-  - [Python](https://www.python.org/): ^3.5
+  - [Python](https://www.python.org/): ^3.6
   - [docopt](http://docopt.org/): ^0.6
 
 If you are using a sensible OS, Python 3 should already be installed, though it might be stuck at an older version (looking at you, Debian).
@@ -97,7 +97,7 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
   - Get help
   ```
   ginger --help
-```
+  ```
 
 ### Input formats
   - `guess` Try to guess the file format, defaults to CoNLL-U
@@ -116,6 +116,7 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
 
 #### Software
 Formats used by mainstream NLP tools
+
   - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
   - `mate_gold` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_gold`)
   - `mate_sys` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_sys`)
@@ -134,6 +135,7 @@ itself, the P- attributes will be dropped.
 
 #### Text-based graphics
 These output formats are meant to be used by third-party tools that generate graphic outputs :
+
   - `ascii` ASCII-art (using Unicode characters, because, yes, we are subversive)
   - `tikz`  TikZ code.
     - Uses the `positioning`, `calc` and `shapes.multipart` libraries. Do not forget to include them in your document.
@@ -155,7 +157,7 @@ This licence (the so-called “MIT License”) applies to all the files in this 
 See also [LICENSE.md](LICENSE.md).
 
 ```
-Copyright 2017 Loïc Grobol <loic.grobol@gmail.com>
+Copyright 2018 Loïc Grobol <loic.grobol@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
