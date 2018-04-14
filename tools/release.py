@@ -75,13 +75,17 @@ def main_entry_point(argv=None):
         package_new_version = Version.from_string(arguments['<version>'])
 
     # Set the version in `__init__.py`
-    with (package_dir/package_data['name']/'__init__.py').open('rw') as init_stream:
+    init_path = package_dir/package_data['name']/'__init__.py'
+    with init_path.open('r') as init_stream:
         init_content = init_stream.read()
-        init_content = re.sub(
-            rf'__version__\s*=\s*{package_current_version}',
-            f'__version__ = {package_new_version}',
-            init_content,
-        )
+
+    init_content = re.sub(
+        rf'__version__\s*=\s*{package_current_version}',
+        f'__version__ = {package_new_version}',
+        init_content,
+    )
+
+    with init_path.open('w') as init_stream:
         init_stream.write(init_content)
 
     # Release in change log
