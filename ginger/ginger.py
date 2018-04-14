@@ -152,7 +152,7 @@ def stream_multi_output(stream: ty.BinaryIO,
         stream.write(file_content)
 
 
-def main_entry_point(argv=sys.argv[1:]):
+def main_entry_point(argv=None):
     arguments = docopt(__doc__, version=__version__, argv=argv)
     # Since there are no support for default positional arguments in
     # docopt yet. Might be useful for complex default values, too
