@@ -81,7 +81,7 @@ def main_entry_point(argv=None):
 
     init_content = re.sub(
         rf"__version__\s*=\s*'{package_current_version}'",
-        f'__version__ = {package_new_version}',
+        f"__version__ = '{package_new_version}'",
         init_content,
     )
 
