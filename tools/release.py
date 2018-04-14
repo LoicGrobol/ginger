@@ -80,7 +80,7 @@ def main_entry_point(argv=None):
         init_content = init_stream.read()
 
     init_content = re.sub(
-        rf'__version__\s*=\s*{package_current_version}',
+        rf"__version__\s*=\s*'{package_current_version}'",
         f'__version__ = {package_new_version}',
         init_content,
     )
@@ -126,7 +126,12 @@ def main_entry_point(argv=None):
     git_dir = package_dir/'.git'
     git_options = ['git', '--git-dir', str(git_dir), '--work-tree', str(package_dir)]
     subprocess.run(
-        [*git_options, 'add', str(package_dir/'setup.cfg'), str(changelog_path)],
+        [
+            *git_options, 'add',
+            str(package_dir/'setup.cfg'),
+            str(changelog_path),
+            str(init_path),
+        ],
         check=True,
     )
     subprocess.run([*git_options, 'commit', '-m', f'Release v{package_new_version}'])
