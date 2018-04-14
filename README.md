@@ -18,7 +18,7 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ## Installation
 ### Installing dependencies
 Ginger depends on
-  - [Python](https://www.python.org/): ^3.5
+  - [Python](https://www.python.org/): ^3.6
   - [docopt](http://docopt.org/): ^0.6
 
 If you are using a sensible OS, Python 3 should already be installed, though it might be stuck at an older version (looking at you, Debian).
