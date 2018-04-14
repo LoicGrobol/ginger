@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [0.13.0] - 2018-04-14
 [0.13.0]:https://github.com/LoicGrobol/ginger/compare/v0.12.0...0.13.0
+
+## [0.13.0] - 2018-04-14
+[0.13.0]:https://github.com/LoicGrobol/ginger/compare/v0.12.0...0.13.0
 ### Added
   - Image format outputs !!!!!!!!!!!!
 
