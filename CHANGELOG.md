@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [0.12.0]:https://github.com/LoicGrobol/ginger/compare/v0.11.0...0.12.0
 
 ## [0.12.0] - 2018-04-14
+[0.12.0]:https://github.com/LoicGrobol/ginger/compare/v0.11.0...0.12.0
+
+## [0.12.0] - 2018-04-14
 [0.12.0]: https://github.com/LoicGrobol/ginger/compare/v0.11.0...0.12.0
 ### Fixed
   - `libginger.Tree.root` is now the actual root of the tree
