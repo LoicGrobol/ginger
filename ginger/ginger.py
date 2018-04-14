@@ -123,16 +123,10 @@ def main_entry_point(argv=None):
         out_lst = [libtreerender.ascii_art(t) for t in treebank]
 
     else:
-        try:
-            _, formatter = libtreebank.formats[arguments['--to']]
-        except KeyError:
-            logging.error('{argsto!r} is not a supported format'.format(
-                argsto=arguments['--to']))
-            return 1
+        _, formatter = libtreebank.formats.get(arguments['--to'], None)
 
         if formatter is None:
-            logging.error('{argsto!r} is not supported as an output format'.format(
-                argsto=arguments['--to']))
+            logging.error(f'{arguments["--to"]!r} is not supported as an output format')
             return 1
 
         out_lst = [formatter(t) for t in treebank]
