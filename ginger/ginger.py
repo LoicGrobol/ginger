@@ -1,52 +1,64 @@
 #! /usr/bin/env python3
-r"""Format conversion and graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
+r"""Format conversion and graphical representation of [Universal Dependencies][6] trees.
 
-Usage:
+## Usage:
   ginger [--from <format>] <origin> [--to <format>] [<destination>]
 
-Arguments:
+## Arguments:
   <origin>       input origin `-` for standard input
   <destination>  output destination, `-` for standard output [default: -]
 
 See below for details on the authorized types of input and output.
 
-Options:
+## Options:
   -f, --from <format>  input format, see below [default: guess]
   -t, --to <format>    output format, see below [default: ascii]
   -h, --help           Show this screen.
 
-Input formats:
+## Input formats:
 The input must be either the path to an existing file or `-` for standard input. The data that
 it contains must be in one of the following formats:
 
   - `guess`           Try to guess the file format, defaults to CoNLL-U
-  - `conllx`          [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
-  - `conllu`          [CoNLL-U format](http://universaldependencies.org/format.html)
-  - `conll2009_gold`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
-                      (Gold columns only)
-  - `conll2009_sys`   [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
-                      (Predicted columns only)
-  - `talismane`       Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
-  - `mate_gold`       Alias for `conll2009_gold`, used by
-                      [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
-  - `mate_sys`        Alias for `conll2009_sys`, used by
-                      [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
+  - `conllx`          [CoNLL-X format][2]
+  - `conllu`          [CoNLL-U format][3]
+  - `conll2009_gold`  [CoNLL-2009 format][4] (Gold columns only)
+  - `conll2009_sys`   [CoNLL-2009 format][4] (Predicted columns only)
+  - `talismane`       Outputs of [Talismane][5]
+  - `mate_gold`       Alias for `conll2009_gold`, used by [mate-tools][1]
+  - `mate_sys`        Alias for `conll2009_sys`, used by [mate-tools][1]
 
-Output formats:
+## Output formats:
 
-  - Text formats: to use these formats, the output destination must be either a file and thus must
-                  not be the path to an existing directory, or `-` for the standard output.
-     - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
-     - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
-  - Image formats: these require the installation of the cairo dependencies. Additionally, the
-                   output destination must be either a directory and thus must not be the path of
-                   an existing file, or `-` for the standard output, in which case the byte streams
-                   corresponding to different trees will be separated by NULL bytes.
+### Text formats
+To use these formats, the output destination must be either a file and thus must not be the path to
+an existing directory, or `-` for the standard output.
+
+  - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
+  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
+
+### Image formats
+These require the installation of the cairo dependencies. Additionally, the output destination must
+be either a directory and thus must not be the path of an existing file, or `-` for the standard
+output, in which case the byte streams corresponding to different trees will be separated by NULL
+bytes.
+These require the installation of the cairo dependencies. Additionally, the output destination must
+be either a directory and thus must not be the path of an existing file, or `-` for the standard
+output, in which case the byte streams corresponding to different trees will be separated by NULL
+bytes.
+
      - `png`
      - `svg`
 
-Example:
+## Example:
   `ginger -f conllu input.conll -t tikz output.tex`
+
+[1]: http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html
+[2]: https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/
+[3]: http://universaldependencies.org/format.html
+[4]: http://ufal.mff.cuni.cz/conll2009-st/task-description.html
+[5]: http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html
+[6]: http://universaldependencies.org
 """
 
 __version__ = 'ginger 0.11.0'
@@ -116,13 +128,14 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
 def directory_multi_output(path: ty.Union[pathlib.Path, str],
                            data: ty.Iterable[ty.Union[str, bytes]],
                            name_format: str = '{i}'):
-    '''Write the elements of `data` to individual files in `path`.
-       The file names will be `n=name_format.format(i=<number>)` where
-       `<number>` is the first integer such that `n` is not an
-       existing file name in `path`.
+    '''
+    Write the elements of `data` to individual files in `path`.
 
-         - `path` **must not** be the path to an existing non-directory
-            file.'''
+    The file names will be `n=name_format.format(i=<number>)` where `<number>` is the first integer
+    such that `n` is not an existing file name in `path`.
+
+      - `path` **must not** be the path to an existing file.
+    '''
     path = pathlib.Path(path)  # Enforce `path`'s type
     if path.exists() and not path.is_dir():
         raise IOError('{path} is an existing non-directory file.'.format(path=path))
@@ -168,7 +181,8 @@ def main_entry_point(argv=None):
     parser, _ = libtreebank.formats.get(arguments['--from'], None)
 
     if parser is None:
-        raise ValueError(f'{arguments["--to"]!r} is not supported as an input format')
+        logging.error(f'{arguments["--to"]!r} is not supported as an input format')
+        return 1
 
     treebank = parser(in_lst)
 
@@ -185,7 +199,7 @@ def main_entry_point(argv=None):
                 stream_multi_output(out_stream, out_bytes_lst)
         else:
             directory_multi_output(arguments['<destination>'], out_bytes_lst,
-                                   name_format='{{i}}.{ext}'.format(ext=arguments['--to']))
+                                   name_format='{{i}}.{ext=arguments["--to"]}')
     # Text outputs
     else:
         # Text-based graphics
@@ -200,7 +214,8 @@ def main_entry_point(argv=None):
             _, formatter = libtreebank.formats.get(arguments['--to'], None)
 
             if formatter is None:
-                raise ValueError(f'{arguments["--to"]!r} is not supported as an output format')
+                logging.error(f'{arguments["--to"]!r} is not supported as an output format')
+                return 1
 
             out_lst = [formatter(t) for t in treebank]
 
