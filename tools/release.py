@@ -244,5 +244,4 @@ def release_github(repo_url, tag, name, changes):
 
 
 if __name__ == '__main__':
-    # print(changes_from_log(open('CHANGELOG.md').read()))
     main_entry_point()
