@@ -196,8 +196,9 @@ def git_dirty(package_dir):
         'git',
         '--git-dir', str(git_dir),
         '--work-tree', str(package_dir),
+        'diff-index',
         '--quiet', '--cached',
-        'diff-index', 'HEAD',
+        'HEAD',
     ]).returncode
     return fail
 
