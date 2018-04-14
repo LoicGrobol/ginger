@@ -1,14 +1,3 @@
-import pathlib
-from sys import path
-
-# Usual frobbing of packages, due to Python's insane importing policy
-if __name__ == "__main__" and __package__ is None:
-    from sys import path
-    ginger_root = pathlib.Path(__file__).resolve().parents[2]
-    path.insert(0, str(ginger_root))
-    import ginger  # noqa
-    __package__ = "ginger.tests"
-
 import pytest
 
 from ginger import libtreebank

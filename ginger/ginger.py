@@ -51,35 +51,34 @@ Example:
 
 __version__ = 'ginger 0.11.0'
 
-import sys
 import contextlib
+import logging
 import pathlib
+
+import signal
+import sys
 
 import itertools as it
 import typing as ty
 
 from docopt import docopt
 
-import signal
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-
-import logging
-logging.basicConfig(level=logging.INFO)
-
-# Usual frobbing of packages, due to Python's insane importing policy
-if __name__ == "__main__" and __package__ is None:
-    from sys import path
-    ginger_root = pathlib.Path(__file__).resolve().parents[1]
-    path.insert(0, str(ginger_root))
-    import ginger  # NOQA
-    __package__ = "ginger"
 
 try:
     from . import libtreebank
     from . import libtreerender
+    from . import __version__
 except ImportError:
+    # Usual frobbing of packages, due to Python's insane importing policy
+    if __name__ == "__main__" and __package__ is None:
+        package_root = pathlib.Path(__file__).resolve().parents[1]
+        sys.path.insert(0, str(package_root))
     from ginger import libtreebank
     from ginger import libtreerender
+    from ginger import __version__
+
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+logging.basicConfig(level=logging.INFO)
 
 
 def sigint_handler(signal, frame):
