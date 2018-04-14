@@ -57,7 +57,7 @@ def main_entry_point(argv=None):
         raise Exception(f'Uncommitted changes in {package_dir}.')
 
     # Get the current version from `setup.cfg`
-    package_data = read_configuration(package_dir)['metadata']
+    package_data = read_configuration(package_dir/'setup.cfg')['metadata']
 
     package_current_version = Version.from_string(package_data['version'])
 
