@@ -89,7 +89,7 @@ def smart_open(filename: str = None, mode: str = 'r', *args, **kwargs):
             pass
 
 
-def main_entry_point(argv=sys.argv[1:]):
+def main_entry_point(argv=None):
     arguments = docopt(__doc__, version=__version__, argv=argv)
     # Since there are no support for default positional arguments in
     # docopt yet. Might be useful for complex default values, too
