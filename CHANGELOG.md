@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.12.0...HEAD
+
+## [0.12.0] - 2018-04-14
+[0]: https://github.com/LoicGrobol/ginger/compare/v0.11.0...0.12.0
 ### Fixed
   - `libginger.Tree.root` is now the actual root of the tree
   - `libginger.UDNode.space_after` is now correctly true if `misc` is empty
