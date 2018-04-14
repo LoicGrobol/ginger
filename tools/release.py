@@ -102,7 +102,8 @@ def main_entry_point(argv=None):
             '## [Unreleased]\n'
             fr'[Unreleased]: \g<url>/compare/v{package_new_version}...HEAD' '\n\n'
             fr'## [{package_new_version}] - {release_date}' '\n'
-            fr'[{0}]: \g<url>/compare/v{package_current_version}...{package_new_version}'
+            f'[{package_new_version}]:'
+            fr'\g<url>/compare/v{package_current_version}...{package_new_version}'
         ),
         changelog_str
     )
