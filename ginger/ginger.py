@@ -165,17 +165,10 @@ def main_entry_point(argv=None):
     if arguments['--from'] == 'guess' or arguments['--from'] is None:
         arguments['--from'] = libtreebank.guess(in_lst)
 
-    try:
-        parser, _ = libtreebank.formats[arguments['--from']]
-    except KeyError:
-        logging.error('{argsfrom!r} is not a supported format'.format(
-            argsfrom=arguments['--from']))
-        return 1
+    parser, _ = libtreebank.formats.get(arguments['--from'], None)
 
     if parser is None:
-        logging.error('{argsfrom!r} is not supported as an input format'.format(
-            argsfrom=arguments['--from']))
-        return 1
+        raise ValueError(f'{arguments["--to"]!r} is not supported as an input format')
 
     treebank = parser(in_lst)
 
@@ -204,22 +197,10 @@ def main_entry_point(argv=None):
 
         # Treebank
         else:
-            try:
-                _, formatter = libtreebank.formats[arguments['--to']]
-            except KeyError:
-                logging.error('{argsto!r} is not a supported format'.format(
-                    argsto=arguments['--to']))
-                sys.exit(1)
+            _, formatter = libtreebank.formats.get(arguments['--to'], None)
 
             if formatter is None:
-                logging.error('{argsto!r} is not supported as an output format'.format(
-                argsto=arguments['--to']))
-            return 1
-
-        if formatter is None:
-            logging.error('{argsto!r} is not supported as an output format'.format(
-                argsto=arguments['--to']))
-            return 1
+                raise ValueError(f'{arguments["--to"]!r} is not supported as an output format')
 
             out_lst = [formatter(t) for t in treebank]
 
