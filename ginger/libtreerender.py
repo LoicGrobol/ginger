@@ -24,11 +24,12 @@ def text(tree: libginger.Tree) -> str:
 
 
 def tikz(tree: libginger.Tree) -> str:
-    '''Return the TikZ code for a representation of a dependency tree.
+    '''
+    Return the TikZ code for a representation of a dependency tree.
 
-       The resulting TikZ code use the `calc`, `positioning` and
-       `shapes.multipart` libraries, make sure to include them
-       with `\\usetikzlibrary`'''
+   The resulting TikZ code use the `calc`, `positioning` and `shapes.multipart` libraries, make sure
+   to include them with `\\usetikzlibrary`
+   '''
 
     # Layout parameters
     token_node_distance = '1em'  # Horizontal distance between the token (word) nodes
@@ -55,13 +56,16 @@ def tikz(tree: libginger.Tree) -> str:
         lemma=tex_escape('_' if first_token.lemma is None else first_token.lemma),
         upostag=tex_escape('_' if first_token.upostag is None else first_token.upostag))]
     # And now the rest
-    token_nodes_lst += [token_node_template.format(
-        token_node_distance=token_node_distance,
-        prev=p.identifier, index=c.identifier,
-        form=tex_escape('_' if c.form is None else c.form),
-        lemma=tex_escape('_' if c.lemma is None else c.lemma),
-        upostag=tex_escape('_' if c.upostag is None else c.upostag))
-                        for p, c in zip(draw_nodes, draw_nodes[1:])]
+    token_nodes_lst += [
+        token_node_template.format(
+            token_node_distance=token_node_distance,
+            prev=p.identifier, index=c.identifier,
+            form=tex_escape('_' if c.form is None else c.form),
+            lemma=tex_escape('_' if c.lemma is None else c.lemma),
+            upostag=tex_escape('_' if c.upostag is None else c.upostag),
+        )
+        for p, c in zip(draw_nodes, draw_nodes[1:])
+    ]
     token_nodes = '\n        '.join(token_nodes_lst)
 
     # Now the relations
@@ -78,40 +82,42 @@ def tikz(tree: libginger.Tree) -> str:
     root_lst = [root_template.format(root_index=n.identifier)
                 for n in draw_nodes if n.head.identifier == 0]
     roots = '\n        '.join(root_lst)
-    res_template = (r'''
-\begin{{tikzpicture}}[>=stealth, token/.style={{text height=1em, rectangle split, rectangle split parts=3}},
-                      dep/.style={{font=\small\itshape, midway, above=-.2em}},
-                      root/.style={{font=\small\itshape, above}}]
-\path[anchor=base]
-    {token_nodes};
-\begin{{scope}}[local bounding box=arcs]
-    {dependencies}
-\end{{scope}}
+    res_template = (fr'''
+\begin{{tikzpicture}}[
+    >=stealth,
+    token/.style={{text height=1em, rectangle split, rectangle split parts=3}},
+     dep/.style={{font=\small\itshape, midway, above=-.2em}},
+     root/.style={{font=\small\itshape, above}},
+]
+    \path[anchor=base]
+        {token_nodes};
+    \begin{{scope}}[local bounding box=arcs]
+        {dependencies}
+    \end{{scope}}
 
-{roots}
+    {roots}
 \end{{tikzpicture}}''')[1:]  # Stupid trick for nice(r) display
-    return res_template.format(token_nodes=token_nodes,
-                               dependencies=dependencies,
-                               roots=roots)
+    return res_template
 
 
 # TODO: This (the code) could probably be prettier
-# TODO: For extra display prettiness, a node should be able to have both a forward and a backward outgoing arrow
-#       at the same level. Same for nodes that have an incoming and an outgoing backward (resp. forward) arrow
-#       (Possibly too tricky to code wrt the benefits)
+# TODO: For extra display prettiness, a node should be able to have both a forward and a backward
+# outgoing arrow at the same level. Same for nodes that have an incoming and an outgoing backward
+# (resp. forward) arrow (Possibly too tricky to code wrt the benefits)
 def ascii_art(tree: libginger.Tree) -> str:
-    '''Return an ASCII-art representation of the dependency tree.
+    '''
+    Return an ASCII-art representation of the dependency tree.
 
-       Only the relations, not the relation types (that would make it prohibitively large).
-      '''
-    res = ['  '.join(t.form for t in tree.nodes)]  # Two space to be able to deal with single-letter tokens
+    Only the relations, not the relation types (that would make it prohibitively large).
+    '''
+    # Two space to be able to deal with single-letter tokens
+    res = ['  '.join(t.form for t in tree.nodes)]
 
-    # The first line above the words is easy: only arrow heads (every word) and butts (for non-leaves)
-    # Arrow heads are over the first character (because every token has at least one)
-    # Arrow butts (if existent) are over the second, or, inthe case of single-letter tokens, over the first
-    # following space.
-    # This part could be integrated with the rest of the code (using `relations`) but let's keep it here
-    # to keep the rest (c)leaner.
+    # The first line above the words is easy: only arrow heads (every word) and butts (for
+    # non-leaves) Arrow heads are over the first character (because every token has at least one)
+    # Arrow butts (if existent) are over the second, or, inthe case of single-letter tokens, over
+    # the first following space. This part could be integrated with the rest of the code (using
+    # `relations`) but let's keep it here to keep the rest (c)leaner.
     arrow_ends = []
     for t in tree.nodes:
         arrow_ends.append('↓')
@@ -125,19 +131,18 @@ def ascii_art(tree: libginger.Tree) -> str:
         arrow_ends.append(' '*len(t.form))
     res.append(''.join(arrow_ends))
 
-    # And now for the real trouble
-    # For future reference : the idea is that we proceed relation by relation, from left to right
-    # starting with those with the sortest distance (number of tokens) between the origin and the
-    # destination.
-    # First get the relations with their real index in this tree instead of the identifier
-    # (which might have an arbitrary start, or worse, be non-connex if this was an extracted subtree)
+    # And now for the real trouble For future reference : the idea is that we proceed relation by
+    # relation, from left to right starting with those with the sortest distance (number of tokens)
+    # between the origin and the destination. First get the relations with their real index in this
+    # tree instead of the identifier (which might have an arbitrary start, or worse, be non-connex
+    # if this was an extracted subtree)
     relations = [(i, tree.nodes.index(n.head)) for i, n in enumerate(tree.nodes)
                  if n.head in tree.nodes]
 
     relations.sort(key=lambda x: (abs(x[0]-x[1]), min(x)))
-    # Then a counter of unfinished incoming arrows. There shouldn't ever be more than one
-    # but it doesn't hurt to allow for more (not necessarily supported in the rest of the code)
-    # Note that roots will always have an unfinished incoming arrow
+    # Then a counter of unfinished incoming arrows. There shouldn't ever be more than one but it
+    # doesn't hurt to allow for more (not necessarily supported in the rest of the code) Note that
+    # roots will always have an unfinished incoming arrow
     in_open = [1]*len(tree.nodes)
     # And a counter of unfinished outgoing arrows
     out_open = [0]*len(tree.nodes)
@@ -241,21 +246,21 @@ def cairo_surf(tree: libginger.Tree,
                node_part_margin: int = None,
                arrow_shift: int = 6,
                energy: float = 0.5) -> 'cairo.RecordingSurface':
-    '''Render a tree in a cairo recording surface.
+    '''
+    Render a tree in a cairo recording surface.
 
-       ## Parameters
-         - `colour`  the colour of the drawing as an RGBA vector in $[0, 1]⁴$
-         - `line_width`  the width of the lines, obviously
-         - `font_size`  the font size used
-         - `token_node_distance`  the horizontal spacing between two nodes
-         - `node_part_margin`  the vertical spacing between node attributes
-                               (default: $⌈`token_node_distance`/3⌉$)
-         - `arrow_shift` the horizontal padding between arrows of opposite
-                         directions
-         - `energy`  the magnitude of the tangent at the origin of an arc
-                     between two nodes is $E×d$ where $E$ is the energy and
-                     $d$ the distance between those nodes. Increase this to
-                     make the arcs go higher.'''
+    ## Parameters
+      - `colour`  the colour of the drawing as an RGBA vector in $[0, 1]⁴$
+      - `line_width`  the width of the lines, obviously
+      - `font_size`  the font size used
+      - `token_node_distance`  the horizontal spacing between two nodes
+      - `node_part_margin`  the vertical spacing between node attributes
+        (default: $⌈`token_node_distance`/3⌉$)
+      - `arrow_shift`  the horizontal padding between arrows of opposite directions
+      - `energy`  the magnitude of the tangent at the origin of an arc etween two nodes is $E×d$
+         where $E$ is the energy and $d$ the distance between those nodes. Increase this to make
+         the arcs go higher.
+    '''
 
     if cairo is None:
         raise NotImplementedError
@@ -267,9 +272,8 @@ def cairo_surf(tree: libginger.Tree,
     context = cairo.Context(res)
     context.set_font_size(font_size)
 
-    # For every token, we need to take account the width of the largest of the stacked
-    # attributes : `form`, `lemma`, `upostag`
-    # This dict associate every node to its Rect
+    # For every token, we need to take account the width of the largest of the stacked attributes :
+    # `form`, `lemma`, `upostag` This dict associate every node to its Rect
     node_rects = {}  # type: ty.Dict[libginger.Node, Rect]
     current_x = 0
     for n in tree.word_sequence:
@@ -310,9 +314,11 @@ def cairo_surf(tree: libginger.Tree,
     for head, foot, tag in deps:
         # Arc
         head_rect, foot_rect = node_rects[head], node_rects[foot]
-        start = Point(head_rect.x + head_rect.w/2 +
-                      (-arrow_shift if foot.identifier < head.identifier else arrow_shift),
-                      head_rect.y)
+        start = Point(
+            head_rect.x + head_rect.w/2
+            + (-arrow_shift if foot.identifier < head.identifier else arrow_shift),
+            head_rect.y
+        )
         end = Point(foot_rect.x + foot_rect.w/2, foot_rect.y-arrowhead_size)
         origin_speed = math.floor(abs(end.x-start.x)*energy)
         control1 = (start.x, start.y-origin_speed)
