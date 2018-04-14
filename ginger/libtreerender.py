@@ -244,9 +244,10 @@ def cairo_surf(tree: libginger.Tree,
                font_size: int = 20,
                token_node_distance: int = 20,
                node_part_margin: int = None,
+               label_shift: int = 5,
                arrow_shift: int = 6,
                energy: float = 0.5) -> 'cairo.RecordingSurface':
-    '''
+    r'''
     Render a tree in a cairo recording surface.
 
     ## Parameters
@@ -255,7 +256,8 @@ def cairo_surf(tree: libginger.Tree,
       - `font_size`  the font size used
       - `token_node_distance`  the horizontal spacing between two nodes
       - `node_part_margin`  the vertical spacing between node attributes
-        (default: $⌈`token_node_distance`/3⌉$)
+        (default: `$⌈\texttt{token\_node\_distance`/3}⌉$`)
+      - `label_shift`  the space between arrow and their labels
       - `arrow_shift`  the horizontal padding between arrows of opposite directions
       - `energy`  the magnitude of the tangent at the origin of an arc etween two nodes is $E×d$
          where $E$ is the energy and $d$ the distance between those nodes. Increase this to make
@@ -325,8 +327,24 @@ def cairo_surf(tree: libginger.Tree,
         control2 = (end.x, end.y-origin_speed)
         context.move_to(*start)
         context.curve_to(*control1, *control2, *end)
+        arrow_extents = context.path_extents()
         context.stroke()
         arrowhead(context, arrowhead_size, end)
+        tag_w = context.text_extents(tag)[2]
+        context.move_to((arrow_extents[0]+arrow_extents[2]-tag_w)/2, arrow_extents[1]-label_shift)
+        context.show_text(tag)
+
+    # Root arrow
+    head_rect = node_rects[next(node for node in tree.word_sequence if node.head is tree.root)]
+    root_x = head_rect.x + head_rect.w/2
+    _, root_y, *_ = res.ink_extents()
+    root_w = context.text_extents('root')[2] - label_shift
+    context.move_to(root_x-root_w/2, root_y)
+    context.show_text('root')
+    context.move_to(root_x, root_y)
+    context.line_to(root_x, head_rect.y)
+    context.stroke()
+    arrowhead(context, arrowhead_size, Point(root_x, head_rect.y))
     return res
 
 
