@@ -31,6 +31,7 @@ If Python 3 is installed, installing ginger through pip (see below) should take 
 You don't actually need to install anything if you satisfy the dependencies above, running `python3 ginger.py` should just work.
 
 However, if you want to have it installed at global level to get the `ginger` command in your path
+
   1. Grab the latest release from [Github](https://github.com/LoicGrobol/ginger/releases/latest)
   2. Unpack it and open a terminal inside the resulting folder
   3. Run `python3 -m pip install .`
@@ -43,22 +44,10 @@ python3 -m pip install git+https://github.com/LoicGrobol/ginger/
 Test if everything works by running `ginger examples/test.conll`.
 The output should be the same as the ASCII-art tree above.
 
-### Cairo and friends
-The direct graphical outputs depend on [cairo](https://www.cairographics.org/), through
-[cairocffi](https://pypi.python.org/pypi/cairocffi) (through
-[cffi](https://pypi.python.org/pypi/cffi)). These are entirely facultative, and you can install them
-the following ways:
-
-  - Check if cairo is installed (e.g. by running `ldconfig -p | grep libcairo`)
-    - If it is not, see [cairo's installation instructions(https://www.cairographics.org/download/))
-  - If you are installing ginger through pip, use `pip3 install .[graphics]`
-    - This might fail because of pip's quirks (as in installing dependencies in a weird order)
-      in that case, try either to install `cffi` manually with pip, or to install `libcffi`
-      (presumably using your distro's package manager)
-  - Else, you can install them yourself using `pip3 install cffi cairocffi`, or using your package
-    management system of choice
-
-Either way, you will also need to install cairo, but, fortunately, .
+### Graphical outputs
+The direct graphical outputs depend on [cairo >= 1.5.10](https://www.cairographics.org/), through
+[pycairo](https://github.com/pygobject/pycairo).
+If your OS does not come with cairo installed, you will have to install it manually, see <https://www.cairographics.org/download/>
 
 ## Usage
 ```bash
@@ -160,6 +149,7 @@ corresponding to different trees will be separated by NULL bytes.
   - `png`
   - `svg`
   - `pdf`
+
 
 [1]: http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html
 [2]: https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/
