@@ -16,13 +16,13 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ```
 
 ## Installation
-### Basic dependencies
+### Dependencies
 Ginger depends on
 
   - [Python](https://www.python.org/): ^3.6
   - [docopt](http://docopt.org/): ^0.6
-  - [pycairo](https://github.com/pygobject/pycairo)
-  - [cairo >= 1.5.10](https://www.cairographics.org/)
+  - [pycairo](https://github.com/pygobject/pycairo): ^1.16
+  - [cairo](https://www.cairographics.org/): >= 1.15.10
 
 If Python 3 is installed, installing ginger through pip (see below) should take care of most dependencies, except for cairo.
 Additionally, libginger and libtreebank have no dependencies beyond Python's standard library and can be used independently.
