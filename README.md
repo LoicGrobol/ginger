@@ -21,11 +21,11 @@ Ginger depends on
 
   - [Python](https://www.python.org/): ^3.6
   - [docopt](http://docopt.org/): ^0.6
+  - [pycairo](https://github.com/pygobject/pycairo)
+  - [cairo >= 1.5.10](https://www.cairographics.org/)
 
-If you are using a sensible OS, Python 3 should already be installed, though it might be stuck at an older version (looking at you, Debian).
-If it is the case : it is a shame, pester your sysadmin until they upgrade.
-
-If Python 3 is installed, installing ginger through pip (see below) should take care of the other dependencies.
+If Python 3 is installed, installing ginger through pip (see below) should take care of most dependencies, except for cairo.
+Additionally, libginger and libtreebank have no dependencies beyond Python's standard library and can be used independently.
 
 ### Installing ginger
 You don't actually need to install anything if you satisfy the dependencies above, running `python3 ginger.py` should just work.
@@ -44,10 +44,6 @@ python3 -m pip install git+https://github.com/LoicGrobol/ginger/
 Test if everything works by running `ginger examples/test.conll`.
 The output should be the same as the ASCII-art tree above.
 
-### Graphical outputs
-The direct graphical outputs depend on [cairo >= 1.5.10](https://www.cairographics.org/), through
-[pycairo](https://github.com/pygobject/pycairo).
-If your OS does not come with cairo installed, you will have to install it manually, see <https://www.cairographics.org/download/>
 
 ## Usage
 ```bash
