@@ -20,11 +20,14 @@ class ParsingError(Exception):
 
 class FieldParsingError(ParsingError):
     '''A parsing error for when a column does not respect a format`'''
-    def __init__(self,
-                 line: int = None,
-                 field: str = None,
-                 form: str = None,
-                 content: str = None):
+
+    def __init__(
+        self,
+        line: int = None,
+        field: str = None,
+        form: str = None,
+        content: str = None
+    ):
         message = ('At line {line},'
                    'the `{field}` field does not respect {form} specifications :'
                    '{content!r}').format(
@@ -93,7 +96,7 @@ def to_conllu(tree: libginger.Tree) -> str:
 
 def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
     """Return a tree (that is a list of `Nodes`) from its
-       [CoNNL-U string representation](http://universaldependencies.org/format.html)."""
+       [CoNLL-U string representation](http://universaldependencies.org/format.html)."""
     root = libginger.Node(identifier=0, form='ROOT')
     res = [root]
     full_nodes = [root]  # Efficient storage of referenceable nodes for faster retrival
@@ -169,8 +172,10 @@ def _conllu_tree(tree_lines_lst: ty.Iterable[str]) -> libginger.Tree:
             node.deps = [(next(n for n in res if n.identifier == head.identifier), dep)
                          for head, dep in node.deps]
 
-    return libginger.Tree(res, **{key: value for key, value in metadata.items()
-                                  if key in ('sent_id', 'text')})
+    return libginger.Tree(
+        res,
+        **{key: value for key, value in metadata.items() if key in ('sent_id', 'text')},
+    )
 
 
 def conllx(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]) -> ty.Iterable[libginger.Tree]:
@@ -240,10 +245,19 @@ def _conllx_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
         (lemma, upostag, xpostag, deprel, pdeprel) = (
             e if e != '_' else None for e in (lemma, upostag, xpostag, deprel, pdeprel))
 
-        res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
-                                  lemma=lemma, upostag=upostag, xpostag=xpostag, feats=feats,
-                                  head=head, deprel=deprel,
-                                  deps=[] if phead is None else [(phead, pdeprel)]))
+        res.append(
+            libginger.Node(
+                identifier=real_identifier,
+                form=tokens[0],
+                lemma=lemma,
+                upostag=upostag,
+                xpostag=xpostag,
+                feats=feats,
+                head=head,
+                deprel=deprel,
+                deps=[] if phead is None else [(phead, pdeprel)],
+            ),
+        )
 
         # Now deal with the other tokens, their head will simply be the first token,
         # with the relation 'fixed'
@@ -329,18 +343,27 @@ def _conll2009_gold_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             e if e != '_' else None for e in
             (lemma, plemma, pos, ppos, deprel, pdeprel, fillpred, *apreds))
         # TODO: update this to use `PlaceholderNode`s
-        res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
-                                  lemma=lemma, upostag=pos, feats=feat,
-                                  head=head, deprel=deprel,
-                                  deps=[],
-                                  misc=dict_to_conll_map(
-                                      {k: v for k, v in (('ppos', ppos),
-                                                         ('phead', phead),
-                                                         ('pdeprel', pdeprel),
-                                                         ('fillpred', fillpred),
-                                                         ('pred', pred),
-                                                         ('apreds', ','.join(apreds)))
-                                       if v and v != '_'})))
+        res.append(
+            libginger.Node(
+                identifier=real_identifier, form=tokens[0],
+                lemma=lemma, upostag=pos, feats=feat,
+                head=head, deprel=deprel,
+                deps=[],
+                misc=dict_to_conll_map(
+                    {
+                        k: v for k, v in (
+                            ('ppos', ppos),
+                            ('phead', phead),
+                            ('pdeprel', pdeprel),
+                            ('fillpred', fillpred),
+                            ('pred', pred),
+                            ('apreds', ','.join(apreds)),
+                        )
+                        if v and v != '_'
+                    }
+                ),
+            ),
+        )
 
         # Now deal with the other tokens, their head will simply be the first token,
         # with the relation 'fixed'
@@ -445,18 +468,27 @@ def _conll2009_sys_tree(tree_lst: ty.Iterable[str]) -> libginger.Tree:
             e if e != '_' else None for e in
             (lemma, plemma, pos, ppos, deprel, pdeprel, fillpred, *apreds))
 
-        res.append(libginger.Node(identifier=real_identifier, form=tokens[0],
-                                  lemma=plemma, upostag=ppos, feats=pfeat,
-                                  head=phead, deprel=pdeprel,
-                                  deps=[],
-                                  misc=dict_to_conll_map(
-                                      {k: v for k, v in (('pos', pos),
-                                                         ('head', head),
-                                                         ('deprel', deprel),
-                                                         ('fillpred', fillpred),
-                                                         ('pred', pred),
-                                                         ('apreds', ','.join(apreds)))
-                                       if v and v != '_'})))
+        res.append(
+            libginger.Node(
+                identifier=real_identifier, form=tokens[0],
+                lemma=plemma, upostag=ppos, feats=pfeat,
+                head=phead, deprel=pdeprel,
+                deps=[],
+                misc=dict_to_conll_map(
+                    {
+                        k: v for k, v in (
+                            ('pos', pos),
+                            ('head', head),
+                            ('deprel', deprel),
+                            ('fillpred', fillpred),
+                            ('pred', pred),
+                            ('apreds', ','.join(apreds)),
+                        )
+                        if v and v != '_'
+                    },
+                ),
+            ),
+        )
 
         # Now deal with the other tokens, their head will simply be the first token,
         # with the relation 'fixed'
@@ -501,8 +533,9 @@ def talismane(treebank_lst: ty.Union[str, ty.TextIO, ty.Iterable[str]]
 def _talismane_tree(tree_str: ty.Iterable[str]) -> libginger.Tree:
     """Create an Universal Dependencies tree from a Talismane tree.
 
-       Talismane outputs are essentially CoNLL-X files, with incompatible
-       stylistic idiosyncrasies."""
+    Talismane outputs are essentially CoNLL-X files, with incompatible
+    stylistic idiosyncrasies.
+    """
     conllx_str = [s.replace('|\t', '\t') for s in tree_str]
     return _conllx_tree(conllx_str)
 
@@ -510,14 +543,16 @@ def _talismane_tree(tree_str: ty.Iterable[str]) -> libginger.Tree:
 # Utilities
 def dict_to_conll_map(d: ty.Dict, *, pair_separator='|', keyval_separator='=') -> str:
     '''Return the CoNLL standard description of a mapping, that is `|`-separated `key=value` pairs.
-       Return `"_"` if `d` is empty.
+    Return `"_"` if `d` is empty.
 
-       Custom separators may be specified.'''
+    Custom separators may be specified.
+    '''
     if not d:
         return '_'
-    return pair_separator.join('{key}{keyval_separator}{val}'.format(
-        key=key, val=val, keyval_separator=keyval_separator)
-                               for key, val in d.items())
+    return pair_separator.join(
+        '{key}{keyval_separator}{val}'.format(key=key, val=val, keyval_separator=keyval_separator)
+        for key, val in d.items()
+    )
 
 
 def conll_map_to_dict(conll_map: str, *, pair_separator='|', keyval_separator='=') -> ty.Dict:
@@ -546,11 +581,15 @@ def _parse_conll_identifier(value: str, line: int, field: str, *,
     if res < 0:
         raise ValueError(
             'At line {line}, the `{field}` field must be a non-negative integer, got {value!r}'.format(
-                line=line, field=field, value=value))
+                line=line, field=field, value=value
+            ),
+        )
     elif non_zero and res == 0:
         raise ValueError(
             'At line {line}, the `{field}` field must be a positive integer, got {value!r}'.format(
-                line=line, field=field, value=value))
+                line=line, field=field, value=value
+            ),
+        )
     return res
 
 
@@ -583,10 +622,12 @@ def guess(treebank: ty.Union[str, ty.TextIO, ty.Iterable[str]]) -> str:
     return "conllu"
 
 
-formats = {'conllx': (conllx, None),
-           'talismane': (talismane, None),
-           'conllu': (conllu, to_conllu),
-           'conll2009_gold': (conll2009_gold, to_conll2009_gold),
-           'conll2009_sys': (conll2009_sys, to_conll2009_sys),
-           'mate_gold': (conll2009_gold, to_conll2009_gold),
-           'mate_sys': (conll2009_sys, to_conll2009_sys)}
+formats = {
+    'conllx': (conllx, None),
+    'talismane': (talismane, None),
+    'conllu': (conllu, to_conllu),
+    'conll2009_gold': (conll2009_gold, to_conll2009_gold),
+    'conll2009_sys': (conll2009_sys, to_conll2009_sys),
+    'mate_gold': (conll2009_gold, to_conll2009_gold),
+    'mate_sys': (conll2009_sys, to_conll2009_sys),
+}
