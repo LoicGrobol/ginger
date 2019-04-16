@@ -16,7 +16,7 @@ except ImportError:
 
 def text(tree: libginger.Tree) -> str:
     """Return the text content of the tree, without any dependency link."""
-    return " ".join(n.form for n in tree.nodes)
+    return " ".join(n.form for n in tree.word_sequence)
 
 
 def tikz(tree: libginger.Tree) -> str:
