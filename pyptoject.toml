@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 88
+skip-string-normalization = true
+exclude = '''
+/(
+    \.git
+  | \.virtenv
+  | \.ropeproject
+  | _build
+  | build
+  | dist
+)/
+'''
