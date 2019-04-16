@@ -6,11 +6,7 @@ import re
 import math
 import io
 
-try:
-    import cairo
-except ImportError:  # don't break if cairo is not available
-    # TODO: Issue a warning here
-    cairo = None
+import cairo
 
 try:
     from . import libginger
