@@ -1,4 +1,5 @@
 r"""A toolkit for [Universal Dependencies](http://universaldependencies.org)."""
+# TODO: refactor the data model
 import typing as ty
 import itertools as it
 
@@ -21,15 +22,15 @@ class Node(UDNode):
     def __init__(
         self,
         identifier: int,
-        form: str = None,
-        lemma: str = None,
-        upostag: str = None,
-        xpostag: str = None,
+        form: ty.Optional[str] = None,
+        lemma: ty.Optional[str] = None,
+        upostag: ty.Optional[str] = None,
+        xpostag: ty.Optional[str] = None,
         feats: ty.Dict[str, str] = None,
-        head: "Node" = None,
-        deprel: str = None,
-        deps: ty.Iterable[ty.Tuple["Node", str]] = None,
-        misc: str = None,
+        head: ty.Optional["Node"] = None,
+        deprel: ty.Optional[str] = None,
+        deps: ty.Iterable[ty.Tuple["Node", ty.Optional[str]]] = None,
+        misc: ty.Optional[str] = None,
     ):
         """See the [CoNLL-U](http://universaldependencies.org/format.html)
            specification for details on the fields.
@@ -143,7 +144,9 @@ class Tree:
            The nodes should respect the constraints 1 through 3 described in
            the docstring of `Tree`."""
         self.all_nodes = list(nodes)
-        self.word_sequence = [n for n in self.all_nodes[1:] if isinstance(n, Node)]
+        self.word_sequence: ty.List[Node] = [
+            n for n in self.all_nodes[1:] if isinstance(n, Node)
+        ]
         self.nodes = self.word_sequence
         self.root = self.all_nodes[0]
         self.sent_id = sent_id
@@ -156,9 +159,9 @@ class Tree:
 
            [1]: http://universaldependencies.org/format.html#words-tokens-and-empty-nodes
            """
-        current_span = None
+        current_span = []
         for node in self.all_nodes[1:]:
-            if current_span and node in current_span:
+            if node in current_span:
                 continue
             elif isinstance(node, MultiTokenNode):
                 current_span = node.span

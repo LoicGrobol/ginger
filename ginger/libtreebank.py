@@ -60,7 +60,7 @@ def trees_from_conll(
         try:
             with open(conll) as conll_stream:
                 lines_lst = conll_stream.readlines()
-        except (FileNotFoundError, TypeError, OSError) as e:
+        except (FileNotFoundError, TypeError, OSError):
             try:
                 lines_lst = conll.splitlines()
             except AttributeError:
