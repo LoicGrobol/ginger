@@ -6,7 +6,10 @@ import re
 import math
 import io
 
-import cairo
+try:
+    import cairo
+except ImportError:
+    cairo = None
 
 try:
     from . import libginger
