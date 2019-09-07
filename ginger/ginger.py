@@ -199,7 +199,7 @@ def main_entry_point(argv=None):
     # Text outputs
     else:
         # Text-based graphics
-        if arguments['--to'] == 'tikz':
+        if arguments['--to']== 'tikz':
             out_lst = [libtreerender.tikz(t) for t in treebank]
 
         elif arguments['--to'] == 'ascii':
