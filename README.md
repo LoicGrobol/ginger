@@ -33,18 +33,19 @@ can be used independently.
 
 ### Installing ginger
 
-You don't actually need to install anything if you satisfy the dependencies above, running `python3
-ginger/main.py` should just work.
+Install from [Pypi](https://pypi.org/manage/project/gingertree)
 
-However, if you want to have it installed at global level to get the `ginger` command in your path
+```console
+python3 -m pip install gingertree
+```
 
-  1. Grab the latest release from [Github](https://github.com/LoicGrobol/ginger/releases/latest)
-  2. Unpack it and open a terminal inside the resulting folder
-  3. Run `python3 -m pip install .`
+(Either with `--user` or in a virtualenv but you knew that already, didn't you?)
+
+It's `gingertree` because `ginger` is being squatted ☹ if you know how to fix that, please let me know.
 
 You can also install it directly from the tip (unstable but usually safe) of the master branch whith
 
-```bash
+```console
 python3 -m pip install git+https://github.com/LoicGrobol/ginger/
 ```
 
@@ -53,7 +54,7 @@ The output should be the same as the ASCII-art tree above.
 
 ## Usage
 
-```bash
+```console
 ginger [--from <format>] <in-file> [--to] [<out-file>]
 ```
 
@@ -72,25 +73,25 @@ ginger [--from <format>] <in-file> [--to] [<out-file>]
 
 - Print to stdout
   
-  ```bash
+  ```console
   ginger examples/test.conll
   ```
 
 - Assume CoNLL-X for input format
   
-  ```bash
+  ```console
   ginger -f conllx spam.conllx
   ```
 
 - Output TikZ code
   
-  ```bash
+  ```console
   ginger examples/test.conll -t tikz
   ```
 
 - Print to a file
 
-  ```bash
+  ```console
   ginger examples/test.conll examples/output.asciiart
   ```
 
