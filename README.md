@@ -23,9 +23,12 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 
 First install [Pycairo's dependencies](https://pycairo.readthedocs.io/en/latest/getting_started.html).
 
-If you can't (for instance [if you use Windows](https://github.com/pygobject/pycairo/issues/19)) or
-don't want to install Pycairo on your system, skip this and omit \[images\] extras in the following
-step.
+If you use Windows, [Pycairo won't install
+automatically](https://github.com/pygobject/pycairo/issues/19) anyway but you can install it
+manually using the wheels from <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pycairo>.
+
+If you can't or don't want to install Pycairo on your system, skip this and omit \[images\] extras
+in the following step.
 
 Install ginger from [Pypi](https://pypi.org/manage/project/gingertree)<a id="footnote-0-1-backref"
 href="#footnote-0-1">¹</a>
