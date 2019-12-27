@@ -25,7 +25,7 @@ First install [Pycairo's dependencies](https://pycairo.readthedocs.io/en/latest/
 
 If you use Windows, [Pycairo won't install
 automatically](https://github.com/pygobject/pycairo/issues/19) anyway but you can install it
-manually using the wheels from <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pycairo>.
+manually from [the unoficial wheels](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pycairo).
 
 If you can't or don't want to install Pycairo on your system, skip this and omit \[images\] extras
 in the following step.
@@ -50,8 +50,8 @@ The output should be the same as the ASCII-art tree above.
 
 ---
 
-<sub><a id="footnote-0-1" href="#footnote-0-1-backref">1.</a> It's `gingertree` because `ginger` is
-being squatted ☹ if you know how to fix that, please let me know.</sub>
+<sub><a href="#footnote-0-1-backref">↑</a><a id="footnote-0-1">1.</a> It's `gingertree` because
+`ginger` is being squatted ☹ if you know how to fix that, please let me know.</sub>
 
 ## Usage
 
