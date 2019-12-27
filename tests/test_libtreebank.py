@@ -1,5 +1,3 @@
-import pytest
-
 from ginger import libtreebank
 
 CONLLU_BASIC_TREE_LINES = [
