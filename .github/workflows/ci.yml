@@ -38,9 +38,15 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install tox dependencies
         run: |
           python -m pip install --upgrade pip wheel setuptools
+      - name: Install pycairo dependencies on ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install libcairo2-dev pkg-config python3-dev
+      - name: Install pycairo dependencies on Mac OS
+        if: matrix.os == 'macos-latest'
+        run: brew install cairo pkg-config
       - name: Test with tox
         run: |
           pip install tox

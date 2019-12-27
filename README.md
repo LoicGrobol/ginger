@@ -21,7 +21,13 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 
 ## Installation
 
-Install from [Pypi](https://pypi.org/manage/project/gingertree)<a id="footnote-0-1-backref"
+First install [Pycairo's dependencies](https://pycairo.readthedocs.io/en/latest/getting_started.html).
+
+If you can't (for instance [if you use Windows](https://github.com/pygobject/pycairo/issues/19)) or
+don't want to install Pycairo on your system, skip this and omit \[images\] extras in the following
+step.
+
+Install ginger from [Pypi](https://pypi.org/manage/project/gingertree)<a id="footnote-0-1-backref"
 href="#footnote-0-1">¹</a>
 
 ```console
@@ -29,9 +35,6 @@ python3 -m pip install gingertree[images]
 ```
 
 (Either with `--user` or in a virtualenv but you knew that already, didn't you?)
-
-If you can't (or don't want to) install [`pycairo`](https://pycairo.readthedocs.io/en/latest/) on
-your system, install it as simply `gingertree`.
 
 You can also install it directly from the tip (unstable but usually safe) of the master branch whith
 
