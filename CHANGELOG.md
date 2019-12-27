@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- Dependency on pycairo are optional again
+- Dependency on pycairo is optional again
 - Usage without installation is not supported anymore
 
 ## [0.13.0] - 2018-04-14
