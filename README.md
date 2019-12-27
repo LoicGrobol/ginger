@@ -5,7 +5,7 @@ Format conversion and graphical representation of [Universal Dependencies](http:
 
 ![2d graphical representation](doc/tree.png)
 
-```
+```text
 │
 │          ┌─────────────┐
 │┌────────┐│             │
@@ -16,19 +16,25 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 ```
 
 ## Installation
+
 ### Dependencies
+
 Ginger depends on
 
-  - [Python](https://www.python.org/): ^3.6
-  - [docopt](http://docopt.org/): ^0.6
-  - [pycairo](https://github.com/pygobject/pycairo): ^1.16
-  - [cairo](https://www.cairographics.org/): >= 1.15.10
+- [Python](https://www.python.org/): ^3.6
+- [docopt](http://docopt.org/): ^0.6
+- [pycairo](https://github.com/pygobject/pycairo): ^1.16
+- [cairo](https://www.cairographics.org/): >= 1.15.10
 
-If Python 3 is installed, installing ginger through pip (see below) should take care of most dependencies, except for cairo.
-Additionally, libginger and libtreebank have no dependencies beyond Python's standard library and can be used independently.
+If Python 3 is installed, installing ginger through pip (see below) should take care of most
+dependencies, except for cairo.
+Additionally, libginger and libtreebank have no dependencies beyond Python's standard library and
+can be used independently.
 
 ### Installing ginger
-You don't actually need to install anything if you satisfy the dependencies above, running `python3 ginger.py` should just work.
+
+You don't actually need to install anything if you satisfy the dependencies above, running `python3
+ginger/main.py` should just work.
 
 However, if you want to have it installed at global level to get the `ginger` command in your path
 
@@ -37,6 +43,7 @@ However, if you want to have it installed at global level to get the `ginger` co
   3. Run `python3 -m pip install .`
 
 You can also install it directly from the tip (unstable but usually safe) of the master branch whith
+
 ```bash
 python3 -m pip install git+https://github.com/LoicGrobol/ginger/
 ```
@@ -44,108 +51,127 @@ python3 -m pip install git+https://github.com/LoicGrobol/ginger/
 Test if everything works by running `ginger examples/test.conll`.
 The output should be the same as the ASCII-art tree above.
 
-
 ## Usage
+
 ```bash
 ginger [--from <format>] <in-file> [--to] [<out-file>]
 ```
 
 ### Arguments
-  - `<in-file>`   input file (in CoNLL-U format), `-` for standard input
-  - `<out-file>`  output file, `-` for standard input (default: `-`)
+
+- `<in-file>`   input file (in CoNLL-U format), `-` for standard input
+- `<out-file>`  output file, `-` for standard input (default: `-`)
 
 ### Options
-  - `-f`, `--from <format>` input file format, see below (default: `guess`)
-  - `-t`, `--to <format>`   output file format, see below (default: `ascii`)
-  - `-h`, `--help` Get some help
+
+- `-f`, `--from <format>` input file format, see below (default: `guess`)
+- `-t`, `--to <format>`   output file format, see below (default: `ascii`)
+- `-h`, `--help` Get some help
 
 ### Examples
-  - Print to stdout
-  ```
+
+- Print to stdout
+  
+  ```bash
   ginger examples/test.conll
   ```
-  - Assume CoNLL-X for input format
-  ```
+
+- Assume CoNLL-X for input format
+  
+  ```bash
   ginger -f conllx spam.conllx
   ```
-  - Output TikZ code
-  ```
+
+- Output TikZ code
+  
+  ```bash
   ginger examples/test.conll -t tikz
   ```
-  - Print to a file
-  ```
+
+- Print to a file
+
+  ```bash
   ginger examples/test.conll examples/output.asciiart
   ```
-  - Pipe in and out
-  ```
+
+- Pipe in and out
+  
+  ```console
   cat examples/test.conll | ginger - | less
   ```
-  - Get help
-  ```
-  ginger --help
-  ```
+
 
 ### Input formats
-  - `guess` Try to guess the file format, defaults to CoNLL-U
+
+- `guess` Try to guess the file format, defaults to CoNLL-U
 
 #### CoNLL
-  - `conllu` [CoNLL-U v2 format](http://universaldependencies.org/format.html)
-  - `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
-  - `conll2009_gold`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
-    - Takes only the gold columns into account.
-    - The P- and -PRED attributes are preserved in the `misc` attribute of the
-      intermediate CoNLL-U tree.
-  - `conll2009_sys`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
-    - Takes only the predicted columns into account.
-    - The gold columns and the -PRED attributes are preserved in the `misc` attribute of the
-      intermediate CoNLL-U tree.
+
+- `conllu` [CoNLL-U v2 format](http://universaldependencies.org/format.html)
+- `conllx` [CoNLL-X format](https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/)
+- `conll2009_gold`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+  - Takes only the gold columns into account.
+  - The P- and -PRED attributes are preserved in the `misc` attribute of the
+    intermediate CoNLL-U tree.
+- `conll2009_sys`  [CoNLL-2009 format](http://ufal.mff.cuni.cz/conll2009-st/task-description.html)
+  - Takes only the predicted columns into account.
+  - The gold columns and the -PRED attributes are preserved in the `misc` attribute of the
+    intermediate CoNLL-U tree.
 
 #### Software
+
 Formats used by mainstream NLP tools
 
-  - `talismane`  Outputs of [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
-  - `mate_gold` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_gold`)
-  - `mate_sys` Input/Output of [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html) (actually an alias for `conll2009_sys`)
+- `talismane`  Outputs of
+  [Talismane](http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html)
+- `mate_gold` Input/Output of
+  [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
+  (actually an alias for `conll2009_gold`)
+- `mate_sys` Input/Output of
+  [mate-tools](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html)
+  (actually an alias for `conll2009_sys`)
 
 ### Output formats
+
 #### Treebanks
+
 The input must be either the path to an existing file or `-` for standard input. The data that
 it contains must be in one of the following formats:
 
-  - `guess`           Try to guess the file format, defaults to CoNLL-U
-  - `conllx`          [CoNLL-X format][2]
-  - `conllu`          [CoNLL-U format][3]
-  - `conll2009_gold`  [CoNLL-2009 format][4] (Gold columns only)
-  - `conll2009_sys`   [CoNLL-2009 format][4] (Predicted columns only)
-  - `talismane`       Outputs of [Talismane][5]
-  - `mate_gold`       Alias for `conll2009_gold`, used by [mate-tools][1]
-  - `mate_sys`        Alias for `conll2009_sys`, used by [mate-tools][1]
+- `guess`           Try to guess the file format, defaults to CoNLL-U
+- `conllx`          [CoNLL-X format][2]
+- `conllu`          [CoNLL-U format][3]
+- `conll2009_gold`  [CoNLL-2009 format][4] (Gold columns only)
+- `conll2009_sys`   [CoNLL-2009 format][4] (Predicted columns only)
+- `talismane`       Outputs of [Talismane][5]
+- `mate_gold`       Alias for `conll2009_gold`, used by [mate-tools][1]
+- `mate_sys`        Alias for `conll2009_sys`, used by [mate-tools][1]
 
-
-Note : no real effort is made to preserve informations that are not relevant to Universal
+**Note**: no real effort is made to preserve informations that are not relevant to Universal
 Dependencies, so this might be information-destructive, e.g. if converting from CoNLL-2009 to
 itself, the P- attributes will be dropped.
 
 #### Text formats
+
 To use these formats, the output destination must be either a file and thus must not be the path to
 an existing directory, or `-` for the standard output.
 
-  - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
-  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
-    - The output is only the `\tikzpicture` part, not a whole compilable document, there is
-    [an example](examples/tree.tex) of such a document in `example`.
-    - The code is quite verbose since we chose to rely on TikZ' own arithmetic capabilities in
-    order to allow easier edition and reuse of the generated code.
+- `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
+- `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
+  - The output is only the `\tikzpicture` part, not a whole compilable document, there is
+  [an example](examples/tree.tex) of such a document in `example`.
+  - The code is quite verbose since we chose to rely on TikZ' own arithmetic capabilities in
+  order to allow easier edition and reuse of the generated code.
 
 ### Image formats
+
 To use these formats, the output destination must be either a directory and thus must not be the
 path of an existing file, or `-` for the standard output, in which case the byte streams
 corresponding to different trees will be separated by NULL bytes.
 
-  - `png`
-  - `svg`
-  - `pdf`
-
+- `png`
+- `svg`
+- `pdf`
 
 [1]: http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html
 [2]: https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/
@@ -155,20 +181,25 @@ corresponding to different trees will be separated by NULL bytes.
 [6]: http://universaldependencies.org
 
 ## Development
+
 Development and releases on [Github](https://github.com/loic-grobol/ginger).
 
 ## Further notes
-  - When importing non-CoNLL-U treebanks, node forms with spaces are considered to be fixed expressions, and are treated according to [UD guidelines](http://universaldependencies.org/u/dep/fixed.html) by splitting them in single-token nodes linked by `fixed` dependencies
-    This mean that the exceptions mentioned in [the UDv2 guidelines](http://universaldependencies.org/v2/segmentation.html) are not supported for those imports.
-    They are supported when importing from CoNLL-U, though.
 
+- When importing non-CoNLL-U treebanks, node forms with spaces are considered to be fixed
+  expressions, and are treated according to the [UD
+  guidelines](http://universaldependencies.org/u/dep/fixed.html) by splitting them in single-token
+  nodes linked by `fixed` dependencies This mean that the exceptions mentioned in [the UDv2
+  guidelines](http://universaldependencies.org/v2/segmentation.html) are not supported for those
+  imports. They are supported when importing from CoNLL-U, though.
 
 ## License
+
 This licence (the so-called “MIT License”) applies to all the files in this repository.
 See also [LICENSE.md](LICENSE.md).
 
-```
-Copyright 2018 Loïc Grobol <loic.grobol@gmail.com>
+```text
+Copyright 2019 Loïc Grobol <loic.grobol@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
