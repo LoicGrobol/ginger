@@ -17,40 +17,31 @@ ROOT  Je  reconnais  l'  existence  du  kiwi  .
 
 ## Installation
 
-### Dependencies
-
-Ginger depends on
-
-- [Python](https://www.python.org/): ^3.6
-- [docopt](http://docopt.org/): ^0.6
-- [pycairo](https://github.com/pygobject/pycairo): ^1.16
-- [cairo](https://www.cairographics.org/): >= 1.15.10
-
-If Python 3 is installed, installing ginger through pip (see below) should take care of most
-dependencies, except for cairo.
-Additionally, libginger and libtreebank have no dependencies beyond Python's standard library and
-can be used independently.
-
-### Installing ginger
-
-Install from [Pypi](https://pypi.org/manage/project/gingertree)
+Install from [Pypi](https://pypi.org/manage/project/gingertree)<a id="footnote-0-1-backref"
+href="#footnote-0-1">¹</a>
 
 ```console
-python3 -m pip install gingertree
+python3 -m pip install gingertree[images]
 ```
 
 (Either with `--user` or in a virtualenv but you knew that already, didn't you?)
 
-It's `gingertree` because `ginger` is being squatted ☹ if you know how to fix that, please let me know.
+If you can't (or don't want to) install [`pycairo`](https://pycairo.readthedocs.io/en/latest/) on
+your system, install it as simply `gingertree`.
 
 You can also install it directly from the tip (unstable but usually safe) of the master branch whith
 
 ```console
-python3 -m pip install git+https://github.com/LoicGrobol/ginger/
+python3 -m pip install git+https://github.com/LoicGrobol/ginger/[images]
 ```
 
 Test if everything works by running `ginger examples/test.conll`.
 The output should be the same as the ASCII-art tree above.
+
+---
+
+<sub><a id="footnote-0-1" href="#footnote-0-1-backref">1.</a> It's `gingertree` because `ginger` is
+being squatted ☹ if you know how to fix that, please let me know.</sub>
 
 ## Usage
 
