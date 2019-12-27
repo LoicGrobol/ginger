@@ -1,6 +1,10 @@
 Ginger
 ======
 
+[![Latest PyPI version](https://img.shields.io/pypi/v/gingertree.svg)](https://pypi.org/project/gingertree)
+[![Build Status](https://github.com/LoicGrobol/ginger/workflows/CI/badge.svg)](https://github.com/LoicGrobol/ginger/actions?query=workflow%3ACI)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Format conversion and graphical representation of [Universal Dependencies](http://universaldependencies.org) trees.
 
 ![2d graphical representation](doc/tree.png)
