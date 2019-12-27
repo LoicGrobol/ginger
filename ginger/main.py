@@ -58,10 +58,8 @@ corresponding to different trees will be separated by NULL bytes.
 """
 
 import contextlib
-import logging
 import pathlib
 
-import signal
 import sys
 
 import itertools as it
@@ -72,17 +70,6 @@ from docopt import docopt
 from ginger import libtreebank
 from ginger import libtreerender
 from ginger import __version__
-
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-logging.basicConfig(level=logging.INFO)
-
-
-def sigint_handler(signal, frame):
-    logging.error("Process interrupted by SIGINT")
-    sys.exit(0)
-
-
-signal.signal(signal.SIGINT, sigint_handler)
 
 
 # Thanks http://stackoverflow.com/a/17603000/760767
@@ -171,7 +158,7 @@ def main_entry_point(argv=None):
     parser, _ = libtreebank.formats.get(arguments["--from"], None)
 
     if parser is None:
-        logging.error(f'{arguments["--to"]!r} is not supported as an input format')
+        print(f'{arguments["--to"]!r} is not supported as an input format')
         return 1
 
     treebank = parser(in_lst)
@@ -207,7 +194,7 @@ def main_entry_point(argv=None):
             _, formatter = libtreebank.formats.get(arguments["--to"], None)
 
             if formatter is None:
-                logging.error(
+                print(
                     f'{arguments["--to"]!r} is not supported as an output format'
                 )
                 return 1
