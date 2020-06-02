@@ -6,9 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to
 [Semantic Versioning](http://semver.org/).
 
-## [Unreleased] (0.14.1)
+## [Unreleased] (0.14.2)
 
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.14.1...HEAD
+
+## [0.14.1] - 2020-06-02
+
+[0.14.1]: https://github.com/LoicGrobol/ginger/compare/v0.14.0...v0.14.1
+
+### Fixed
+
+- Installation on Windows without cairo ([#10](https://github.com/LoicGrobol/ginger/issues/10))
 
 ## [0.14.0] - 2019-12-27
 
