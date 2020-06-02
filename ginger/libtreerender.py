@@ -1,4 +1,5 @@
 """Graphical rendering of `libginger` trees."""
+from __future__ import annotations
 
 import typing as ty
 
@@ -281,7 +282,7 @@ def cairo_surf(
     label_shift: int = 5,
     arrow_shift: int = 6,
     energy: float = 0.5,
-) -> "cairo.RecordingSurface":
+) -> cairo.RecordingSurface:
     r"""
     Render a tree in a cairo recording surface.
 
