@@ -8,7 +8,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.14.1...HEAD
+[Unreleased]: https://github.com/LoicGrobol/ginger/compare/v0.15.0...HEAD
+
+## [0.15.0] - 2022-04-01
+
+[0.15.0]: https://github.com/LoicGrobol/ginger/compare/v0.14.1...v0.15.0
 
 ### Added
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gingertree"
-version = "0.14.1"
+version = "0.15.0"
 description = "Format conversion and graphical representation of [Universal Dependencies](http://universaldependencies.org) trees."
 license = {text = "MIT"}
 authors = [{name = "Loïc Grobol", email = "loic.grobol@gmail.com"}]
