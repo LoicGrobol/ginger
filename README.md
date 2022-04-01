@@ -159,11 +159,12 @@ To use these formats, the output destination must be either a file and thus must
 an existing directory, or `-` for the standard output.
 
 - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
+- `tikz-dependency`   LaTeX code using the `tikz-dependency` package
 - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
-  - The output is only the `\tikzpicture` part, not a whole compilable document, there is
-  [an example](examples/tree.tex) of such a document in `example`.
-  - The code is quite verbose since we chose to rely on TikZ' own arithmetic capabilities in
-  order to allow easier edition and reuse of the generated code.
+  - The output is only the `\tikzpicture` part, not a whole compilable document, there is [an
+  example](examples/tree.tex) of such a document in `example`.
+  - The code is quite verbose since we chose to rely on TikZ' own arithmetic capabilities in order
+  to allow easier edition and reuse of the generated code.
 
 ### Image formats
 
@@ -195,13 +196,13 @@ Development and releases on [Github](https://github.com/loic-grobol/ginger).
   guidelines](http://universaldependencies.org/v2/segmentation.html) are not supported for those
   imports. They are supported when importing from CoNLL-U, though.
 
-## License
+## Licence
 
 This licence (the so-called “MIT License”) applies to all the files in this repository.
 See also [LICENSE.md](LICENSE.md).
 
 ```text
-Copyright 2019 Loïc Grobol <loic.grobol@gmail.com>
+Copyright 2022 Loïc Grobol <loic.grobol@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 associated documentation files (the "Software"), to deal in the Software without restriction,
