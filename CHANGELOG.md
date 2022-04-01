@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Modernized CI and ops infrastructure
 - Modernized packaging
+- Ditch docopt and switch to click
 
 ## [0.14.1] - 2020-06-02
 
