@@ -1,64 +1,3 @@
-#! /usr/bin/env python3
-r"""Format conversion and graphical representation of [Universal Dependencies][6] trees.
-
-## Usage:
-  ginger [--from <format>] <origin> [--to <format>] [<destination>]
-
-## Arguments:
-  <origin>       input origin `-` for standard input
-  <destination>  output destination, `-` for standard output [default: -]
-
-See below for details on the authorized types of input and output.
-
-## Options:
-  -f, --from <format>  input format, see below [default: guess]
-  -t, --to <format>    output format, see below [default: ascii]
-  -h, --help           Show this screen.
-
-## Input formats:
-The input must be either the path to an existing file or `-` for standard input. The data that
-it contains must be in one of the following formats:
-
-  - `guess`           Try to guess the file format, defaults to CoNLL-U
-  - `conllx`          [CoNLL-X format][2]
-  - `conllu`          [CoNLL-U format][3]
-  - `conll2009_gold`  [CoNLL-2009 format][4] (Gold columns only)
-  - `conll2009_sys`   [CoNLL-2009 format][4] (Predicted columns only)
-  - `talismane`       Outputs of [Talismane][5]
-  - `mate_gold`       Alias for `conll2009_gold`, used by [mate-tools][1]
-  - `mate_sys`        Alias for `conll2009_sys`, used by [mate-tools][1]
-
-## Output formats:
-
-### Text formats
-To use these formats, the output destination must be either a file and thus must not be the path to
-an existing directory, or `-` for the standard output.
-
-  - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
-  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
-  - `tikz-dependency`   LaTeX code for the `tikz-dependency` package
-
-### Image formats
-To use these formats, the output destination must be either a directory and thus must not be the
-path of an existing file, or `-` for the standard output, in which case the byte streams
-corresponding to different trees will be separated by NULL bytes.
-
-  - `png`
-  - `svg`
-  - `pdf`
-
-## Example:
-  `ginger -f conllu input.conll -t tikz output.tex`
-
-[1]: http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/matetools.en.html
-[2]: https://web.archive.org/web/20160814191537/http://ilk.uvt.nl:80/conll/
-[3]: http://universaldependencies.org/format.html
-[4]: http://ufal.mff.cuni.cz/conll2009-st/task-description.html
-[5]: http://redac.univ-tlse2.fr/applications/talismane/talismane_en.html
-[6]: http://universaldependencies.org
-"""
-
-import contextlib
 import pathlib
 
 import sys
@@ -66,35 +5,11 @@ import sys
 import itertools as it
 import typing as ty
 
-from docopt import docopt
+import click
 
 from ginger import libtreebank
 from ginger import libtreerender
 from ginger import __version__
-
-
-# Thanks http://stackoverflow.com/a/17603000/760767
-@contextlib.contextmanager
-def smart_open(filename: str = None, mode: str = "r", *args, **kwargs):
-    if filename == "-":
-        if "r" in mode:
-            stream = sys.stdin
-        else:
-            stream = sys.stdout
-        if "b" in mode:
-            fh = stream.buffer
-        else:
-            fh = stream
-    else:
-        fh = open(filename, mode, *args, **kwargs)
-
-    try:
-        yield fh
-    finally:
-        try:
-            fh.close()
-        except AttributeError:
-            pass
 
 
 def directory_multi_output(
@@ -143,65 +58,155 @@ def stream_multi_output(
         stream.write(file_content)
 
 
-def main_entry_point(argv=None):
-    arguments = docopt(__doc__, version=__version__, argv=argv)
-    # Since there are no support for default positional arguments in
-    # docopt yet. Might be useful for complex default values, too
-    if arguments["<destination>"] is None:
-        arguments["<destination>"] = "-"
+epilog = """## Input formats:
+The input must be either the path to an existing file or `-` for standard input. The data that
+it contains must be in one of the following formats:
 
-    with smart_open(arguments["<origin>"], encoding="utf8") as in_stream:
-        in_lst = list(in_stream.readlines())
+  - `guess`           Try to guess the file format, defaults to CoNLL-U
+  - `conllx`          [CoNLL-X format][2]
+  - `conllu`          [CoNLL-U format][3]
+  - `conll2009_gold`  [CoNLL-2009 format][4] (Gold columns only)
+  - `conll2009_sys`   [CoNLL-2009 format][4] (Predicted columns only)
+  - `talismane`       Outputs of [Talismane][5]
+  - `mate_gold`       Alias for `conll2009_gold`, used by [mate-tools][1]
+  - `mate_sys`        Alias for `conll2009_sys`, used by [mate-tools][1]
 
-    if arguments["--from"] == "guess" or arguments["--from"] is None:
-        arguments["--from"] = libtreebank.guess(in_lst)
+## Output formats:
 
-    parser, _ = libtreebank.formats.get(arguments["--from"], None)
+### Text formats
+To use these formats, the output destination must be either a file and thus must not be the path to
+an existing directory, or `-` for the standard output.
+
+  - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
+  - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
+  - `tikz-dependency`   LaTeX code for the `tikz-dependency` package
+
+### Image formats
+To use these formats, the output destination must be either a directory and thus must not be the
+path of an existing file, or `-` for the standard output, in which case the byte streams
+corresponding to different trees will be separated by NULL bytes.
+
+  - `png`
+  - `svg`
+  - `pdf`
+
+## Example:
+  `ginger -f conllu input.conll -t tikz output.tex`"""
+
+
+@click.command(
+    help="Format conversion and graphical representations of Universal Dependencies tree.",
+    epilog=epilog,
+)
+@click.argument(
+    "origin",
+    type=click.File("r"),
+)
+@click.argument(
+    "destination",
+    type=click.Path(writable=True, allow_dash=True),
+    default="-",
+)
+@click.option(
+    "--from",
+    "-f",
+    "origin_format",
+    default="guess",
+    type=click.Choice(
+        [
+            "guess",
+            "conllx",
+            "conllu",
+            "conll2009_gold",
+            "conll2009_sys",
+            "talismane",
+            "mate_gold",
+            "mate_sys",
+        ]
+    ),
+    help="Input format",
+    show_default=True,
+)
+@click.option(
+    "--to",
+    "-t",
+    "destination_format",
+    default="ascii",
+    type=click.Choice(
+        [
+            "ascii",
+            "conllu",
+            "conll2009_gold",
+            "conll2009_sys",
+            "pdf",
+            "png" "mate_gold",
+            "mate_sys",
+            "svg",
+            "tikz",
+            "tikz-dependency",
+        ]
+    ),
+    help="Input format",
+    show_default=True,
+)
+def main_entry_point(
+    origin: ty.TextIO,
+    destination: str,
+    origin_format: str,
+    destination_format: str,
+):
+    in_lst = list(origin.readlines())
+
+    if origin_format == "guess":
+        origin_format = libtreebank.guess(in_lst)
+
+    parser, _ = libtreebank.formats.get(origin_format, (None, None))
 
     if parser is None:
-        print(f'{arguments["--to"]!r} is not supported as an input format')
+        print(f"{destination_format!r} is not supported as an input format")
         return 1
 
     treebank = parser(in_lst)
 
     # Binary outputs
-    if arguments["--to"] in {"png", "svg", "pdf"}:
-        if arguments["--to"] == "png":
+    if destination_format in {"png", "svg", "pdf"}:
+        if destination_format == "png":
             out_bytes_lst = [libtreerender.to_png(t) for t in treebank]
-        if arguments["--to"] == "svg":
+        if destination_format == "svg":
             out_bytes_lst = [libtreerender.to_svg(t) for t in treebank]
-        if arguments["--to"] == "pdf":
+        if destination_format == "pdf":
             out_bytes_lst = [libtreerender.to_pdf(t) for t in treebank]
-        if arguments["<destination>"] == "-":
-            with smart_open(arguments["<destination>"], "wb") as out_stream:
-                stream_multi_output(out_stream, out_bytes_lst)
+
+        if destination == "-":
+            with click.open_file(destination, "wb") as out_stream:
+                stream_multi_output(ty.cast(ty.BinaryIO, out_stream), out_bytes_lst)
         else:
             directory_multi_output(
-                arguments["<destination>"],
+                destination,
                 out_bytes_lst,
-                name_format=f'{{i}}.{arguments["--to"]}',
+                name_format=f"{{i}}.{destination_format}",
             )
     # Text outputs
     else:
         # Text-based graphics
-        if arguments["--to"] == "tikz":
+        if destination_format == "tikz":
             out_lst = [libtreerender.tikz(t) for t in treebank]
-        elif arguments["--to"] == "tikz-dependency":
+        elif destination_format == "tikz-dependency":
             out_lst = [libtreerender.tikz_dependency(t) for t in treebank]
-        elif arguments["--to"] == "ascii":
+        elif destination_format == "ascii":
             out_lst = [libtreerender.ascii_art(t) for t in treebank]
 
         # Treebank
         else:
-            _, formatter = libtreebank.formats.get(arguments["--to"], None)
+            _, formatter = libtreebank.formats.get(destination_format, (None, None))
 
             if formatter is None:
-                print(f'{arguments["--to"]!r} is not supported as an output format')
+                print(f"{destination_format!r} is not supported as an output format")
                 return 1
 
             out_lst = [formatter(t) for t in treebank]
 
-        with smart_open(arguments["<destination>"], "w", encoding="utf8") as out_stream:
+        with click.open_file(destination, "w", encoding="utf8") as out_stream:
             for t in out_lst[:-1]:
                 out_stream.write(t)
                 out_stream.write("\n\n")
