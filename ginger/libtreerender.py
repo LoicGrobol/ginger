@@ -1,6 +1,7 @@
 """Graphical rendering of `libginger` trees."""
 from __future__ import annotations
 
+import textwrap
 import typing as ty
 
 import re
@@ -25,11 +26,11 @@ def text(tree: libginger.Tree) -> str:
 
 def tikz(tree: libginger.Tree) -> str:
     """
-    Return the TikZ code for a representation of a dependency tree.
+     Return the TikZ code for a representation of a dependency tree.
 
-   The resulting TikZ code use the `calc`, `positioning` and `shapes.multipart` libraries, make sure
-   to include them with `\\usetikzlibrary`
-   """
+    The resulting TikZ code use the `calc`, `positioning` and `shapes.multipart` libraries, make sure
+    to include them with `\\usetikzlibrary`
+    """
 
     # Layout parameters
     token_node_distance = "1em"  # Horizontal distance between the token (word) nodes
@@ -97,7 +98,7 @@ def tikz(tree: libginger.Tree) -> str:
     ]
     roots = "\n        ".join(root_lst)
     res_template = (
-        fr'''
+        rf"""
 \begin{{tikzpicture}}[
     >=stealth,
     token/.style={{text height=1em, rectangle split, rectangle split parts=3}},
@@ -111,10 +112,55 @@ def tikz(tree: libginger.Tree) -> str:
     \end{{scope}}
 
     {roots}
-\end{{tikzpicture}}'''
+\end{{tikzpicture}}"""
     )[
         1:
     ]  # Stupid trick for nice(r) display
+    return res_template
+
+
+def tikz_dependency(tree: libginger.Tree) -> str:
+    """
+     Return the TikZ-dependency code for a representation of a dependency tree.
+
+    Make sure to include `\\usepackage{tikz-dependency}` in your preamble
+    """
+
+    dep_template = r"\depedge{{{head}}}{{{foot}}}{{{deprel}}}"
+    root_template = r"\deproot{{{root_index}}}{{root}}"
+    draw_nodes = tree.word_sequence
+    nodes = r" \& ".join([w.form if w.form is not None else "_" for w in draw_nodes])
+
+    # Now the relations
+    relations_lst = [
+        dep_template.format(
+            head=n.head.identifier,
+            foot=n.identifier,
+            deprel=tex_escape(n.deprel),
+        )
+        for n in draw_nodes
+        if n.head.identifier != 0
+    ]
+    dependencies = "\n".join(relations_lst)
+
+    # And finally the roots
+    root_lst = [
+        root_template.format(root_index=n.identifier)
+        for n in draw_nodes
+        if n.head.identifier == 0
+    ]
+    roots = "\n".join(root_lst)
+    res_template = (
+        rf"""
+\begin{{dependency}}[theme=simple]
+    \begin{{deptext}}
+        {nodes}\\
+    \end{{deptext}}
+{textwrap.indent(dependencies, "    ")}
+{textwrap.indent(roots, "    ")}
+\end{{dependency}}
+"""
+    )[1:]
     return res_template
 
 
@@ -175,7 +221,7 @@ def ascii_art(tree: libginger.Tree) -> str:
 
     def fill_until(index, fill_char):
         """Go from `current_token` to `index`, filling blanks with `fill_char` and
-           inserting the appropriate verticals."""
+        inserting the appropriate verticals."""
         for i, t in enumerate(tree.nodes[current_token:index], start=current_token):
             current_line.append("│" if in_open[i] else fill_char)
             current_line.append("│" if out_open[i] else fill_char)

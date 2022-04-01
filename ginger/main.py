@@ -36,6 +36,7 @@ an existing directory, or `-` for the standard output.
 
   - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
   - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
+  - `tikz-dependency`   LaTeX code for the `tikz-dependency` package
 
 ### Image formats
 To use these formats, the output destination must be either a directory and thus must not be the
@@ -185,7 +186,8 @@ def main_entry_point(argv=None):
         # Text-based graphics
         if arguments["--to"] == "tikz":
             out_lst = [libtreerender.tikz(t) for t in treebank]
-
+        elif arguments["--to"] == "tikz-dependency":
+            out_lst = [libtreerender.tikz_dependency(t) for t in treebank]
         elif arguments["--to"] == "ascii":
             out_lst = [libtreerender.ascii_art(t) for t in treebank]
 
@@ -194,9 +196,7 @@ def main_entry_point(argv=None):
             _, formatter = libtreebank.formats.get(arguments["--to"], None)
 
             if formatter is None:
-                print(
-                    f'{arguments["--to"]!r} is not supported as an output format'
-                )
+                print(f'{arguments["--to"]!r} is not supported as an output format')
                 return 1
 
             out_lst = [formatter(t) for t in treebank]
