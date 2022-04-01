@@ -62,35 +62,41 @@ epilog = """## Input formats:
 The input must be either the path to an existing file or `-` for standard input. The data that
 it contains must be in one of the following formats:
 
+\b
   - `guess`           Try to guess the file format, defaults to CoNLL-U
-  - `conllx`          [CoNLL-X format][2]
-  - `conllu`          [CoNLL-U format][3]
-  - `conll2009_gold`  [CoNLL-2009 format][4] (Gold columns only)
-  - `conll2009_sys`   [CoNLL-2009 format][4] (Predicted columns only)
-  - `talismane`       Outputs of [Talismane][5]
-  - `mate_gold`       Alias for `conll2009_gold`, used by [mate-tools][1]
-  - `mate_sys`        Alias for `conll2009_sys`, used by [mate-tools][1]
+  - `conllu`          CoNLL-U format
+  - `conllx`          CoNLL-X format
+  - `conll2009_gold`  CoNLL-2009 format (Gold columns only)
+  - `conll2009_sys`   CoNLL-2009 format (Predicted columns only)
+  - `talismane`       Outputs of Talismane
+  - `mate_gold`       Alias for `conll2009_gold`, used by mate-tools
+  - `mate_sys`        Alias for `conll2009_sys`, used by mate-tools
 
-## Output formats:
+## Output formats
 
 ### Text formats
+
 To use these formats, the output destination must be either a file and thus must not be the path to
 an existing directory, or `-` for the standard output.
 
+\b
   - `ascii`  ASCII-art (using unicode characters, because, yes, we are subversive)
   - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
   - `tikz-dependency`   LaTeX code for the `tikz-dependency` package
 
 ### Image formats
+
 To use these formats, the output destination must be either a directory and thus must not be the
 path of an existing file, or `-` for the standard output, in which case the byte streams
 corresponding to different trees will be separated by NULL bytes.
 
+\b
   - `png`
   - `svg`
   - `pdf`
 
-## Example:
+## Example
+
   `ginger -f conllu input.conll -t tikz output.tex`"""
 
 
@@ -115,13 +121,7 @@ corresponding to different trees will be separated by NULL bytes.
     type=click.Choice(
         [
             "guess",
-            "conllx",
-            "conllu",
-            "conll2009_gold",
-            "conll2009_sys",
-            "talismane",
-            "mate_gold",
-            "mate_sys",
+            *sorted([f for f, (i, _) in libtreebank.formats.items() if i is not None]),
         ]
     ),
     help="Input format",
@@ -133,19 +133,13 @@ corresponding to different trees will be separated by NULL bytes.
     "destination_format",
     default="ascii",
     type=click.Choice(
-        [
-            "ascii",
-            "conllu",
-            "conll2009_gold",
-            "conll2009_sys",
-            "mate_gold",
-            "mate_sys",
-            "pdf",
-            "png",
-            "svg",
-            "tikz",
-            "tikz-dependency",
-        ]
+        sorted(
+            [
+                *("ascii", "tikz", "tikz-dependency"),
+                *("png", "svg", "pdf"),
+                *(f for f, (_, o) in libtreebank.formats.items() if o is not None),
+            ]
+        )
     ),
     help="Input format",
     show_default=True,
