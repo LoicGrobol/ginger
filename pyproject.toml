@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,7 +14,7 @@ keywords = [
     "universal dependencies",
 ]
 urls = {Homepage = "https://github.com/LoicGrobol/ginger"}
-requires-python = ">= 3.7"
+requires-python = ">= 3.8"
 dependencies = ["docopt-ng >= 0.6"]
 
 [project.readme]
@@ -27,4 +27,6 @@ images = ["pycairo >= 1.15.10"]
 [project.scripts]
 ginger = "ginger.main:main_entry_point"
 
+[tool.setuptools]
+packages = ["ginger"]
 
