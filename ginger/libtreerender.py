@@ -168,6 +168,8 @@ def tikz_dependency(tree: libginger.Tree) -> str:
 # TODO: For extra display prettiness, a node should be able to have both a forward and a backward
 # outgoing arrow at the same level. Same for nodes that have an incoming and an outgoing backward
 # (resp. forward) arrow (Possibly too tricky to code wrt the benefits)
+# TODO: center arrows
+# TODO: rework this by pre-planning arrows before drawing with conflict resolution
 def ascii_art(tree: libginger.Tree) -> str:
     """
     Return an ASCII-art representation of the dependency tree.
@@ -179,7 +181,7 @@ def ascii_art(tree: libginger.Tree) -> str:
 
     # The first line above the words is easy: only arrow heads (every word) and butts (for
     # non-leaves) Arrow heads are over the first character (because every token has at least one)
-    # Arrow butts (if existent) are over the second, or, inthe case of single-letter tokens, over
+    # Arrow butts (if existent) are over the second, or, in the case of single-letter tokens, over
     # the first following space. This part could be integrated with the rest of the code (using
     # `relations`) but let's keep it here to keep the rest (c)leaner.
     arrow_ends = []
@@ -229,6 +231,7 @@ def ascii_art(tree: libginger.Tree) -> str:
 
     while relations:
         # Get the next non-crossing relation on this line
+        # FIXME: this is too strict
         index, current_relation = next(
             ((i, r) for i, r in enumerate(relations) if min(r) >= current_token),
             (None, None),

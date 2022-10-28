@@ -58,7 +58,8 @@ def stream_multi_output(
         stream.write(file_content)
 
 
-epilog = """## Input formats:
+epilog = """Input formats:
+
 The input must be either the path to an existing file or `-` for standard input. The data that
 it contains must be in one of the following formats:
 
@@ -72,9 +73,7 @@ it contains must be in one of the following formats:
   - `mate_gold`       Alias for `conll2009_gold`, used by mate-tools
   - `mate_sys`        Alias for `conll2009_sys`, used by mate-tools
 
-## Output formats
-
-### Text formats
+Text formats:
 
 To use these formats, the output destination must be either a file and thus must not be the path to
 an existing directory, or `-` for the standard output.
@@ -84,7 +83,7 @@ an existing directory, or `-` for the standard output.
   - `tikz`   TikZ code. Use the `positioning`, `calc` and `shapes.multipart` tikz libraries
   - `tikz-dependency`   LaTeX code for the `tikz-dependency` package
 
-### Image formats
+Image formats:
 
 To use these formats, the output destination must be either a directory and thus must not be the
 path of an existing file, or `-` for the standard output, in which case the byte streams
@@ -95,7 +94,7 @@ corresponding to different trees will be separated by NULL bytes.
   - `svg`
   - `pdf`
 
-## Example
+Example:
 
   `ginger -f conllu input.conll -t tikz output.tex`"""
 
